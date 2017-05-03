@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="python-app-starters-common" />
+        <module name="python-app-starters-test-support" />
+        <module name="spring-cloud-starter-stream-common-shell" />
+        <module name="spring-cloud-starter-stream-processor-python-http" />
+        <module name="spring-cloud-starter-stream-processor-python-local" />
+        <module name="spring-cloud-starter-stream-sink-python-http" />
+        <module name="spring-cloud-starter-stream-sink-python-local" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="git-resource-repository" target="1.7" />
+      <module name="python-app-dependencies" target="1.5" />
+      <module name="python-app-starters-build" target="1.7" />
+      <module name="python-app-starters-common" target="1.7" />
+      <module name="python-app-starters-test-support" target="1.7" />
+      <module name="spring-cloud-starter-stream-common-shell" target="1.7" />
+      <module name="spring-cloud-starter-stream-processor-python-http" target="1.7" />
+      <module name="spring-cloud-starter-stream-processor-python-local" target="1.7" />
+      <module name="spring-cloud-starter-stream-sink-python-http" target="1.7" />
+      <module name="spring-cloud-starter-stream-sink-python-local" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

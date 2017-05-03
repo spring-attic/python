@@ -1,0 +1,1 @@
+springcloudstream>=1.0

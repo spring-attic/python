@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.springframework.cloud.stream.app</groupId>
+	<artifactId>python-app-dependencies</artifactId>
+	<version>1.2.1.BUILD-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>python-app-dependencies</name>
+	<description>Spring Cloud Stream Python App Dependencies</description>
+
+	<parent>
+		<artifactId>spring-cloud-dependencies-parent</artifactId>
+		<groupId>org.springframework.cloud</groupId>
+		<version>1.2.1.RELEASE</version>
+		<relativePath/>
+	</parent>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud.stream.app</groupId>
+				<artifactId>spring-cloud-starter-stream-processor-python-local</artifactId>
+				<version>1.2.1.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud.stream.app</groupId>
+				<artifactId>spring-cloud-starter-stream-processor-python-http</artifactId>
+				<version>1.2.1.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud.stream.app</groupId>
+				<artifactId>spring-cloud-starter-stream-sink-python-local</artifactId>
+				<version>1.2.1.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud.stream.app</groupId>
+				<artifactId>spring-cloud-starter-stream-sink-python-http</artifactId>
+				<version>1.2.1.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud.stream.app</groupId>
+				<artifactId>python-app-starters-common</artifactId>
+				<version>1.2.1.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud.stream.app</groupId>
+				<artifactId>spring-cloud-starter-stream-common-shell</artifactId>
+				<version>1.2.1.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud.stream.app</groupId>
+				<artifactId>python-app-starters-test-support</artifactId>
+				<version>1.2.1.BUILD-SNAPSHOT</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+</project>
