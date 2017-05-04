@@ -14,20 +14,21 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.test.python;
+package org.springframework.cloud.stream.app.common.resource.repository.config;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * @author David Turanski
  **/
-public class PythonAvailableRulesTests {
-
-	@Test
-	@Ignore
-	public void springCloudStreamPythonAvailableRule() throws Exception {
-		SpringCloudStreamPythonAvailableRule rule = new SpringCloudStreamPythonAvailableRule();
-		rule.obtainResource();
+@Configuration
+@ConditionalOnProperty("git.uri")
+public class GitResourceRepositoryConfiguration {
+	@Bean
+	public JGitResourceRepository gitResourceRepository() {
+		return new JGitResourceRepository();
 	}
 }

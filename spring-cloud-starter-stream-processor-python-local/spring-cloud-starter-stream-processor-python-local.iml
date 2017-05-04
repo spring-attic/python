@@ -25,10 +25,7 @@
     <orderEntry type="library" name="Maven: org.springframework.integration:spring-integration-ip:4.3.8.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.integration:spring-integration-scripting:4.3.8.RELEASE" level="project" />
     <orderEntry type="module" module-name="spring-cloud-starter-stream-common-shell" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:2.5" level="project" />
-    <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
-    <orderEntry type="library" name="Maven: org.python:jython-standalone:2.7.1b3" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.cloud:spring-cloud-config-server:1.3.0.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.cloud:spring-cloud-config-server:1.3.1.BUILD-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-crypto:4.2.2.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-rsa:1.0.3.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.55" level="project" />
@@ -39,6 +36,9 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.6" level="project" />
     <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.17" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
+    <orderEntry type="library" name="Maven: org.python:jython-standalone:2.7.1b3" level="project" />
     <orderEntry type="module" module-name="python-app-starters-test-support" />
     <orderEntry type="library" name="Maven: org.springframework.cloud.stream.app:app-starters-test-support:1.2.1.BUILD-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.cloud:spring-cloud-stream:1.2.1.RELEASE" level="project" />

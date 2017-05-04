@@ -14,20 +14,15 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.test.python;
+package org.springframework.cloud.stream.app.python.wrapper;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.stream.app.python.script.ScriptProperties;
 /**
+ * Configuration properties for the Jython wrapper.
+ *
  * @author David Turanski
  **/
-public class PythonAvailableRulesTests {
-
-	@Test
-	@Ignore
-	public void springCloudStreamPythonAvailableRule() throws Exception {
-		SpringCloudStreamPythonAvailableRule rule = new SpringCloudStreamPythonAvailableRule();
-		rule.obtainResource();
-	}
+@ConfigurationProperties(prefix="wrapper")
+public class JythonWrapperProperties extends ScriptProperties {
 }

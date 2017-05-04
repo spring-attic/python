@@ -14,20 +14,31 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.test.python;
+package org.springframework.cloud.stream.app.python.shell;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.springframework.core.io.Resource;
 
 /**
+ * Strategy interface for Python App Deployment.
+ *
  * @author David Turanski
  **/
-public class PythonAvailableRulesTests {
+public interface PythonAppDeployer {
+	/**
+	 *
+	 * @return the directory where the Python app files have been installed.
+	 */
+	Resource getAppDir();
 
-	@Test
-	@Ignore
-	public void springCloudStreamPythonAvailableRule() throws Exception {
-		SpringCloudStreamPythonAvailableRule rule = new SpringCloudStreamPythonAvailableRule();
-		rule.obtainResource();
-	}
+	/**
+	 *
+	 * @return full path of the directory where the Python app files have been installed.
+	 */
+	String getAppDirPath();
+
+	/**
+	 *
+	 * Deploy the Python app, copying whatever source files to a directory on the local file system.
+	 */
+	void deploy();
 }

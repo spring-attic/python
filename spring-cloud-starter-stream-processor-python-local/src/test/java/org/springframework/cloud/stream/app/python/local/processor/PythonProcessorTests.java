@@ -62,7 +62,9 @@ public abstract class PythonProcessorTests {
 	@Autowired
 	ObjectMapper objectMapper;
 
-	@TestPropertySource(properties = { "python.script=processor_example.py" })
+	@TestPropertySource(properties = {
+			"python.baseDir=python",
+			"python.script=processor_example.py" })
 	public static class TestSimple extends PythonProcessorTests {
 		@Test
 		public void test() {
@@ -73,7 +75,10 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-	@TestPropertySource(properties = { "python.script=pickle_page_example.py", "python.encoder=BINARY",
+	@TestPropertySource(properties = {
+			"python.baseDir=python",
+			"python.script=pickle_page_example.py",
+			"python.encoder=BINARY",
 			"wrapper.script=wrapper/page_wrapper.py" })
 	public static class TestPicklePage extends PythonProcessorTests {
 		@Test

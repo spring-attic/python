@@ -1,17 +1,17 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2017 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
  */
 package org.springframework.cloud.stream.app.common.resource.repository;
 
@@ -42,6 +42,7 @@ import org.eclipse.jgit.transport.TagOpt;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FileUtils;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.config.server.support.PassphraseCredentialsProvider;
 import org.springframework.core.io.UrlResource;
 import org.springframework.util.Assert;
@@ -67,6 +68,7 @@ import static org.springframework.util.StringUtils.hasText;
  * @author Ryan Lynch
  * @author David Turanski
  */
+@ConfigurationProperties("git")
 public class JGitResourceRepository implements InitializingBean {
 
 	private static final String FILE_URI_PREFIX = "file:";
@@ -97,7 +99,7 @@ public class JGitResourceRepository implements InitializingBean {
 
 	private boolean initialized;
 
-	private String defaultLabel = DEFAULT_LABEL;
+	private String label = DEFAULT_LABEL;
 
 	/**
 	 * Flag to indicate that the repository should be cloned on startup (not on demand).
@@ -124,10 +126,6 @@ public class JGitResourceRepository implements InitializingBean {
 
 	public void setCloneOnStart(boolean cloneOnStart) {
 		this.cloneOnStart = cloneOnStart;
-	}
-
-	public int getTimeout() {
-		return this.timeout;
 	}
 
 	public void setTimeout(int timeout) {
@@ -159,56 +157,32 @@ public class JGitResourceRepository implements InitializingBean {
 		this.uri = uri;
 	}
 
-	public String getPrefix() {
-		return prefix;
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
 	}
 
-	public String getUsername() {
-		return this.username;
-	}
-
 	public void setUsername(String username) {
 		this.username = username;
-	}
-
-	public String getPassword() {
-		return this.password;
 	}
 
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
-	public String getPassphrase() {
-		return this.passphrase;
-	}
-
 	public void setPassphrase(String passphrase) {
 		this.passphrase = passphrase;
-	}
-
-	public boolean isStrictHostKeyChecking() {
-		return this.strictHostKeyChecking;
 	}
 
 	public void setStrictHostKeyChecking(boolean strictHostKeyChecking) {
 		this.strictHostKeyChecking = strictHostKeyChecking;
 	}
 
-	public JGitFactory getGitFactory() {
-		return this.gitFactory;
-	}
-
 	public void setGitFactory(JGitFactory gitFactory) {
 		this.gitFactory = gitFactory;
-	}
-
-	public boolean isForcePull() {
-		return forcePull;
 	}
 
 	public void setForcePull(boolean forcePull) {
@@ -285,6 +259,14 @@ public class JGitResourceRepository implements InitializingBean {
 				this.logger.warn("Could not close git repository", e);
 			}
 		}
+	}
+
+	public void refresh() {
+		refresh(this.label);
+	}
+
+	protected boolean isStrictHostKeyChecking() {
+		return strictHostKeyChecking;
 	}
 
 	/**
@@ -504,7 +486,7 @@ public class JGitResourceRepository implements InitializingBean {
 			SshSessionFactory.setInstance(new JschConfigSessionFactory() {
 				@Override
 				protected void configure(Host hc, Session session) {
-					session.setConfig("StrictHostKeyChecking", isStrictHostKeyChecking() ? "yes" : "no");
+					session.setConfig("StrictHostKeyChecking", strictHostKeyChecking ? "yes" : "no");
 				}
 			});
 			this.initialized = true;
@@ -539,11 +521,11 @@ public class JGitResourceRepository implements InitializingBean {
 		if (gitCredentialsProvider != null) {
 			cmd.setCredentialsProvider(gitCredentialsProvider);
 		}
-		else if (hasText(getUsername())) {
-			cmd.setCredentialsProvider(new UsernamePasswordCredentialsProvider(getUsername(), getPassword()));
+		else if (hasText(username)) {
+			cmd.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
 		}
-		else if (hasText(getPassphrase())) {
-			cmd.setCredentialsProvider(new PassphraseCredentialsProvider(getPassphrase()));
+		else if (hasText(passphrase)) {
+			cmd.setCredentialsProvider(new PassphraseCredentialsProvider(passphrase));
 		}
 	}
 

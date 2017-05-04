@@ -19,6 +19,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Python 2.7.11 virtualenv at ~/python2 interpreter library" level="application" />
     <orderEntry type="library" name="Maven: org.springframework.integration:spring-integration-ip:4.3.8.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.integration:spring-integration-core:4.3.8.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:4.3.7.RELEASE" level="project" />
@@ -111,6 +112,5 @@
     <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.16.14" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.cloud:spring-cloud-spring-service-connector:1.2.3.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: io.pivotal.spring.cloud:cloudfoundry-certificate-truster:1.0.1.RELEASE" level="project" />
-    <orderEntry type="library" name="Python 2.7.11 virtualenv at ~/python2 interpreter library" level="application" />
   </component>
 </module>

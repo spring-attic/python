@@ -16,46 +16,32 @@
 
 package org.springframework.cloud.stream.app.python.local.processor;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.app.python.ClassPathPythonAppDeployer;
-import org.springframework.cloud.stream.app.python.JythonWrapper;
-import org.springframework.cloud.stream.app.python.PythonAppDeployer;
-
-import org.springframework.cloud.stream.app.python.properties.PythonWrapperProperties;
-
+import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
+import org.springframework.cloud.stream.app.python.shell.PythonAppDeployerConfiguration;
+import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProcessorConfiguration;
+import org.springframework.cloud.stream.app.python.wrapper.JythonWrapper;
+import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.Resource;
+import org.springframework.context.annotation.Import;
 import org.springframework.integration.annotation.Transformer;
-import org.springframework.integration.ip.tcp.serializer.AbstractByteArraySerializer;
-import org.springframework.integration.ip.tcp.serializer.ByteArrayCrLfSerializer;
-import org.springframework.integration.ip.tcp.serializer.ByteArrayLfSerializer;
-import org.springframework.integration.ip.tcp.serializer.ByteArraySingleTerminatorSerializer;
-import org.springframework.messaging.handler.annotation.Headers;
-import org.springframework.messaging.handler.annotation.Payload;
-
-import java.io.File;
-import java.util.Map;
+import org.springframework.messaging.Message;
 
 /**
- * A Processor that forks a Python process, sending and receiving messages via TCP.
+ * A Processor that forks a shell to run a Python app configured as processor, sending and receiving messages via
+ * stdin/stdout. Optionally this may use a Jython wrapper script to transform data to and from the remote app. If no
+ * wrapper is configured, the payload must be String.
  *
  * @author David Turanski
  **/
 @EnableBinding(Processor.class)
-@EnableConfigurationProperties({ PythonProcessorProperties.class, PythonWrapperProperties.class })
+@Import({ PythonShellCommandProcessorConfiguration.class, JythonWrapperConfiguration.class,
+		PythonAppDeployerConfiguration.class})
+
 public class PythonProcessorConfiguration implements InitializingBean {
-
-	@Autowired
-	private PythonProcessorProperties properties;
-
-	@Autowired
-	private PythonWrapperProperties wrapperProperties;
 
 	@Autowired
 	private PythonAppDeployer pythonAppDeployer;
@@ -66,53 +52,6 @@ public class PythonProcessorConfiguration implements InitializingBean {
 	@Autowired(required = false)
 	private JythonWrapper jythonWrapper;
 
-	@Bean
-	public AbstractByteArraySerializer serializer() {
-		final byte BINARY_ENCODER_X1A = (byte) 26;
-		AbstractByteArraySerializer serializer = null;
-		switch (properties.getEncoder()) {
-		case LF:
-			serializer = new ByteArrayLfSerializer();
-			break;
-		case CRLF:
-			serializer = new ByteArrayCrLfSerializer();
-			break;
-		case BINARY:
-			serializer = new ByteArraySingleTerminatorSerializer(BINARY_ENCODER_X1A);
-			break;
-		}
-		return serializer;
-	}
-
-	@Bean
-	public ShellCommandProcessor shellCommandProcessor(AbstractByteArraySerializer serializer,
-			PythonAppDeployer pythonAppDeployer) {
-		Resource script = properties.getScriptResource();
-		String filePath = StringUtils
-				.join(new String[] { pythonAppDeployer.getTargetDir(), script.getFilename() }, File.separator);
-		String command = StringUtils
-				.join(new String[] { properties.getCommandName(), properties.getArgs(), filePath }, " ");
-
-		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer(), command);
-		shellCommandProcessor.setAutoStart(false);
-		return shellCommandProcessor;
-	}
-
-	@Bean
-	public PythonAppDeployer pythonAppDeployer() {
-		ClassPathPythonAppDeployer pythonAppDeployer = new ClassPathPythonAppDeployer();
-		pythonAppDeployer.setSourceDir(properties.getRootPath().getFilename());
-		pythonAppDeployer.setPipCommandName(properties.getPipCommandName());
-		return pythonAppDeployer;
-	}
-
-	@Bean
-	public JythonWrapper jythonWrapper(ShellCommandProcessor shellCommandProcessor) {
-		return (wrapperProperties.getScript() == null) ?
-				null :
-				new JythonWrapper(wrapperProperties.getScriptResource(), shellCommandProcessor);
-	}
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		pythonAppDeployer.deploy();
@@ -121,16 +60,17 @@ public class PythonProcessorConfiguration implements InitializingBean {
 
 	//TODO Support other payload types beside String
 	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-	public Object process(@Headers Map<String, Object> headers, @Payload Object payload) {
+	public Object process(Message<?> message) {
 		if (jythonWrapper != null) {
-			return jythonWrapper.sendAndRecieve(payload);
+			return jythonWrapper.execute(message);
 		}
 		else {
-			if (payload instanceof String) {
-				return shellCommandProcessor.sendAndReceive((String) payload);
+			if (message.getPayload() instanceof String) {
+				return shellCommandProcessor.sendAndReceive((String) message.getPayload());
 			}
 			else {
-				throw new IllegalArgumentException("Only String payloads are supported with no wrapper configured");
+				throw new IllegalArgumentException(
+						"Only String payloads are supported with no Jython wrapper " + "configured");
 			}
 		}
 	}
