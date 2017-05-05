@@ -20,10 +20,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.cloud.config.server.support.AbstractScmAccessor;
 import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
 import java.io.File;
@@ -39,59 +37,39 @@ import java.nio.file.Files;
 public abstract class AbstractPythonAppDeployer implements PythonAppDeployer {
 	protected Log log = LogFactory.getLog(ClassPathPythonAppDeployer.class);
 
-	private Resource appDir;
+	private FileSystemResource appDir;
 	private String pipCommandName = "pip";
 
-	@Override
-	public Resource getAppDir() {
-		return this.appDir;
-	}
-
 	protected AbstractPythonAppDeployer() {
-		File tempDirectory = null;
-		try {
-			tempDirectory = Files.createTempDirectory("python").toFile();
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				@Override
-				public void run() {
-					try {
-						FileUtils.cleanDirectory(appDir.getFile());
-						FileUtils.deleteDirectory(appDir.getFile());
-					}
-					catch (IOException e) {
-						log.warn("Unable to delete temp directory " + getAppDirPath());
-					}
-				}
-			});
-			FileUtils.forceDeleteOnExit(tempDirectory);
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e.getMessage(), e);
-		}
-
-		appDir = new FileSystemResource(tempDirectory.getAbsolutePath());
+		this(null);
 	}
 
 	/**
-	 * Override the default application directory
-	 *
-	 * @param appDir
+	 * @param appDir if null, a temporary directory will be created.
 	 */
-	public void setAppDir(Resource appDir) {
-		Assert.notNull(appDir, "'appDir' must not be null.");
-		this.appDir = appDir;
+	protected AbstractPythonAppDeployer(FileSystemResource appDir) {
+		if (appDir == null) {
+			File tempDirectory = null;
+			try {
+				tempDirectory = Files.createTempDirectory("python").toFile();
+				addDeleteShutdownHook(tempDirectory);
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e.getMessage(), e);
+			}
 
+			appDir = new FileSystemResource(tempDirectory.getAbsolutePath());
+		}
+		this.appDir = appDir;
+	}
+
+	@Override
+	public FileSystemResource getAppDir() {
+		return this.appDir;
 	}
 
 	public String getAppDirPath() {
-		String fullPath = null;
-		try {
-			fullPath = appDir.getFile().getAbsolutePath();
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e.getMessage(), e);
-		}
-		return fullPath;
+		return appDir.getFile().getAbsolutePath();
 	}
 
 	/**
@@ -125,12 +103,29 @@ public abstract class AbstractPythonAppDeployer implements PythonAppDeployer {
 		File requirementsDotTxt = new File(
 				StringUtils.join(new String[] { getAppDirPath(), "requirements.txt" }, File.separator));
 		if (requirementsDotTxt.exists()) {
-			ShellCommand installer = new ShellCommand(String.format(StringUtils.join(new String[] { pipCommandName,
-					"install", "-r", requirementsDotTxt.getAbsolutePath() }, " ")));
+			ShellCommand installer = new ShellCommand(String.format(StringUtils
+					.join(new String[] { pipCommandName, "install", "-r", requirementsDotTxt.getAbsolutePath() },
+							" ")));
 
 			installer.afterPropertiesSet();
 			installer.start();
 			installer.stop();
 		}
+	}
+
+	private void addDeleteShutdownHook(final File dir) {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				try {
+					FileUtils.cleanDirectory(dir);
+					FileUtils.deleteDirectory(dir);
+				}
+				catch (IOException e) {
+					log.warn("Unable to delete temp directory " + getAppDirPath());
+				}
+			}
+		});
+
 	}
 }

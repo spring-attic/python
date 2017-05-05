@@ -16,10 +16,25 @@
 
 package org.springframework.cloud.stream.app.python.shell;
 
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.util.Assert;
+
 /**
+ * a {@link PythonAppDeployer} for an app already on the local file system. This doesn't need to move any files, just
+ * delegate to the base class to install any dependencies.
+ *
  * @author David Turanski
  **/
 public class FileSystemPythonAppDeployer extends AbstractPythonAppDeployer {
+
+	/**
+	 *
+	 * @param appDir the file system location of the Python app.
+	 */
+	public FileSystemPythonAppDeployer(FileSystemResource appDir) {
+		super(appDir);
+	}
+
 	@Override
 	protected void doDeploy() throws Exception {
 	}

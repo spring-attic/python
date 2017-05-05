@@ -14,18 +14,13 @@
  *   limitations under the License.
  */
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+package org.springframework.cloud.stream.app.python.shell;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author David Turanski
  **/
-public class Test {
-	private static Log log = LogFactory.getLog(Test.class);
-
-	public static void main(String... args) {
-		if (log.isDebugEnabled()) {
-			log.debug("WTF");
-		}
-	}
+@ConfigurationProperties("python")
+public class PythonAppDeployerProperties extends PythonAppProperties {
 }

@@ -40,7 +40,6 @@ import org.springframework.messaging.Message;
 @EnableBinding(Processor.class)
 @Import({ PythonShellCommandProcessorConfiguration.class, JythonWrapperConfiguration.class,
 		PythonAppDeployerConfiguration.class})
-
 public class PythonProcessorConfiguration implements InitializingBean {
 
 	@Autowired
@@ -58,7 +57,6 @@ public class PythonProcessorConfiguration implements InitializingBean {
 		shellCommandProcessor.start();
 	}
 
-	//TODO Support other payload types beside String
 	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
 	public Object process(Message<?> message) {
 		if (jythonWrapper != null) {

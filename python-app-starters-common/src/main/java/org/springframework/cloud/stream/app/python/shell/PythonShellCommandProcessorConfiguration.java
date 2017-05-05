@@ -30,7 +30,6 @@ import org.springframework.integration.ip.tcp.serializer.ByteArrayLfSerializer;
 import org.springframework.integration.ip.tcp.serializer.ByteArraySingleTerminatorSerializer;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author David Turanski
@@ -40,12 +39,14 @@ import java.io.IOException;
 @EnableConfigurationProperties(PythonShellCommandProcessorProperties.class)
 public class PythonShellCommandProcessorConfiguration {
 
+	private final static byte BINARY_ENCODER_X1A = (byte) 26;
+
 	@Autowired
 	private PythonShellCommandProcessorProperties properties;
 
 	@Bean
 	public AbstractByteArraySerializer serializer() {
-		final byte BINARY_ENCODER_X1A = (byte) 26;
+
 		AbstractByteArraySerializer serializer = null;
 		switch (properties.getEncoder()) {
 		case LF:

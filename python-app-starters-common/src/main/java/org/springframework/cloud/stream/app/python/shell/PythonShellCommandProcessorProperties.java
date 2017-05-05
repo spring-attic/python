@@ -37,11 +37,6 @@ public class PythonShellCommandProcessorProperties extends PythonAppProperties {
 	private String commandName = "python";
 
 	/**
-	 * The pip command name, e.g., 'pip', 'pip3'.
-	 */
-	private String pipCommandName = "pip";
-
-	/**
 	 * The Python command line args.
 	 */
 	private String args = "";
@@ -51,20 +46,13 @@ public class PythonShellCommandProcessorProperties extends PythonAppProperties {
 	 */
 	private Encoder encoder = Encoder.CRLF;
 
+	@NotNull
 	public String getCommandName() {
 		return commandName;
 	}
 
 	public void setCommandName(String commandName) {
 		this.commandName = commandName;
-	}
-
-	public String getPipCommandName() {
-		return pipCommandName;
-	}
-
-	public void setPipCommandName(String pipCommandName) {
-		this.pipCommandName = pipCommandName;
 	}
 
 	@NotNull
@@ -76,6 +64,7 @@ public class PythonShellCommandProcessorProperties extends PythonAppProperties {
 		this.args = args;
 	}
 
+	@NotNull
 	public Encoder getEncoder() {
 		return encoder;
 	}

@@ -16,33 +16,87 @@
 
 package org.springframework.cloud.stream.app.python.shell;
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
 import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.util.StringUtils;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
+ * Configuration for {@link PythonAppDeployer}. The configured implementation may install a Python app from the local
+ * file system, a Git repository, or a classpath resource.
+ *
  * @author David Turanski
  **/
 @Configuration
-@EnableConfigurationProperties(PythonShellCommandProcessorProperties.class)
+@EnableConfigurationProperties(PythonAppDeployerProperties.class)
 @Import(GitResourceRepositoryConfiguration.class)
 public class PythonAppDeployerConfiguration {
 
-	@Autowired(required = false)
-	private JGitResourceRepository gitResourceRepository;
+	@Configuration
+	@ConditionalOnBean(JGitResourceRepository.class)
+	static class GitPythonAppDeployerConfiguration {
+		@Autowired
+		private PythonAppDeployerProperties properties;
 
-	@Autowired
-	private PythonShellCommandProcessorProperties properties;
+		@Autowired
+		private JGitResourceRepository gitResourceRepository;
 
-	@Bean
-	public PythonAppDeployer pythonAppDeployer() {
-		ClassPathPythonAppDeployer pythonAppDeployer = new ClassPathPythonAppDeployer();
-		pythonAppDeployer.setSourceDir(properties.getBaseDir().getFilename());
-		pythonAppDeployer.setPipCommandName(properties.getPipCommandName());
-		return pythonAppDeployer;
+		@Bean
+		public PythonAppDeployer gitPythonAppDeployer() {
+			String baseDir = StringUtils.cleanPath(
+					gitResourceRepository.getBasedir() + File.separator + properties.getBaseDir().getFilename());
+
+			FileSystemPythonAppDeployer pythonAppDeployer = new FileSystemPythonAppDeployer(
+					new FileSystemResource(baseDir));
+
+			pythonAppDeployer.setPipCommandName(properties.getPipCommandName());
+			return pythonAppDeployer;
+		}
 	}
+
+	@Configuration
+	@ConditionalOnMissingBean(JGitResourceRepository.class)
+	static class DefaultPythonAppDeployerConfiguration {
+
+		@Autowired
+		private PythonAppDeployerProperties properties;
+
+		@Bean
+		public PythonAppDeployer pythonAppDeployer() {
+			AbstractPythonAppDeployer pythonAppDeployer = null;
+
+			try {
+				String protocol = properties.getBaseDir().getURL().getProtocol();
+				if (protocol != null && protocol.equals("file")) {
+					FileSystemResource baseDir = new FileSystemResource(properties.getBaseDir().getFile());
+					pythonAppDeployer = new FileSystemPythonAppDeployer(baseDir);
+				}
+				else {
+					ClassPathPythonAppDeployer cpPythonAppDeployer = new ClassPathPythonAppDeployer();
+					cpPythonAppDeployer.setSourceDir(properties.getBaseDir().getFilename());
+					pythonAppDeployer = cpPythonAppDeployer;
+				}
+			}
+			catch (IOException e) {
+				throw new BeanCreationException(e.getMessage(), e);
+			}
+
+			pythonAppDeployer.setPipCommandName(properties.getPipCommandName());
+
+			return pythonAppDeployer;
+		}
+
+	}
+
 }

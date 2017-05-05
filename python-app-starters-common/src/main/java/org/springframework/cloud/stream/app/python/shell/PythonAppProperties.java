@@ -16,10 +16,13 @@
 
 package org.springframework.cloud.stream.app.python.shell;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.stream.app.python.script.ScriptProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
 import java.io.File;
 
 /**
@@ -28,11 +31,17 @@ import java.io.File;
  *
  * @author David Turanski
  **/
+@Validated
 public class PythonAppProperties extends ScriptProperties {
 	/**
 	 * The root path of Python app. If given, the script path must be relative to this location.
 	 */
 	private Resource baseDir;
+
+	/**
+	 * The pip command name, e.g., 'pip', 'pip3'.
+	 */
+	private String pipCommandName = "pip";
 
 	public Resource getBaseDir() {
 		return baseDir;
@@ -47,5 +56,14 @@ public class PythonAppProperties extends ScriptProperties {
 			return new PathMatchingResourcePatternResolver().getResource(baseDir.getFilename() + File.separator + resourceName);
 		}
 		return super.resolveResource(resourceName);
+	}
+
+	@NotNull
+	public String getPipCommandName() {
+		return pipCommandName;
+	}
+
+	public void setPipCommandName(String pipCommandName) {
+		this.pipCommandName = pipCommandName;
 	}
 }

@@ -14,23 +14,18 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.common.resource.repository.config;
+package org.springframework.cloud.stream.app.python.http.processor;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.junit.Test;
+import org.springframework.cloud.stream.app.python.wrapper.JythonWrapper;
+import org.springframework.core.io.ClassPathResource;
 
 /**
- * Configuration for a GitResourceRepository.
- *
  * @author David Turanski
  **/
-@Configuration
-@ConditionalOnProperty("git.uri")
-public class GitResourceRepositoryConfiguration {
-	@Bean
-	public JGitResourceRepository gitResourceRepository() {
-		return new JGitResourceRepository();
+public class HttpJythonWrapperTests {
+	@Test
+	public void test() {
+		JythonWrapper jythonWrapper = new JythonWrapper(new ClassPathResource("foor"));
 	}
 }

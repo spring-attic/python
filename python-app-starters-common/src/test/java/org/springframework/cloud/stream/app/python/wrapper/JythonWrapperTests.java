@@ -18,6 +18,7 @@ package org.springframework.cloud.stream.app.python.wrapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -70,6 +71,7 @@ public class JythonWrapperTests {
 	}
 
 	@Test
+	@Ignore
 	public void scriptSource() throws Exception {
 		Resource script = new UrlResource(
 				"https://raw.githubusercontent.com/dturanski/python-apps/master/test_apps/upper.py");

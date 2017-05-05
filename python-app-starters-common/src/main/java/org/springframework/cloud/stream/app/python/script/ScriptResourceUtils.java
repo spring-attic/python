@@ -21,6 +21,7 @@ import org.springframework.cloud.stream.app.common.resource.repository.JGitResou
 import java.io.File;
 
 /**
+ *
  * @author David Turanski
  **/
 public abstract class ScriptResourceUtils {

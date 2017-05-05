@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 
 /**
- * Base Configuration properties for a Script
+ * Base Configuration properties for a Script.
  *
  * @author David Turanski
  **/

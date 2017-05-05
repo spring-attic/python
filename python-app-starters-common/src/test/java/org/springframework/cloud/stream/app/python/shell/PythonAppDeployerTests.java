@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.wrapper;
+package org.springframework.cloud.stream.app.python.shell;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -49,9 +49,9 @@ public class PythonAppDeployerTests {
 
 	@Test
 	public void testFileSystemDeployer() throws IOException {
-		FileSystemPythonAppDeployer pythonAppDeployer = new FileSystemPythonAppDeployer();
-		pythonAppDeployer.setAppDir(new FileSystemResource("src/test/resources/my-python-app"));
-		System.out.println(pythonAppDeployer.getAppDirPath());
+		FileSystemPythonAppDeployer pythonAppDeployer = new FileSystemPythonAppDeployer(
+				new FileSystemResource("src/test/resources/my-python-app"));
+
 		pythonAppDeployer.deploy();
 		assertThat(pythonAppDeployer.getAppDir().getFile().isDirectory()).isTrue();
 		assertThat(pythonAppDeployer.getAppDir().exists()).isTrue();

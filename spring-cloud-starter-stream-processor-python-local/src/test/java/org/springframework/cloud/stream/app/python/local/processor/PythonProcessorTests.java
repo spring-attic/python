@@ -19,6 +19,7 @@ package org.springframework.cloud.stream.app.python.local.processor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.spring.io.data.Page;
@@ -76,6 +77,21 @@ public abstract class PythonProcessorTests {
 	}
 
 	@TestPropertySource(properties = {
+			"python.baseDir=file:src/test/resources/python",
+			"python.script=processor_example.py" })
+	public static class TestSimpleFileSystem extends PythonProcessorTests {
+		@Test
+		public void test() {
+			Message<String> message = new GenericMessage<>("hello world");
+			processor.input().send(message);
+			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output()).poll();
+			assertThat(received.getPayload()).isEqualTo("hello world");
+		}
+	}
+
+
+
+	@TestPropertySource(properties = {
 			"python.baseDir=python",
 			"python.script=pickle_page_example.py",
 			"python.encoder=BINARY",
@@ -90,6 +106,21 @@ public abstract class PythonProcessorTests {
 			Page page = objectMapper.readValue(received.getPayload(), Page.class);
 			assertThat(page.getLinks()).containsKeys("google", "yahoo", "pivotal");
 			assertThat(page.getLinks().get("pivotal").toString()).isEqualTo("http://www.pivotal.io");
+		}
+	}
+
+	@TestPropertySource(properties = {
+			"git.uri=https://github.com/dturanski/python-apps",
+			"python.baseDir=app1",
+			"python.script=app1.py" })
+	public static class TestGitRepo extends PythonProcessorTests {
+		@Test
+		@Ignore //TODO figure out a way to mock this
+		public void test() {
+			Message<String> message = new GenericMessage<>("hello world");
+			processor.input().send(message);
+			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output()).poll();
+			assertThat(received.getPayload()).isEqualTo("hello world");
 		}
 	}
 
