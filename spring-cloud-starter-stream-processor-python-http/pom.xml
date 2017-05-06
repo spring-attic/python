@@ -19,10 +19,19 @@
 		<dependency>
 			<groupId>org.springframework.cloud.stream.app</groupId>
 			<artifactId>python-app-starters-test-support</artifactId>
+			<version>1.2.1.BUILD-SNAPSHOT</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud.stream.app</groupId>
 			<artifactId>python-app-starters-common</artifactId>
+			<version>1.2.1.BUILD-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud.stream.app</groupId>
+			<artifactId>spring-cloud-starter-stream-processor-httpclient</artifactId>
+			<version>1.2.1.BUILD-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

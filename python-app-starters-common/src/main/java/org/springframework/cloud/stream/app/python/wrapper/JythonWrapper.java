@@ -52,8 +52,13 @@ public class JythonWrapper implements InitializingBean {
 		return scriptExecutor.executeScript(scriptSource, variables);
 	}
 
+	protected Object executeWithVariables(Message<?> message, final Map<String, Object> variables) {
+		this.variables.putAll(variables);
+		return execute(message);
+	}
+
 	/**
-	 * Subclasses override this to bind additional variables required for the script.
+	 * Subclasses override this to bind static variables required for the script.
 	 * @param variables
 	 */
 	protected void bindStaticVariables(final Map<String, Object> variables) {
@@ -63,6 +68,7 @@ public class JythonWrapper implements InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		bindStaticVariables(variables);
 	}
+
 
 	/* for testing */
 	public ScriptSource getScriptSource() {

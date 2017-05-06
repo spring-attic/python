@@ -78,7 +78,7 @@ public abstract class PythonProcessorTests {
 
 	@TestPropertySource(properties = {
 			"python.baseDir=file:src/test/resources/python",
-			"python.script=processor_example.py" })
+			"python.script=processor_example.py"})
 	public static class TestSimpleFileSystem extends PythonProcessorTests {
 		@Test
 		public void test() {
