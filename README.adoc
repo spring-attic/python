@@ -1,0 +1,71 @@
+# spring-cloud-stream-app-starters-python
+Spring Cloud Stream App Starters for integrating with Python
+
+
+To learn more about these application and the supported properties, please review the following links.
+
+
+# Accessing Python Resources
+
+These applications include configuration properties that specify Python script locations and directories. These
+properties use Spring's
+http://docs.spring.io/spring/docs/current/spring-framework-reference/html/resources.html[Resource] abstraction.
+
+Python scripts may be packaged in the Jar file as classpath resources, or may point to a local file using the `file:`
+Resource protocol. Additionally if a `git.url` is provided to a valid repository, the application will clone the
+repository to the local file system during initialization and load scripts from there.
+
+
+# Python via Http
+
+These applications provide a simple way to integrate with an external Python application exposed as an http service.
+This will technically work with any http service. It is a specialized implementation of the
+https://github.com/spring-cloud-stream-app-starters/httpclient[httpclient]
+processor that provides support for local execution of a Python wrapper script via an embedded Jython ScriptEngine to
+transform data in and out of the http server.
+
+## Python Http Processor
+include::spring-cloud-starter-stream-processor-python-http/README.adoc[]
+
+
+# Python Local Process
+
+These applications install and run an external Python application in the local container.
+
+## Python Local Processor
+include::spring-cloud-starter-stream-processor-python-local/README.adoc[]
+
+## Python Local Sink
+include::spring-cloud-starter-stream-sink-python-local/README.adoc[]
+
+
+## Prerequisites
+
+These applications install and run an external Python application in the local container. These applications typically 
+import https://pypi.python.org/pypi/springcloudstream[springcloudstream] to handle low level I/O. Simply provide a
+single argument Function that returns a value. Both the argument and return value must be `str` types.
+
+For example
+
+```python
+from springcloudstream.stream import Processor
+
+def echo(data):
+    return data
+
+
+process = Processor()
+process.start(echo)
+```
+
+The application requires that Python (2.7 or 3) is installed along with Java in the local container or server.
+
+* Standalone - Install Python per instructions for your OS.
+* CloudFoundry - Use the https://github.com/dturanski/java-python-buildpack[java-python-buildpack].
+* Docker - Use one of the of the java-python images https://hub.docker.com/u/korekontrol/[here],
+
+The application will invoke `pip` to install any dependencies listed in `requirements.txt` in the top level
+directory. This must include the line  `springcloudstream>=1.0`.
+
+
+
