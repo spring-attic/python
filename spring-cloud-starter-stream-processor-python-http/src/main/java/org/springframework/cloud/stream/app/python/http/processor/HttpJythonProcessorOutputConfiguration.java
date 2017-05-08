@@ -17,35 +17,31 @@
 package org.springframework.cloud.stream.app.python.http.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.cloud.stream.app.python.wrapper.JythonWrapper;
 import org.springframework.cloud.stream.messaging.Processor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Import;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.Headers;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.support.GenericMessage;
 import org.springframework.messaging.support.MessageBuilder;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author David Turanski
  **/
 @EnableBinding(Processor.class)
-@Import(HttpJythonWrapperConfiguration.class)
 public class HttpJythonProcessorOutputConfiguration {
 
 	@Autowired
-	private ChannelNameAwareJythonWrapper jythonWrapper;
+	private JythonWrapper jythonWrapper;
 
 	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
 	public Message<?> process(Message<?> message) {
-		return jythonWrapper.execute(message, Processor.OUTPUT);
+		Map<String, Object> channel = new HashMap<>();
+		channel.put("channel", Processor.OUTPUT);
+		Object result = jythonWrapper.execute(message, channel);
+		return MessageBuilder.createMessage(result, message.getHeaders());
 	}
 }
 

@@ -47,14 +47,16 @@ public class JythonWrapper implements InitializingBean {
 	}
 
 	public Object execute(Message<?> message) {
+		return this.execute(message, null);
+	}
+
+	public Object execute(Message<?> message, final Map<String, Object> variables) {
+		if (variables != null) {
+			this.variables.putAll(variables);
+		}
 		variables.put("payload", message.getPayload());
 		variables.put("headers", message.getHeaders());
 		return scriptExecutor.executeScript(scriptSource, variables);
-	}
-
-	protected Object executeWithVariables(Message<?> message, final Map<String, Object> variables) {
-		this.variables.putAll(variables);
-		return execute(message);
 	}
 
 	/**
