@@ -42,21 +42,37 @@ public class JythonWrapper implements InitializingBean {
 
 	private ScriptSource scriptSource;
 
+	/**
+	 * Executes a Python script using a {@link PythonScriptExecutor}.
+	 * @param script
+	 */
 	public JythonWrapper(Resource script) {
 		scriptSource = new ResourceScriptSource(script);
 	}
 
+	/**
+	 * Execute the script
+	 *
+	 * @param message the incoming message, binding 'payload' and 'headers' to the script context.
+	 * @return the result
+	 */
 	public Object execute(Message<?> message) {
 		return this.execute(message, null);
 	}
 
-	public Object execute(Message<?> message, final Map<String, Object> variables) {
-		if (variables != null) {
-			this.variables.putAll(variables);
+	/**
+	 * Execute the script.
+	 * @param message the incoming message, binding 'payload' and 'headers' to the script context.
+	 * @param vars a map of additonal variables and values to bind to the script context.
+	 * @return
+	 */
+	public Object execute(Message<?> message, final Map<String, Object> vars) {
+		if (vars != null) {
+			this.variables.putAll(vars);
 		}
-		variables.put("payload", message.getPayload());
-		variables.put("headers", message.getHeaders());
-		return scriptExecutor.executeScript(scriptSource, variables);
+		this.variables.put("payload", message.getPayload());
+		this.variables.put("headers", message.getHeaders());
+		return scriptExecutor.executeScript(scriptSource, this.variables);
 	}
 
 	/**

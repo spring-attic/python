@@ -51,7 +51,6 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
  * @author David Turanski
  **/
 @RunWith(SpringRunner.class)
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @DirtiesContext
 public abstract class HttpJythonWrapperTests {
@@ -80,7 +79,6 @@ public abstract class HttpJythonWrapperTests {
 	@TestPropertySource(properties = {
 			"httpclient.urlExpression='http://localhost:' + @environment.getProperty('server.port') +'/py'",
 			"httpclient.httpMethod=POST", "wrapper.script=simple-test.py" })
-
 	public static class SimpleWrapperTest extends HttpJythonWrapperTests {
 		@BeforeClass
 		public static void setUp() {
@@ -106,15 +104,8 @@ public abstract class HttpJythonWrapperTests {
 
 	@SpringBootApplication
 	@EnableWebSecurity
-	@Import(JythonWrapperConfiguration.class)
+	@Import(PythonHttpProcessorConfiguration.class)
 	static class PythonProcessorApp {
-		@Bean
-		public AggregateApplication pythonProcessorApp() {
-			return new AggregateApplicationBuilder().parent(PythonProcessorApp.class)
-					.from(HttpJythonProcessorInputConfiguration.class).namespace("in")
-					.via(HttpclientProcessorConfiguration.class).to(HttpJythonProcessorOutputConfiguration.class)
-					.namespace("out").build();
-		}
 
 		@RestController
 		public static class AdditionalController {
