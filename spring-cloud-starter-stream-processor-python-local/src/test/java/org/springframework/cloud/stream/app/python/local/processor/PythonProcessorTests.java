@@ -17,8 +17,6 @@
 package org.springframework.cloud.stream.app.python.local.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,8 +24,6 @@ import org.spring.io.data.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.json.JacksonTester;
-import org.springframework.cloud.stream.app.test.python.SpringCloudStreamPythonAvailableRule;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.context.annotation.Import;
@@ -50,10 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public abstract class PythonProcessorTests {
 
-	@ClassRule
-	public static SpringCloudStreamPythonAvailableRule springCloudStreamPythonAvailableRule = new
-			SpringCloudStreamPythonAvailableRule();
-
 	@Autowired
 	Processor processor;
 
@@ -63,9 +55,7 @@ public abstract class PythonProcessorTests {
 	@Autowired
 	ObjectMapper objectMapper;
 
-	@TestPropertySource(properties = {
-			"python.baseDir=python",
-			"python.script=processor_example.py" })
+	@TestPropertySource(properties = { "python.baseDir=python", "python.script=processor_example.py" })
 	public static class TestSimple extends PythonProcessorTests {
 		@Test
 		public void test() {
@@ -76,9 +66,8 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-	@TestPropertySource(properties = {
-			"python.baseDir=file:src/test/resources/python",
-			"python.script=processor_example.py"})
+	@TestPropertySource(properties = { "python.baseDir=file:src/test/resources/python",
+			"python.script=processor_example.py" })
 	public static class TestSimpleFileSystem extends PythonProcessorTests {
 		@Test
 		public void test() {
@@ -89,13 +78,8 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-
-
-	@TestPropertySource(properties = {
-			"python.baseDir=python",
-			"python.script=pickle_page_example.py",
-			"python.encoder=BINARY",
-			"wrapper.script=wrapper/page_wrapper.py" })
+	@TestPropertySource(properties = { "python.baseDir=python", "python.script=pickle_page_example.py",
+			"python.encoder=BINARY", "wrapper.script=wrapper/page_wrapper.py" })
 	public static class TestPicklePage extends PythonProcessorTests {
 		@Test
 		public void test() throws IOException {
@@ -109,9 +93,7 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-	@TestPropertySource(properties = {
-			"git.uri=https://github.com/dturanski/python-apps",
-			"python.baseDir=app1",
+	@TestPropertySource(properties = { "git.uri=https://github.com/dturanski/python-apps", "python.baseDir=app1",
 			"python.script=app1.py" })
 	public static class TestGitRepo extends PythonProcessorTests {
 		@Test
@@ -125,7 +107,7 @@ public abstract class PythonProcessorTests {
 	}
 
 	@SpringBootApplication
-	@Import(PythonProcessorConfiguration.class)
+	@Import(PythonLocalProcessorConfiguration.class)
 	public static class PythonApplication {
 
 	}

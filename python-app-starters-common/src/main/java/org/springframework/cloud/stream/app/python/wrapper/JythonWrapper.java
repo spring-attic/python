@@ -34,6 +34,11 @@ import java.util.Map;
  * @author David Turanski
  **/
 public class JythonWrapper implements InitializingBean {
+
+	static {
+		System.setProperty("python.import.site","false");
+	}
+
 	protected final Log log = LogFactory.getLog(this.getClass());
 
 	private final PythonScriptExecutor scriptExecutor = new PythonScriptExecutor();

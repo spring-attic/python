@@ -22,17 +22,20 @@ import org.springframework.cloud.stream.app.httpclient.processor.HttpclientProce
 import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * @author David Turanski
  **/
 @Configuration
+@Import(JythonWrapperConfiguration.class)
 public class PythonHttpProcessorConfiguration {
 	@Bean
 	public AggregateApplication pythonProcessorApp() {
 		return new AggregateApplicationBuilder().parent(JythonWrapperConfiguration.class)
 				.from(HttpJythonProcessorInputConfiguration.class).namespace("in")
-				.via(HttpclientProcessorConfiguration.class).to(HttpJythonProcessorOutputConfiguration.class)
+				.via(HttpclientProcessorConfiguration.class)
+				.to(HttpJythonProcessorOutputConfiguration.class)
 				.namespace("out").build();
 	}
 }

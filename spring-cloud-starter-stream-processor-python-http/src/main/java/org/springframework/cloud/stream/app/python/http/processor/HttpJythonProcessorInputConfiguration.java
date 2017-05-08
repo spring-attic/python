@@ -38,12 +38,16 @@ import java.util.Map;
 @Import(JythonWrapperConfiguration.class)
 public class HttpJythonProcessorInputConfiguration {
 
-	@Autowired
+	@Autowired(required = false)
 	private JythonWrapper jythonWrapper;
 
 	@StreamListener(Processor.INPUT)
 	@SendTo(Processor.OUTPUT)
 	public Message<?> prepProcess(Message<?> message) {
+		if (jythonWrapper == null) {
+			return message;
+		}
+
 		Map<String, Object> channel = new HashMap<>();
 		channel.put("channel", Processor.INPUT);
 		Object result = jythonWrapper.execute(message, channel);

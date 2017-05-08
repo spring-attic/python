@@ -33,11 +33,14 @@ import java.util.Map;
 @EnableBinding(Processor.class)
 public class HttpJythonProcessorOutputConfiguration {
 
-	@Autowired
+	@Autowired(required = false)
 	private JythonWrapper jythonWrapper;
 
 	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
 	public Message<?> process(Message<?> message) {
+		if (jythonWrapper == null) {
+			return message;
+		}
 		Map<String, Object> channel = new HashMap<>();
 		channel.put("channel", Processor.OUTPUT);
 		Object result = jythonWrapper.execute(message, channel);

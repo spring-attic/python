@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.stream.app.python.wrapper;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -25,6 +26,7 @@ import org.springframework.cloud.stream.app.common.resource.repository.JGitResou
 import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
 import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -70,7 +72,6 @@ public class JythonWrapperConfiguration {
 			return new JythonWrapper(properties.getScriptResource());
 		}
 	}
-
 
 
 }

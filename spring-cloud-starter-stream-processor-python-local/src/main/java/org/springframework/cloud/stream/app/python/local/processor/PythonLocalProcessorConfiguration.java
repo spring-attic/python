@@ -40,7 +40,7 @@ import org.springframework.messaging.Message;
 @EnableBinding(Processor.class)
 @Import({ PythonShellCommandProcessorConfiguration.class, JythonWrapperConfiguration.class,
 		PythonAppDeployerConfiguration.class})
-public class PythonProcessorConfiguration implements InitializingBean {
+public class PythonLocalProcessorConfiguration implements InitializingBean {
 
 	@Autowired
 	private PythonAppDeployer pythonAppDeployer;
