@@ -54,8 +54,10 @@ public class PythonAppDeployerConfiguration {
 
 		@Bean
 		public PythonAppDeployer gitPythonAppDeployer() {
-			String baseDir = StringUtils.cleanPath(
-					gitResourceRepository.getBasedir() + File.separator + properties.getBaseDir().getFilename());
+			String baseDir = null;
+
+			baseDir = StringUtils.cleanPath(
+						gitResourceRepository.getBasedir() + File.separator + properties.getPath());
 
 			FileSystemPythonAppDeployer pythonAppDeployer = new FileSystemPythonAppDeployer(
 					new FileSystemResource(baseDir));
@@ -77,14 +79,14 @@ public class PythonAppDeployerConfiguration {
 			AbstractPythonAppDeployer pythonAppDeployer = null;
 
 			try {
-				String protocol = properties.getBaseDir().getURL().getProtocol();
+				String protocol = properties.getBasedir().getURL().getProtocol();
 				if (protocol != null && protocol.equals("file")) {
-					FileSystemResource baseDir = new FileSystemResource(properties.getBaseDir().getFile());
+					FileSystemResource baseDir = new FileSystemResource(properties.getBasedir().getFile());
 					pythonAppDeployer = new FileSystemPythonAppDeployer(baseDir);
 				}
 				else {
 					ClassPathPythonAppDeployer cpPythonAppDeployer = new ClassPathPythonAppDeployer();
-					cpPythonAppDeployer.setSourceDir(properties.getBaseDir().getFilename());
+					cpPythonAppDeployer.setSourceDir(properties.getBasedir().getFilename());
 					pythonAppDeployer = cpPythonAppDeployer;
 				}
 			}
