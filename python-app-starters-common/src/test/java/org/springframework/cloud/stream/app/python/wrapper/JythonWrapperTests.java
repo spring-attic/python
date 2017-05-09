@@ -67,6 +67,7 @@ public class JythonWrapperTests {
 		jythonWrapper.afterPropertiesSet();
 		Object result = jythonWrapper.execute(new GenericMessage<Page>(new Page()));
 		assertThat(result).isNotNull();
+		System.out.println(result.toString());
 		Page page = new ObjectMapper().readValue(result.toString(), Page.class);
 	}
 

@@ -77,14 +77,30 @@ public class JGitResourceRepository implements InitializingBean {
 
 	protected Log logger = LogFactory.getLog(this.getClass());
 
+	/**
+	 * The base directory where the repository should be cloned. If not specified, a temporary directory will be
+	 * created.
+	 */
 	private File basedir;
 
+	/**
+	 * The URI of the remote repository.
+	 */
 	private String uri;
 
+	/**
+	 * The username for the remote repository.
+	 */
 	private String username;
 
+	/**
+	 * The password for the remote repository.
+	 */
 	private String password;
 
+	/**
+	 * The passphrase for the remote repository.
+	 */
 	private String passphrase;
 
 	private String prefix = DEFAULT_PREFIX;
@@ -99,6 +115,9 @@ public class JGitResourceRepository implements InitializingBean {
 
 	private boolean initialized;
 
+	/**
+	 * The label or branch to clone.
+	 */
 	private String label = DEFAULT_LABEL;
 
 	/**
@@ -132,16 +151,16 @@ public class JGitResourceRepository implements InitializingBean {
 		this.timeout = timeout;
 	}
 
+	public int getTimeout() {
+		return timeout;
+	}
+
 	public void setBasedir(File basedir) {
 		this.basedir = basedir.getAbsoluteFile();
 	}
 
 	public File getBasedir() {
 		return this.basedir;
-	}
-
-	public String getUri() {
-		return this.uri;
 	}
 
 	public void setUri(String uri) {
@@ -157,8 +176,16 @@ public class JGitResourceRepository implements InitializingBean {
 		this.uri = uri;
 	}
 
+	public String getUri() {
+		return this.uri;
+	}
+
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	public String getLabel() {
+		return label;
 	}
 
 	public void setPrefix(String prefix) {
@@ -169,12 +196,24 @@ public class JGitResourceRepository implements InitializingBean {
 		this.username = username;
 	}
 
+	public String getUsername() {
+		return username;
+	}
+
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
 	public void setPassphrase(String passphrase) {
 		this.passphrase = passphrase;
+	}
+
+	public String getPassphrase() {
+		return passphrase;
 	}
 
 	public void setStrictHostKeyChecking(boolean strictHostKeyChecking) {
@@ -187,13 +226,6 @@ public class JGitResourceRepository implements InitializingBean {
 
 	public void setForcePull(boolean forcePull) {
 		this.forcePull = forcePull;
-	}
-
-	/**
-	 * @return the gitCredentialsProvider
-	 */
-	public CredentialsProvider getGitCredentialsProvider() {
-		return gitCredentialsProvider;
 	}
 
 	/**
@@ -548,8 +580,7 @@ public class JGitResourceRepository implements InitializingBean {
 	}
 
 	private void trackBranch(Git git, CheckoutCommand checkout, String branch) {
-		checkout.setCreateBranch(true).setName(branch).setUpstreamMode(TRACK)
-				.setStartPoint("origin/" + branch);
+		checkout.setCreateBranch(true).setName(branch).setUpstreamMode(TRACK).setStartPoint("origin/" + branch);
 	}
 
 	private boolean isBranch(Git git, String branch) throws GitAPIException {
