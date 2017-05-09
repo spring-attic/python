@@ -74,7 +74,7 @@ public class JythonWrapperTests {
 	@Ignore
 	public void scriptSource() throws Exception {
 		Resource script = new UrlResource(
-				"https://raw.githubusercontent.com/dturanski/python-apps/master/test_apps/upper.py");
+				"https://github.com/dturanski/python-apps/blob/master/test-wrappers/upper.py");
 		JythonWrapper jythonWrapper = new JythonWrapper(new ClassPathResource("wrapper/simple_wrapper.py"));
 		Object result = jythonWrapper.execute(new GenericMessage<String>("hello"));
 		assertThat(result).isEqualTo("HELLO");

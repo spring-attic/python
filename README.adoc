@@ -12,8 +12,11 @@ properties use Spring's
 http://docs.spring.io/spring/docs/current/spring-framework-reference/html/resources.html[Resource] abstraction.
 
 Python scripts may be packaged in the Jar file as classpath resources, or may point to a local file using the `file:`
-Resource protocol. Additionally if a `git.url` is provided to a valid repository, the application will clone the
-repository to the local file system during initialization and load scripts from there.
+Resource protocol.  URL resources such as https://raw.githubusercontent
+.com/dturanski/python-apps/master/test-wrappers/upper.py are supported. Additionally if you provide a `git.url` to
+a valid repository, the application will clone the repository to the local file system during initialization and load
+ scripts from there.
+
 
 
 # Python via Http

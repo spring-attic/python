@@ -58,7 +58,7 @@ public abstract class JythonWrapperConfigTests {
 		}
 	}
 
-	@TestPropertySource(properties = { "wrapper.script=test_apps/upper.py",
+	@TestPropertySource(properties = { "wrapper.script=test-wrappers/upper.py",
 			"git.uri=https://github.com/dturanski/python-apps" })
 	public static class TestWrapperGitResource extends JythonWrapperConfigTests {
 		@Ignore //TODO: Figure out how to test this case
