@@ -25,6 +25,7 @@ import org.springframework.messaging.Message;
 import org.springframework.scripting.ScriptSource;
 import org.springframework.scripting.support.ResourceScriptSource;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +53,7 @@ public class JythonWrapper implements InitializingBean {
 	 * @param script
 	 */
 	public JythonWrapper(Resource script) {
-		scriptSource = new ResourceScriptSource(script);
+		scriptSource = new CachingResourceScriptSource(script);
 	}
 
 	/**
@@ -96,5 +97,32 @@ public class JythonWrapper implements InitializingBean {
 	/* for testing */
 	public ScriptSource getScriptSource() {
 		return this.scriptSource;
+	}
+
+	/**
+	 * An implementation of {@link ResourceScriptSource} that caches the String contents and cannot be
+	 * modified.
+	 *
+	 * @author David Turanski
+	 **/
+	static class CachingResourceScriptSource extends ResourceScriptSource {
+		private String scriptBody;
+
+		public CachingResourceScriptSource(Resource resource) {
+			super(resource);
+		}
+
+		@Override
+		public String getScriptAsString() throws IOException {
+			if (this.scriptBody == null) {
+				this.scriptBody = super.getScriptAsString();
+			}
+			return this.scriptBody;
+		}
+
+		@Override
+		public boolean isModified() {
+			return false;
+		}
 	}
 }
