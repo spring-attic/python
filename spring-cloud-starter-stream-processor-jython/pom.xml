@@ -3,10 +3,10 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>spring-cloud-starter-stream-processor-python-http</artifactId>
+	<artifactId>spring-cloud-starter-stream-processor-jython</artifactId>
 	<packaging>jar</packaging>
-	<name>spring-cloud-starter-stream-processor-python-http</name>
-	<description>Spring Cloud Stream python-http processor core</description>
+	<name>spring-cloud-starter-stream-processor-jython</name>
+	<description>Spring Cloud Stream jython processor core</description>
 
 	<parent>
 		<groupId>org.springframework.cloud.stream.app</groupId>
@@ -15,23 +15,13 @@
 	</parent>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>org.springframework.cloud.stream.app</groupId>
-			<artifactId>python-app-starters-test-support</artifactId>
-			<version>1.2.1.BUILD-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud.stream.app</groupId>
 			<artifactId>python-app-starters-common</artifactId>
-			<version>1.2.1.BUILD-SNAPSHOT</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.cloud.stream.app</groupId>
-			<artifactId>spring-cloud-starter-stream-processor-httpclient</artifactId>
-			<version>1.2.1.BUILD-SNAPSHOT</version>
+			<artifactId>python-app-starters-test-support</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -60,7 +50,7 @@
 						</dependency>
 					</requiresUnpack>
 					<generatedApps>
-						<python-http-processor/>
+						<python-jython-processor/>
 					</generatedApps>
 				</configuration>
 			</plugin>

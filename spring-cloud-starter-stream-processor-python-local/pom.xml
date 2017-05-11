@@ -43,6 +43,12 @@
 						<artifactId>python-app-dependencies</artifactId>
 						<version>${project.version}</version>
 					</bom>
+					<requiresUnpack>
+						<dependency>
+							<groupId>org.python</groupId>
+							<artifactId>jython-standalone</artifactId>
+						</dependency>
+					</requiresUnpack>
 					<generatedApps>
 						<python-local-processor/>
 					</generatedApps>

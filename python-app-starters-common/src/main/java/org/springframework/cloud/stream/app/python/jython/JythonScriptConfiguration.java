@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.wrapper;
+package org.springframework.cloud.stream.app.python.jython;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -23,8 +23,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
 import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
-import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
+import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperProperties;
+import org.springframework.cloud.stream.app.python.wrapper.ShellCommandProcessorJythonWrapper;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,43 +35,19 @@ import org.springframework.context.annotation.Import;
  * @author David Turanski
  **/
 @Configuration
-@EnableConfigurationProperties(JythonWrapperProperties.class)
+@EnableConfigurationProperties(JythonScriptProperties.class)
 @Import(GitResourceRepositoryConfiguration.class)
-public class JythonWrapperConfiguration {
+public class JythonScriptConfiguration {
 
-	@Configuration
-	@ConditionalOnProperty("wrapper.script")
-	@ConditionalOnBean(ShellCommandProcessor.class)
-	static class ShellProcessorJythonWrapperConfig {
 		@Autowired(required = false)
 		private JGitResourceRepository gitResourceRepository;
 
 		@Autowired
-		private JythonWrapperProperties properties;
-
-		@Bean
-		public JythonScriptExecutor jythonWrapper(ShellCommandProcessor processor) {
-			ScriptResourceUtils.overWriteWrapperScriptForGitIfNecessary(gitResourceRepository, properties);
-			return new ShellCommandProcessorJythonWrapper(properties.getScriptResource(), processor);
-		}
-	}
-
-	@Configuration
-	@ConditionalOnProperty("wrapper.script")
-	@ConditionalOnMissingBean(ShellCommandProcessor.class)
-	static class DefaultJythonWrapperConfig {
-		@Autowired(required = false)
-		private JGitResourceRepository gitResourceRepository;
-
-		@Autowired
-		private JythonWrapperProperties properties;
+		private JythonScriptProperties properties;
 
 		@Bean
 		public JythonScriptExecutor jythonWrapper() {
 			ScriptResourceUtils.overWriteWrapperScriptForGitIfNecessary(gitResourceRepository, properties);
 			return new JythonScriptExecutor(properties.getScriptResource());
 		}
-	}
-
-
 }

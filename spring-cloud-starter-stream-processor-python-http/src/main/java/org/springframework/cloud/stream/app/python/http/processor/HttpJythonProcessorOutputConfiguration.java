@@ -18,7 +18,7 @@ package org.springframework.cloud.stream.app.python.http.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.app.python.wrapper.JythonWrapper;
+import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.messaging.Message;
@@ -34,7 +34,7 @@ import java.util.Map;
 public class HttpJythonProcessorOutputConfiguration {
 
 	@Autowired(required = false)
-	private JythonWrapper jythonWrapper;
+	private JythonScriptExecutor jythonWrapper;
 
 	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
 	public Message<?> process(Message<?> message) {

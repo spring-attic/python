@@ -14,43 +14,33 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.http.processor;
+package org.springframework.cloud.stream.app.python.local.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.cloud.stream.app.python.jython.JythonScriptConfiguration;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
-import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.support.MessageBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
+ * A Processor that runs a Jython script.
+ *
  * @author David Turanski
  **/
-
 @EnableBinding(Processor.class)
-@Import(JythonWrapperConfiguration.class)
-public class HttpJythonProcessorInputConfiguration {
+@Import({ JythonScriptConfiguration.class })
+public class JythonProcessorConfiguration {
 
-	@Autowired(required = false)
+	@Autowired
 	private JythonScriptExecutor jythonWrapper;
 
 	@StreamListener(Processor.INPUT)
 	@SendTo(Processor.OUTPUT)
-	public Message<?> prepProcess(Message<?> message) {
-		if (jythonWrapper == null) {
-			return message;
-		}
-
-		Map<String, Object> channel = new HashMap<>();
-		channel.put("channel", Processor.INPUT);
-		Object result = jythonWrapper.execute(message, channel);
-		return (MessageBuilder.createMessage(result, message.getHeaders()));
+	public Object process(Message<?> message) {
+		return jythonWrapper.execute(message);
 	}
 }

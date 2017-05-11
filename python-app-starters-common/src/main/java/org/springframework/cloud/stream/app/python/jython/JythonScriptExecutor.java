@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.wrapper;
+package org.springframework.cloud.stream.app.python.jython;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,15 +30,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Executes a Jython wrapper to transform data to and from external Python applications.
+ * Executes a Jython script executor to transform data to and from external Python applications.
  *
  * @author David Turanski
  **/
-public class JythonWrapper implements InitializingBean {
-
-	static {
-		System.setProperty("python.import.site","false");
-	}
+public class JythonScriptExecutor implements InitializingBean {
 
 	protected final Log log = LogFactory.getLog(this.getClass());
 
@@ -52,7 +48,7 @@ public class JythonWrapper implements InitializingBean {
 	 * Executes a Python script using a {@link PythonScriptExecutor}.
 	 * @param script
 	 */
-	public JythonWrapper(Resource script) {
+	public JythonScriptExecutor(Resource script) {
 		scriptSource = new CachingResourceScriptSource(script);
 	}
 

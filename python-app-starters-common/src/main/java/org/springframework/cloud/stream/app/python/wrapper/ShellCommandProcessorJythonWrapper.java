@@ -16,19 +16,19 @@
 
 package org.springframework.cloud.stream.app.python.wrapper;
 
-import org.springframework.cloud.stream.app.python.wrapper.JythonWrapper;
+import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.core.io.Resource;
 
 import java.util.Map;
 
 /**
- * Runs a @{link JythonWrapper} implementation to invoke a script with a {@link ShellCommandProcessor}
+ * Runs a @{link JythonScriptExecutor} implementation to invoke a script with a {@link ShellCommandProcessor}
  * bound as a variable named 'processor'.
  *
  * @author David Turanski
  **/
-public class ShellCommandProcessorJythonWrapper extends JythonWrapper {
+public class ShellCommandProcessorJythonWrapper extends JythonScriptExecutor {
 
 
 	private ShellCommandProcessor shellCommandProcessor;

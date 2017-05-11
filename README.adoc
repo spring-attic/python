@@ -30,6 +30,8 @@ transform data in and out of the http server.
 ## Python Http Processor
 include::spring-cloud-starter-stream-processor-python-http/README.adoc[]
 
+## Jython Processor
+include::spring-cloud-starter-stream-processor-jython/README.adoc[]
 
 # Python Local Process
 

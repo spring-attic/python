@@ -23,8 +23,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.spring.io.data.Page;
-import org.springframework.cloud.stream.app.python.wrapper.JythonWrapper;
-import org.springframework.cloud.stream.app.python.wrapper.ShellCommandProcessorJythonWrapper;
+import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -39,7 +38,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author David Turanski
  **/
-public class JythonWrapperTests {
+public class JythonScriptExecutorTests {
 
 	ShellCommandProcessor shellCommandProcessor = mock(ShellCommandProcessor.class);
 
@@ -56,8 +55,8 @@ public class JythonWrapperTests {
 
 	@Test
 	public void simple() {
-		JythonWrapper jythonWrapper = new JythonWrapper(new ClassPathResource("wrapper/simple_wrapper.py"));
-		assertThat(jythonWrapper.execute(new GenericMessage<String>("hello"))).isEqualTo("HELLO");
+		JythonScriptExecutor jythonScriptExecutor = new JythonScriptExecutor(new ClassPathResource("wrapper/simple_wrapper.py"));
+		assertThat(jythonScriptExecutor.execute(new GenericMessage<String>("hello"))).isEqualTo("HELLO");
 	}
 
 	@Test
@@ -67,7 +66,6 @@ public class JythonWrapperTests {
 		jythonWrapper.afterPropertiesSet();
 		Object result = jythonWrapper.execute(new GenericMessage<Page>(new Page()));
 		assertThat(result).isNotNull();
-		System.out.println(result.toString());
 		Page page = new ObjectMapper().readValue(result.toString(), Page.class);
 	}
 
@@ -76,8 +74,8 @@ public class JythonWrapperTests {
 	public void scriptSource() throws Exception {
 		Resource script = new UrlResource(
 				"https://github.com/dturanski/python-apps/blob/master/test-wrappers/upper.py");
-		JythonWrapper jythonWrapper = new JythonWrapper(new ClassPathResource("wrapper/simple_wrapper.py"));
-		Object result = jythonWrapper.execute(new GenericMessage<String>("hello"));
+		JythonScriptExecutor jythonScriptExecutor = new JythonScriptExecutor(new ClassPathResource("wrapper/simple_wrapper.py"));
+		Object result = jythonScriptExecutor.execute(new GenericMessage<String>("hello"));
 		assertThat(result).isEqualTo("HELLO");
 
 	}

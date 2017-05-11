@@ -24,6 +24,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
+import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class JythonWrapperConfigTests {
 
 	@Autowired(required = false)
-	JythonWrapper jythonWrapper;
+	JythonScriptExecutor jythonWrapper;
 
 	@Autowired(required = false)
 	JGitResourceRepository repository;

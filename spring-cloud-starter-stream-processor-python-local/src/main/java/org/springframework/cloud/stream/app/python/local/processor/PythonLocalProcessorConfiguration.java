@@ -19,10 +19,10 @@ package org.springframework.cloud.stream.app.python.local.processor;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
 import org.springframework.cloud.stream.app.python.shell.PythonAppDeployerConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProcessorConfiguration;
-import org.springframework.cloud.stream.app.python.wrapper.JythonWrapper;
 import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
@@ -49,7 +49,7 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 	private ShellCommandProcessor shellCommandProcessor;
 
 	@Autowired(required = false)
-	private JythonWrapper jythonWrapper;
+	private JythonScriptExecutor jythonWrapper;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
