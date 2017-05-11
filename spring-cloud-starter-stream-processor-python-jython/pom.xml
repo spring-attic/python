@@ -3,10 +3,10 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>spring-cloud-starter-stream-processor-jython</artifactId>
+	<artifactId>spring-cloud-starter-stream-processor-python-jython</artifactId>
 	<packaging>jar</packaging>
-	<name>spring-cloud-starter-stream-processor-jython</name>
-	<description>Spring Cloud Stream jython processor core</description>
+	<name>spring-cloud-starter-stream-processor-python-jython</name>
+	<description>Spring Cloud Stream Jython processor core</description>
 
 	<parent>
 		<groupId>org.springframework.cloud.stream.app</groupId>
