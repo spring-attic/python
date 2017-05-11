@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.local.processor;
+package org.springframework.cloud.stream.app.python.jython.processor;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;

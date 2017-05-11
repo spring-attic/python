@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.local.processor;
+package org.springframework.cloud.stream.app.python.jython.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
@@ -33,7 +33,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
  **/
 @EnableBinding(Processor.class)
 @Import({ JythonScriptConfiguration.class })
-public class JythonProcessorConfiguration {
+public class PythonJythonProcessorConfiguration {
 
 	@Autowired
 	private JythonScriptExecutor jythonWrapper;

@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.local.processor;
+package org.springframework.cloud.stream.app.python.jython.processor;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -89,7 +89,7 @@ public abstract class JythonProcessorTests {
 	}
 
 	@SpringBootApplication
-	@Import(JythonProcessorConfiguration.class)
+	@Import(PythonJythonProcessorConfiguration.class)
 	public static class PythonApplication {
 
 	}

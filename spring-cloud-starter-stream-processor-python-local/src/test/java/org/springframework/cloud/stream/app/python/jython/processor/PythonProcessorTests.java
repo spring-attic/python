@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.local.processor;
+package org.springframework.cloud.stream.app.python.jython.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Ignore;
