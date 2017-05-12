@@ -74,6 +74,21 @@ public abstract class JythonProcessorTests {
 		}
 	}
 
+	@TestPropertySource(properties = {
+			"jython.script=wrapper/map_sentiments.py",
+			"jython.variables=positive=60.0, neutral=40.0"
+	})
+	public static class TestWithVariables extends JythonProcessorTests {
+		@Test
+		public void test() throws InterruptedException {
+			Message<Double> message = new GenericMessage<>(39.80);
+			processor.input().send(message);
+			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
+					.poll(1, TimeUnit.SECONDS);
+			assertThat(received.getPayload()).isEqualTo("{\"sentiment\": \"Negative\"}");
+		}
+	}
+
 	@TestPropertySource(properties = { "jython.script=test-wrappers/upper.py",
 			"git.uri=https://github.com/dturanski/python-apps" })
 	@Ignore

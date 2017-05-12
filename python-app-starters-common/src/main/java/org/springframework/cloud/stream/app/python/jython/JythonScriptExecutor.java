@@ -38,7 +38,7 @@ public class JythonScriptExecutor implements InitializingBean {
 
 	protected final Log log = LogFactory.getLog(this.getClass());
 
-	private final PythonScriptExecutor scriptExecutor = new PythonScriptExecutor();
+	private final PythonScriptExecutor scriptExecutor;
 
 	private final Map<String, Object> variables = new HashMap<>();
 
@@ -49,7 +49,9 @@ public class JythonScriptExecutor implements InitializingBean {
 	 * @param script
 	 */
 	public JythonScriptExecutor(Resource script) {
+
 		scriptSource = new CachingResourceScriptSource(script);
+		scriptExecutor = new PythonScriptExecutor();
 	}
 
 	/**

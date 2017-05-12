@@ -21,6 +21,7 @@ import org.springframework.cloud.stream.app.python.script.ScriptProperties;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
+import java.util.Properties;
 
 /**
  * Configuration properties for the Jython wrapper.
@@ -30,6 +31,18 @@ import javax.validation.constraints.NotNull;
 @ConfigurationProperties(prefix="jython")
 @Validated
 public class JythonScriptProperties extends ScriptProperties {
+	/**
+	 * Variable bindings as a comma delimited string of name-value pairs, e.g. 'foo=bar,baz=car'.
+	 */
+	private String variables;
+
+	public String getVariables() {
+		return variables;
+	}
+
+	public void setVariables(String variables) {
+		this.variables = variables;
+	}
 
 	@NotNull
 	public String getScript() {

@@ -17,14 +17,26 @@
 package org.springframework.cloud.stream.app.python.jython.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.annotation.StreamListener;
-import org.springframework.cloud.stream.app.python.jython.JythonScriptConfiguration;
-import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
+import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
+import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
+import org.springframework.cloud.stream.app.python.jython.JythonScriptProperties;
+import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.messaging.Processor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.integration.annotation.Transformer;
+import org.springframework.integration.dsl.scripting.Scripts;
+import org.springframework.integration.handler.MessageProcessor;
+import org.springframework.integration.scripting.DefaultScriptVariableGenerator;
+import org.springframework.integration.scripting.ScriptVariableGenerator;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A Processor that runs a Jython script.
@@ -32,15 +44,39 @@ import org.springframework.messaging.handler.annotation.SendTo;
  * @author David Turanski
  **/
 @EnableBinding(Processor.class)
-@Import({ JythonScriptConfiguration.class })
+@EnableConfigurationProperties(JythonScriptProperties.class)
+@Import(GitResourceRepositoryConfiguration.class)
 public class PythonJythonProcessorConfiguration {
 
-	@Autowired
-	private JythonScriptExecutor jythonWrapper;
+	@Autowired(required = false)
+	private JGitResourceRepository gitResourceRepository;
 
-	@StreamListener(Processor.INPUT)
-	@SendTo(Processor.OUTPUT)
-	public Object process(Message<?> message) {
-		return jythonWrapper.execute(message);
+	@Autowired
+	private JythonScriptProperties properties;
+
+	@Autowired
+	private ScriptVariableGenerator scriptVariableGenerator;
+
+	@Bean
+	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
+	public MessageProcessor<?> transformer() {
+		ScriptResourceUtils.overWriteWrapperScriptForGitIfNecessary(gitResourceRepository, properties);
+		return Scripts.script(properties.getScriptResource())
+				.lang("python")
+				.variableGenerator(this.scriptVariableGenerator).get();
 	}
+
+	@Bean(name = "variableGenerator")
+	public ScriptVariableGenerator scriptVariableGenerator() throws IOException {
+		Map<String, Object> variables = new HashMap<>();
+		if (properties.getVariables() != null) {
+			String[] props = StringUtils.commaDelimitedListToStringArray(properties.getVariables());
+			for (String prop: props) {
+				String[] toks = StringUtils.split(prop,"=");
+				variables.put(toks[0].trim(),toks[1].trim());
+			}
+		}
+		return new DefaultScriptVariableGenerator(variables);
+	}
+
 }
