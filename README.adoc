@@ -1,22 +1,45 @@
 # spring-cloud-stream-app-starters-python
 Spring Cloud Stream App Starters for integrating with Python
 
-
-To learn more about these application and the supported properties, please review the following links.
-
-
 # Accessing Python Resources
 
 These applications include configuration properties that specify Python script locations and directories. These
 properties use Spring's
 http://docs.spring.io/spring/docs/current/spring-framework-reference/html/resources.html[Resource] abstraction.
 
-Python scripts may be packaged in the Jar file as classpath resources, or may point to a local file using the `file:`
-Resource protocol.  URL resources such as https://raw.githubusercontent
-.com/dturanski/python-apps/master/test-wrappers/upper.py are supported. Additionally if you provide a `git.url` to
-a valid repository, the application will clone the repository to the local file system during initialization and load
- scripts from there.
+Python scripts may point to a local file  or  URL resources such as
+https://raw.githubusercontent.com/dturanski/python-apps/master/test-wrappers/upper.py.
+Additionally if you provide a `git.url` to a valid repository, the application will clone the repository to the local
+file system during initialization and load scripts from there.
 
+
+ # CloudFoundry Deployment
+
+ You can download a Spring Cloud Stream Python App binary (e.g., with Rabbit or Kafka Binder) in the root directory of a
+ Python app, and push it using the https://github.com/dturanski/java-python-buildpack[Java Python
+  Buildpack]. This build pack extends the https://github.com/cloudfoundry/python-buildpack[Python buildpack] to
+  support the deployment of a full Python app in the container. The Spring Cloud Stream App will be started and will
+  launch a local Python process or run a packaged script using an embedded Jython ScriptEngine, depending on the
+  configuration. For example. Suppose you have a directory containing:
+
+```
+myapp.py
+requirements.txt
+python-local-processor-rabbit-1.2.1.BUILD-SNAPSHOT.jar
+```
+
+You can:
+
+```
+$ cf push -b  https://github.com/dturanski/java-python-buildpack
+```
+
+Or for use with Spring Cloud Data Flow Cloud Foundry Server, you can zip the directory and register the zip file as
+processor. You must also specify the Java Python buildpack as a deployment property
+
+```
+$ zip ../myapp.zip -r *
+```
 
 
 # Python via Http
@@ -69,8 +92,11 @@ The application requires that Python (2.7 or 3) is installed along with Java in 
 * CloudFoundry - Use the https://github.com/dturanski/java-python-buildpack[java-python-buildpack].
 * Docker - Use one of the of the java-python images https://hub.docker.com/u/korekontrol/[here],
 
-The application will invoke `pip` to install any dependencies listed in `requirements.txt` in the top level
-directory. This must include the line  `springcloudstream>=1.0`.
-
+If the Python app is pulled from Git at runtime, the Java application will invoke `pip` to install any dependencies
+listed in `requirements.txt`. If using the Java Python Buildpack, the buildpack will handle this.
+In either case, include the line
+```
+springcloudstream>=1.0
+```
 
 

@@ -31,7 +31,6 @@ import org.springframework.integration.dsl.scripting.Scripts;
 import org.springframework.integration.handler.MessageProcessor;
 import org.springframework.integration.scripting.DefaultScriptVariableGenerator;
 import org.springframework.integration.scripting.ScriptVariableGenerator;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -60,9 +59,10 @@ public class PythonJythonProcessorConfiguration {
 	@Bean
 	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
 	public MessageProcessor<?> transformer() {
-		ScriptResourceUtils.overWriteWrapperScriptForGitIfNecessary(gitResourceRepository, properties);
-		return Scripts.script(properties.getScriptResource())
-				.lang("python")
+		if (gitResourceRepository != null) {
+			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
+		}
+		return Scripts.script(properties.getScriptResource()).lang("python")
 				.variableGenerator(this.scriptVariableGenerator).get();
 	}
 
@@ -71,9 +71,9 @@ public class PythonJythonProcessorConfiguration {
 		Map<String, Object> variables = new HashMap<>();
 		if (properties.getVariables() != null) {
 			String[] props = StringUtils.commaDelimitedListToStringArray(properties.getVariables());
-			for (String prop: props) {
-				String[] toks = StringUtils.split(prop,"=");
-				variables.put(toks[0].trim(),toks[1].trim());
+			for (String prop : props) {
+				String[] toks = StringUtils.split(prop, "=");
+				variables.put(toks[0].trim(), toks[1].trim());
 			}
 		}
 		return new DefaultScriptVariableGenerator(variables);

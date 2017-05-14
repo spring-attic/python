@@ -54,7 +54,11 @@ public class PythonAppProperties extends ScriptProperties {
 
 	protected Resource resolveResource(String resourceName) {
 		if (basedir != null) {
-			return new PathMatchingResourcePatternResolver().getResource(basedir.getFilename() + File.separator + resourceName);
+			return new PathMatchingResourcePatternResolver().getResource("file:"+basedir
+					.getFilename
+					() +
+					File.separator +
+					resourceName);
 		}
 		return super.resolveResource(resourceName);
 	}

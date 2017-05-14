@@ -14,9 +14,10 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.jython.processor;
+package org.springframework.cloud.stream.app.python.local.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +25,7 @@ import org.spring.io.data.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.stream.app.test.python.SpringCloudStreamPythonAvailableRule;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.context.annotation.Import;
@@ -47,6 +49,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public abstract class PythonProcessorTests {
 
+	@ClassRule
+	public static SpringCloudStreamPythonAvailableRule springCloudStreamPythonAvailableRule
+			= new SpringCloudStreamPythonAvailableRule();
+
 	@Autowired
 	Processor processor;
 
@@ -56,39 +62,46 @@ public abstract class PythonProcessorTests {
 	@Autowired
 	ObjectMapper objectMapper;
 
-	@TestPropertySource(properties = { "python.basedir=python", "python.script=processor_example.py" })
+	@TestPropertySource(properties = {
+			"python.basedir=src/test/resources/python",
+			"python.script=processor_example.py" })
 	public static class TestSimple extends PythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
 			Message<String> message = new GenericMessage<>("hello world");
 			processor.input().send(message);
-			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output()).poll(1, TimeUnit.SECONDS);
+			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
+					.poll(1, TimeUnit.SECONDS);
 			assertThat(received.getPayload()).isEqualTo("hello world");
 		}
 	}
 
-	@TestPropertySource(properties = { "python.basedir=file:src/test/resources/python",
+	@TestPropertySource(properties = {
+			"python.basedir=src/test/resources/python",
 			"python.script=processor_example.py" })
 	public static class TestSimpleFileSystem extends PythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
 			Message<String> message = new GenericMessage<>("hello world");
 			processor.input().send(message);
-			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output()).poll(1,
-					TimeUnit.SECONDS);
+			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
+					.poll(1, TimeUnit.SECONDS);
 			assertThat(received.getPayload()).isEqualTo("hello world");
 		}
 	}
 
-	@TestPropertySource(properties = { "python.basedir=python", "python.script=pickle_page_example.py",
-			"python.encoder=BINARY", "wrapper.script=wrapper/page_wrapper.py" })
+	@TestPropertySource(properties = {
+			"python.basedir=src/test/resources/python",
+			"python.script=pickle_page_example.py",
+			"python.encoder=BINARY",
+			"wrapper.script=src/test/resources/wrapper/page_wrapper.py" })
 	public static class TestPicklePage extends PythonProcessorTests {
 		@Test
 		public void test() throws IOException, InterruptedException {
 			Message<Page> message = new GenericMessage<>(new Page());
 			processor.input().send(message);
-			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output()).poll(1,
-					TimeUnit.SECONDS);
+			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
+					.poll(1, TimeUnit.SECONDS);
 
 			Page page = objectMapper.readValue(received.getPayload(), Page.class);
 			assertThat(page.getLinks()).containsKeys("google", "yahoo", "pivotal");
@@ -96,18 +109,18 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-	@TestPropertySource(properties = { "git.uri=https://github.com/dturanski/python-apps",
+	@TestPropertySource(properties = {
+			"git.uri=https://github.com/dturanski/python-apps",
 			"python.basedir=test-stream-scripts/time-transformer",
-			"python.script=time-delta.py"
-		})
+			"python.script=time-delta.py" })
 	public static class TestGitRepo extends PythonProcessorTests {
 		@Test
 		@Ignore //TODO figure out a way to mock this
 		public void test() throws InterruptedException {
 			Message<String> message = new GenericMessage<>("06/01/16 09:45:11");
 			processor.input().send(message);
-			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output()).poll(1,
-					TimeUnit.SECONDS);
+			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
+					.poll(1, TimeUnit.SECONDS);
 			System.out.println(received.getPayload());
 		}
 	}

@@ -35,7 +35,7 @@ import java.nio.file.Files;
  * @author David Turanski
  **/
 public abstract class AbstractPythonAppDeployer implements PythonAppDeployer {
-	protected Log log = LogFactory.getLog(ClassPathPythonAppDeployer.class);
+	protected Log log = LogFactory.getLog(this.getClass());
 
 	private FileSystemResource appDir;
 	private String pipCommandName = "pip";

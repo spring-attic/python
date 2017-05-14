@@ -20,9 +20,13 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
+import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
+import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.integration.ip.tcp.serializer.AbstractByteArraySerializer;
 import org.springframework.integration.ip.tcp.serializer.ByteArrayCrLfSerializer;
@@ -63,14 +67,14 @@ public class PythonShellCommandProcessorConfiguration {
 	}
 
 	@Bean
-	public ShellCommandProcessor shellCommandProcessor(AbstractByteArraySerializer serializer,
-			PythonAppDeployer pythonAppDeployer) {
+	public ShellCommandProcessor shellCommandProcessor(AbstractByteArraySerializer serializer, JGitResourceRepository
+			repository) {
+		if (repository != null) {
+			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(repository, properties, properties.getPath());
+		}
 
-		Resource script = properties.getScriptResource();
-		String filePath = StringUtils
-				.join(new String[] { pythonAppDeployer.getAppDirPath(), script.getFilename() }, File.separator);
 		String command = StringUtils
-				.join(new String[] { properties.getCommandName(), properties.getArgs(), filePath }, " ");
+				.join(new String[] { properties.getCommandName(), properties.getArgs(), properties.getScript() }, " ");
 
 		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer(), command);
 		shellCommandProcessor.setAutoStart(false);

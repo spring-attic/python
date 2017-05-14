@@ -39,8 +39,8 @@ import org.springframework.context.annotation.Import;
 public class JythonWrapperConfiguration {
 
 	@Configuration
-	@ConditionalOnProperty("wrapper.script")
 	@ConditionalOnBean(ShellCommandProcessor.class)
+	@ConditionalOnProperty("wrapper.script")
 	static class ShellProcessorJythonWrapperConfig {
 		@Autowired(required = false)
 		private JGitResourceRepository gitResourceRepository;
@@ -50,14 +50,16 @@ public class JythonWrapperConfiguration {
 
 		@Bean
 		public JythonScriptExecutor jythonWrapper(ShellCommandProcessor processor) {
-			ScriptResourceUtils.overWriteWrapperScriptForGitIfNecessary(gitResourceRepository, properties);
+			if (gitResourceRepository != null) {
+				ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
+			}
 			return new ShellCommandProcessorJythonWrapper(properties.getScriptResource(), processor);
 		}
 	}
 
 	@Configuration
-	@ConditionalOnProperty("wrapper.script")
 	@ConditionalOnMissingBean(ShellCommandProcessor.class)
+	@ConditionalOnProperty("wrapper.script")
 	static class DefaultJythonWrapperConfig {
 		@Autowired(required = false)
 		private JGitResourceRepository gitResourceRepository;
@@ -67,10 +69,10 @@ public class JythonWrapperConfiguration {
 
 		@Bean
 		public JythonScriptExecutor jythonWrapper() {
-			ScriptResourceUtils.overWriteWrapperScriptForGitIfNecessary(gitResourceRepository, properties);
+			if (gitResourceRepository != null) {
+				ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
+			}
 			return new JythonScriptExecutor(properties.getScriptResource());
 		}
 	}
-
-
 }

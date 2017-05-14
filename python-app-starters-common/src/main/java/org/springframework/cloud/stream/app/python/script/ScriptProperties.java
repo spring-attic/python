@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.stream.app.python.script;
 
+import org.apache.catalina.webresources.FileResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.validation.annotation.Validated;
@@ -47,7 +49,7 @@ public class ScriptProperties {
 	}
 
 	protected Resource resolveResource(String resourceName) {
-		return new PathMatchingResourcePatternResolver().getResource(resourceName);
+		return new PathMatchingResourcePatternResolver().getResource("file:" + resourceName);
 
 	}
 }

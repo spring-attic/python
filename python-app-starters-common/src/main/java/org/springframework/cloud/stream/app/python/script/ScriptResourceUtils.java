@@ -21,7 +21,6 @@ import org.springframework.cloud.stream.app.common.resource.repository.JGitResou
 import java.io.File;
 
 /**
- *
  * @author David Turanski
  **/
 public abstract class ScriptResourceUtils {
@@ -33,11 +32,18 @@ public abstract class ScriptResourceUtils {
  * The JGitRepository is set to clone on start up, the repo has already been cloned to the local file system.
  * That is the path the Jython wrapper will use.
  */
-	public static void overWriteWrapperScriptForGitIfNecessary(JGitResourceRepository repository,
+	public static void overwriteScriptLocationToGitCloneTarget(JGitResourceRepository repository,
 			ScriptProperties properties) {
+		overwriteScriptLocationToGitCloneTarget(repository, properties, null);
+	}
+
+	public static void overwriteScriptLocationToGitCloneTarget(JGitResourceRepository repository,
+			ScriptProperties properties, String basedir) {
 		if (repository != null) {
-			properties.setScript(
-					"file:" + repository.getBasedir().getAbsolutePath() + File.separator + properties.getScript());
+			String path = basedir == null ?
+					repository.getBasedir().getAbsolutePath() + File.separator + properties.getScript() :
+					repository.getBasedir().getAbsolutePath() + File.separator + basedir + File.separator + properties.getScript();
+			properties.setScript(path);
 		}
 	}
 }

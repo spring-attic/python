@@ -16,15 +16,9 @@
 
 package org.springframework.cloud.stream.app.python.shell;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Test;
-import org.springframework.cloud.stream.app.python.shell.ClassPathPythonAppDeployer;
-import org.springframework.cloud.stream.app.python.shell.FileSystemPythonAppDeployer;
-import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
 import org.springframework.core.io.FileSystemResource;
 
-import java.io.File;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,25 +27,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author David Turanski
  **/
 
-
 public class PythonAppDeployerTests {
-
-
-
-	@Test
-	public void testClassPathDeployer() throws IOException {
-		PythonAppDeployer pythonAppDeployer = new ClassPathPythonAppDeployer();
-		pythonAppDeployer.deploy();
-		assertThat(pythonAppDeployer.getAppDir().getFile().isDirectory()).isTrue();
-		assertThat(pythonAppDeployer.getAppDir().exists()).isTrue();
-		assertThat(pythonAppDeployer.getAppDir().getFile().list()).isNotEmpty();
-	}
 
 	@Test
 	public void testFileSystemDeployer() throws IOException {
 		FileSystemPythonAppDeployer pythonAppDeployer = new FileSystemPythonAppDeployer(
 				new FileSystemResource("src/test/resources/my-python-app"));
-
 		pythonAppDeployer.deploy();
 		assertThat(pythonAppDeployer.getAppDir().getFile().isDirectory()).isTrue();
 		assertThat(pythonAppDeployer.getAppDir().exists()).isTrue();

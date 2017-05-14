@@ -77,7 +77,7 @@ public abstract class PythonHttpProcessorTests {
 
 	@TestPropertySource(properties = {
 			"httpclient.urlExpression='http://localhost:' + @environment.getProperty('server.port') +'/py'",
-			"httpclient.httpMethod=POST", "wrapper.script=simple-test.py" })
+			"httpclient.httpMethod=POST", "wrapper.script=src/test/resources/simple-test.py" })
 	public static class SimpleWrapperTest extends PythonHttpProcessorTests {
 		@BeforeClass
 		public static void setUp() {

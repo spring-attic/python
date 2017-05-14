@@ -14,14 +14,14 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.jython.processor;
+package org.springframework.cloud.stream.app.python.local.processor;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
-import org.springframework.cloud.stream.app.python.shell.PythonAppDeployerConfiguration;
+import org.springframework.cloud.stream.app.python.shell.PythonGitAppDeployerConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProcessorConfiguration;
 import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.messaging.Processor;
@@ -39,10 +39,10 @@ import org.springframework.messaging.Message;
  **/
 @EnableBinding(Processor.class)
 @Import({ PythonShellCommandProcessorConfiguration.class, JythonWrapperConfiguration.class,
-		PythonAppDeployerConfiguration.class})
+		PythonGitAppDeployerConfiguration.class})
 public class PythonLocalProcessorConfiguration implements InitializingBean {
 
-	@Autowired
+	@Autowired(required = false)
 	private PythonAppDeployer pythonAppDeployer;
 
 	@Autowired
@@ -53,7 +53,9 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		pythonAppDeployer.deploy();
+		if (pythonAppDeployer != null) {
+			pythonAppDeployer.deploy();
+		}
 		shellCommandProcessor.start();
 	}
 

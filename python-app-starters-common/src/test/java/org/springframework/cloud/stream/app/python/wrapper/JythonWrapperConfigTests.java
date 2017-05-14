@@ -70,31 +70,18 @@ public abstract class JythonWrapperConfigTests {
 		}
 	}
 
-	@TestPropertySource(properties = { "wrapper.script=wrapper/simple_wrapper.py" })
-	public static class TestWrapperClassPathResource extends JythonWrapperConfigTests {
-		@Test
-		public void test() throws IOException {
-			assertThat(repository).isNull();
-
-			System.out.println(jythonWrapper.getScriptSource().getScriptAsString());
-			assertThat(jythonWrapper.getScriptSource().getScriptAsString().trim())
-					.isEqualTo("result = payload.upper()");
-		}
-	}
-
-	@TestPropertySource(properties = { "wrapper.script=file:src/test/resources/wrapper/simple_wrapper.py" })
+	@TestPropertySource(properties = { "wrapper.script=./src/test/resources/wrapper/simple_wrapper.py" })
 	public static class TestWrapperFileResource extends JythonWrapperConfigTests {
 		@Test
 		public void test() throws IOException {
 			assertThat(repository).isNull();
-
-			System.out.println(jythonWrapper.getScriptSource().getScriptAsString());
 			assertThat(jythonWrapper.getScriptSource().getScriptAsString().trim())
 					.isEqualTo("result = payload.upper()");
 		}
 	}
 
-	@TestPropertySource(properties = { "wrapper.script=wrapper/simple_wrapper.py", "use.shell=true" })
+	@TestPropertySource(properties = { "wrapper.script=./src/test/resources/wrapper/simple_wrapper.py", "use"
+			+ ".shell=true" })
 	public static class TestWrapperWithShellCommandProcessor extends JythonWrapperConfigTests {
 		@Test
 		public void test() throws IOException {

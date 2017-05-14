@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.stream.app.python.jython.processor;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,19 +49,9 @@ public abstract class JythonProcessorTests {
 	@Autowired
 	MessageCollector messageCollector;
 
-	@TestPropertySource(properties = { "jython.script=wrapper/simple_wrapper.py" })
-	public static class TestSimple extends JythonProcessorTests {
-		@Test
-		public void test() throws InterruptedException {
-			Message<String> message = new GenericMessage<>("hello world");
-			processor.input().send(message);
-			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
-					.poll(1, TimeUnit.SECONDS);
-			assertThat(received.getPayload()).isEqualTo("HELLO WORLD");
-		}
-	}
 
-	@TestPropertySource(properties = { "jython.script=file:./src/test/resources/wrapper/simple_wrapper.py" })
+
+	@TestPropertySource(properties = { "jython.script=./src/test/resources/wrapper/simple_wrapper.py" })
 	public static class TestSimpleFile extends JythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
@@ -75,7 +64,7 @@ public abstract class JythonProcessorTests {
 	}
 
 	@TestPropertySource(properties = {
-			"jython.script=wrapper/map_sentiments.py",
+			"jython.script=src/test/resources/wrapper/map_sentiments.py",
 			"jython.variables=positive=0.6, neutral=0.4"
 	})
 	public static class TestWithVariables extends JythonProcessorTests {
@@ -91,7 +80,7 @@ public abstract class JythonProcessorTests {
 
 	@TestPropertySource(properties = { "jython.script=test-wrappers/upper.py",
 			"git.uri=https://github.com/dturanski/python-apps" })
-	@Ignore
+	//@Ignore
 	public static class TestGit extends JythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
