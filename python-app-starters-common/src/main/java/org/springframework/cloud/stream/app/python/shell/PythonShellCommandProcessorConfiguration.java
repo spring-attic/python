@@ -21,19 +21,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
-import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
 import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
+import org.springframework.cloud.stream.app.python.shell.cloudfoundry.PythonEnvironmentHelper;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.core.io.Resource;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.ip.tcp.serializer.AbstractByteArraySerializer;
 import org.springframework.integration.ip.tcp.serializer.ByteArrayCrLfSerializer;
 import org.springframework.integration.ip.tcp.serializer.ByteArrayLfSerializer;
 import org.springframework.integration.ip.tcp.serializer.ByteArraySingleTerminatorSerializer;
-
-import java.io.File;
 
 /**
  * @author David Turanski
@@ -67,8 +64,9 @@ public class PythonShellCommandProcessorConfiguration {
 	}
 
 	@Bean
-	public ShellCommandProcessor shellCommandProcessor(AbstractByteArraySerializer serializer, JGitResourceRepository
-			repository) {
+	@Profile("!cloud")
+	public ShellCommandProcessor shellCommandProcessor(AbstractByteArraySerializer serializer,
+			JGitResourceRepository repository) {
 		if (repository != null) {
 			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(repository, properties, properties.getPath());
 		}
@@ -76,8 +74,27 @@ public class PythonShellCommandProcessorConfiguration {
 		String command = StringUtils
 				.join(new String[] { properties.getCommandName(), properties.getArgs(), properties.getScript() }, " ");
 
-		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer(), command);
+		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer, command);
 		shellCommandProcessor.setAutoStart(false);
 		return shellCommandProcessor;
 	}
+
+	@Bean
+	@Profile("cloud")
+	public ShellCommandProcessor cfShellCommandProcessor(AbstractByteArraySerializer serializer,
+			JGitResourceRepository repository) {
+		if (repository != null) {
+			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(repository, properties, properties.getPath());
+		}
+
+		String command = StringUtils
+				.join(new String[] { properties.getCommandName(), properties.getArgs(), properties.getScript() }, " ");
+		String scriptName =  new PythonEnvironmentHelper().wrappedCommand(command);
+		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer, scriptName);
+
+		shellCommandProcessor.setAutoStart(false);
+		return shellCommandProcessor;
+	}
+
+
 }
