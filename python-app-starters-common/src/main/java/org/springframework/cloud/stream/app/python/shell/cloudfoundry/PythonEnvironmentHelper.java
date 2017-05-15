@@ -43,7 +43,7 @@ public class PythonEnvironmentHelper {
 
 	public String wrappedCommand(String command) {
 		createScriptFile(command);
-		return SCRIPT_FILE_NAME;
+		return new File(SCRIPT_FILE_NAME).getAbsolutePath();
 	}
 
 	public void createScriptFile(String command) {
@@ -62,7 +62,6 @@ public class PythonEnvironmentHelper {
 			file.flush();
 			file.close();
 			log.debug("created command file " + scriptFile.getAbsolutePath());
-			log.debug("CWD " + new File("."));
 			Runtime.getRuntime().exec("chmod u+x " +  SCRIPT_FILE_NAME);
 		}
 		catch (IOException e) {

@@ -35,8 +35,9 @@ public class PythonEnvironmentHelperTests {
 		PythonEnvironmentHelper helper = new PythonEnvironmentHelper();
 
 		String command = helper.wrappedCommand("python foo.py");
-		assertThat(command).isEqualTo(PythonEnvironmentHelper.SCRIPT_FILE_NAME);
 		File script = new File(PythonEnvironmentHelper.SCRIPT_FILE_NAME);
+		assertThat(command).isEqualTo(script.getAbsolutePath());
+
 		assertThat(script.exists()).isTrue();
 		assertThat(script.canExecute()).isTrue();
 		String contents = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
