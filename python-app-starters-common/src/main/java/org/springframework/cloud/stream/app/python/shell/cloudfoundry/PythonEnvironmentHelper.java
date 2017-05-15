@@ -19,6 +19,8 @@ package org.springframework.cloud.stream.app.python.shell.cloudfoundry;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -31,6 +33,7 @@ import java.util.Map;
  * @author David Turanski
  **/
 public class PythonEnvironmentHelper {
+	private final static Log log = LogFactory.getLog(PythonEnvironmentHelper.class);
 
 	final static String PROFILE_PATH = "./.profile.d/python.sh";
 
@@ -58,6 +61,8 @@ public class PythonEnvironmentHelper {
 			template.process(model, file);
 			file.flush();
 			file.close();
+			log.debug("created command file " + scriptFile.getAbsolutePath());
+			log.debug("CWD " + new File("."));
 			Runtime.getRuntime().exec("chmod u+x " +  SCRIPT_FILE_NAME);
 		}
 		catch (IOException e) {

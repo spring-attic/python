@@ -45,6 +45,9 @@ public class PythonShellCommandProcessorConfiguration {
 	@Autowired
 	private PythonShellCommandProcessorProperties properties;
 
+	@Autowired(required = false)
+	private JGitResourceRepository repository;
+
 	@Bean
 	public AbstractByteArraySerializer serializer() {
 
@@ -65,8 +68,7 @@ public class PythonShellCommandProcessorConfiguration {
 
 	@Bean
 	@Profile("!cloud")
-	public ShellCommandProcessor shellCommandProcessor(AbstractByteArraySerializer serializer,
-			JGitResourceRepository repository) {
+	public ShellCommandProcessor shellCommandProcessor(AbstractByteArraySerializer serializer) {
 		if (repository != null) {
 			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(repository, properties, properties.getPath());
 		}
@@ -81,8 +83,7 @@ public class PythonShellCommandProcessorConfiguration {
 
 	@Bean
 	@Profile("cloud")
-	public ShellCommandProcessor cfShellCommandProcessor(AbstractByteArraySerializer serializer,
-			JGitResourceRepository repository) {
+	public ShellCommandProcessor cfShellCommandProcessor(AbstractByteArraySerializer serializer) {
 		if (repository != null) {
 			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(repository, properties, properties.getPath());
 		}
