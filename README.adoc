@@ -103,7 +103,3 @@ In either case, include the line
 ```
 springcloudstream>=1.0
 ```
-
-
-[Java Python Buildpack] https://github.com/dturanski/java-python-buildpack
-[Python buildpack] https://github.com/cloudfoundry/python-buildpack
