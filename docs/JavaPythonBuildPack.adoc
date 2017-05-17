@@ -1,5 +1,5 @@
 # CloudFoundry Deployment
-
+:imagesdir: ../images
 :java-python-buildpack:  https://github.com/dturanski/java-python-buildpack
 :python-buildpack: https://github.com/cloudfoundry/python-buildpack
 :java-buildpack: https://github.com/cloudfoundry/python-buildpack
@@ -33,3 +33,7 @@ processor. You must also specify the Java Python buildpack as a deployment prope
 ```
 $ zip ../myapp.zip -r *
 ```
+{nbsp} +
+
+image::packaging-python-stream-apps.png[Packaging,500,280, ]
+
