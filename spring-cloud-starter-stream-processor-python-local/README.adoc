@@ -3,7 +3,47 @@
 
 Spring Cloud Stream App Starters for integrating with python
 
-This component starts a local Python process in the local container, sends message payloads to it and receives the results. 
+This component starts a local Python process in the local container, sends message payloads to it and receives the results via a tcp pipe. The process must define a function with a single `<str>` argument that returns a `<str>`. By default the tcp connection is configured for text with `\n` or `\r\n` delimiters. However you can set the encoder to `BINARY` to use `pickle` serialization for example. The binary encoder uses `x1a` as the string terminator.  
+
+
+
+If you need to convert types to and from `<str>`, you may configure a Jython wrapper. 
+
+```python
+import cPickle as pickle
+import json
+from java.lang import String
+
+'''
+Map to a Python object
+'''
+
+
+class Page:
+    def __init__(self, page):
+        self.links = {}
+        for key in page.links:
+            self.links[key] = page.links[key].toString()
+        self.images = {}
+        for key in page.images:
+            self.images[key] = page.images[key]
+
+
+# protocol = pickle.HIGHEST_PROTOCOL
+protocol = 1
+
+'payload is bound to Java object spring.io.data.Page'
+page = Page(payload)
+
+'Pickle the Page dict representation'
+input = pickle.dumps(page.__dict__, protocol)
+'processor is bound to ShellProcessor. Invoke the shell processor and receive a dict'
+data = processor.sendAndReceive(input)
+'deserialize'
+returned_page = pickle.loads(data)
+'transform to java String as Json'
+result = String(json.dumps(returned_page))
+```
 
 See link:../docs/JavaPythonBuildPack.adoc[Deploying to Cloud Foundry]
 
