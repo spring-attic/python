@@ -32,6 +32,8 @@ Currently I/O is bound to `stdin` an `stdout` so any prints will cause problems.
 
 Since you are importing `springcloudstream`, you need to provide `requirements.txt` in the top level directory with an entry for `springcloudstream` minimally.
 
+## Jython Wrapper
+
 If you need to convert types to and from `<str>`, you may configure a Jython wrapper. JSon should work well in most cases, but if you want to pickle something, its best to stick with standard types such as `<dict>`, `<tuple>`, etc. Pickling user defined objects between Jython and native Python has some known issues, but YMMV. 
 
 The Jython wrapper uses a simple convention illustrated by this example: 
@@ -58,46 +60,35 @@ class Page:
             self.images[key] = page.images[key]
 
 
-# protocol = pickle.HIGHEST_PROTOCOL
-protocol = 1
 
-'payload is bound to Java object, e.g., spring.io.data.Page' representing a web page configuration 
-that has a map of link and a map of images.
+'payload is bound to Java Page object`
 page = Page(payload)
 
-'Pickle the Page dict representation'
+'Pickle the Page <dict>'
 input = pickle.dumps(page.__dict__, protocol)
-'processor is bound to ShellProcessor. Invoke the shell processor and receive a dict'
+
+'The processor variable is bound to ShellProcessor. Invoke the shell processor and receive a dict'
 data = processor.sendAndReceive(input)
+
 'deserialize'
 returned_page = pickle.loads(data)
+
 'transform to java String as Json'
 result = String(json.dumps(returned_page))
 ----
+
+[NOTE]
+----
+The last line of the script must be an assignment statement to correctly bind the return value.
+----
+
 
 Page.java
 [source, java]
 ----
 public class Page {
-	Map<String, Object> links = new HashMap<>();
-	Map<String,Object> images = new HashMap<>();
-
-	public Page() {
-		try {
-			links.put("google", new URI("http://www.google.com"));
-			links.put("yahoo", new URI("http://www.yahoo.com"));
-			links.put("pivotal", new URI("http://www.pivotal.io"));
-			links.put("spring", new URI("http://www.spring.io"));
-
-			images.put("image1", "image1.gif");
-			images.put("image2", "image2.gif");
-			images.put("image3", "image3.gif");
-		}
-		catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-	}
+	private Map<String, Object> links = new HashMap<>();
+	private Map<String,Object> images = new HashMap<>();
 
 	public Map<String, Object> getLinks() {
 		return links;
@@ -118,6 +109,7 @@ public class Page {
 
 ----
 
+The `pickle-page.py` wrapper transforms the input prior to invoking `processor.sendAndReceive`. This is the Java `ShellProcessor` that calls the external Python app. It is always bound to the variable named `processor`. Then the script transforms the output to a JSON string, which will be consumed by the next app in the stream.   
 
 See link:../docs/JavaPythonBuildPack.adoc[Deploying to Cloud Foundry]
 
