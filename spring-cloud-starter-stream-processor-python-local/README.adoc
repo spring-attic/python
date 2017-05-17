@@ -79,7 +79,7 @@ result = String(json.dumps(returned_page))
 
 [NOTE]
 ----
-The last line of the script must be an assignment statement to correctly bind the return value.
+The last line in the script must be an assignment statement. The variable name doesn't matter. This is required to bind the return value correctly.
 ----
 
 
