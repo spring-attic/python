@@ -2,6 +2,6 @@
 :imagesdir: ../images
 Spring Cloud Stream App Starters for integrating with python
 
-{nbsp}+
+{nbsp}
 
 image:python-http-processor.gif[PythonHttpProcessor]
