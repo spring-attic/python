@@ -1,2 +1,15 @@
-# spring-cloud-stream-app-starters-python
+# spring-cloud-stream-processor-python-local
+:imagesdir: ../images
+
 Spring Cloud Stream App Starters for integrating with python
+
+This component starts a local Python process in the local container, sends message payloads to it and receives the results. 
+
+[NOTE]
+====
+The last line in the script must be an assignment statement. The variable name doesn't matter. This is always true when working with Jython with any of these apps.
+====
+
+{nbsp}
+
+image:local-procesor.gif[LocalProcessor]
