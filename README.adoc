@@ -9,7 +9,7 @@ Spring Cloud Stream App Starters for integrating with Python
 Each of these applications in the Python family include configuration properties that specify Python script locations and directories. These properties use Spring's http://docs.spring.io/spring/docs/current/spring-framework-reference/html/resources.html[Resource] abstraction.  Python script and directory locations reference to a local file  or URL resources (e.g. http). 
 
 Classpath resources are intentionally not supported as it would require a Python developer to package Pyhton scripts in the jar. 
-If you provide a `git.url` to a repository, the application will clone the repository to the local file system during initialization and load scripts from there.  For local file system scripts (including a Git clone), if `requirements.txt` exists in the base directory, the application will `pip install` any Python dependencies. If you are running on Cloud Foundry, you need to use the link:docs/JavaPythonBuilPpack[Java Python buildpack].
+If you provide a `git.url` to a repository, the application will clone the repository to the local file system during initialization and load scripts from there.  For local file system scripts (including a Git clone), if `requirements.txt` exists in the base directory, the application will `pip install` any Python dependencies. If you are running on Cloud Foundry, you need to use the link:../docs/JavaPythonBuildPack.adoc[Java Python buildpack].
 
 [NOTE]
 ----
