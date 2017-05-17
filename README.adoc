@@ -25,8 +25,6 @@ include::spring-cloud-starter-stream-processor-python-http/README.adoc[]
 ## Jython Processor
 include::spring-cloud-starter-stream-processor-python-jython/README.adoc[]
 
-# Python Local Processor
-
 ## Python Local Processor
 include::spring-cloud-starter-stream-processor-python-local/README.adoc[]
 
