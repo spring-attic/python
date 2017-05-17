@@ -6,14 +6,10 @@ Spring Cloud Stream App Starters for integrating with Python
 
 # Accessing Python Resources
 
-These applications include configuration properties that specify Python script locations and directories. These
-properties use Spring's
-http://docs.spring.io/spring/docs/current/spring-framework-reference/html/resources.html[Resource] abstraction.
+Each of these applications in the Python family include configuration properties that specify Python script locations and directories. These properties use Spring's http://docs.spring.io/spring/docs/current/spring-framework-reference/html/resources.html[Resource] abstraction.  Python script and directory locations reference to a local file  or URL resources (e.g. http). 
 
-Python scripts may point to a local file  or  URL resources such as
-https://raw.githubusercontent.com/dturanski/python-apps/master/test-wrappers/upper.py.
-Additionally if you provide a `git.url` to a valid repository, the application will clone the repository to the local
-file system during initialization and load scripts from there.
+Classpath resources are intentionally not supported as it would require a Python developer to package Pyhton scripts in the jar. 
+If you provide a `git.url` to a repository, the application will clone the repository to the local file system during initialization and load scripts from there.
 
 
 
