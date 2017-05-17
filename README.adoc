@@ -13,14 +13,14 @@ Additionally if you provide a `git.url` to a valid repository, the application w
 file system during initialization and load scripts from there.
 
 
- # CloudFoundry Deployment
+# CloudFoundry Deployment
 
- You can download a Spring Cloud Stream Python App binary (e.g., with Rabbit or Kafka Binder) in the root directory of a
- Python app, and push it using the https://github.com/dturanski/java-python-buildpack[Java Python
-  Buildpack]. This build pack extends the https://github.com/cloudfoundry/python-buildpack[Python buildpack] to
-  support the deployment of a full Python app in the container. The Spring Cloud Stream App will be started and will
-  launch a local Python process or run a packaged script using an embedded Jython ScriptEngine, depending on the
-  configuration. For example. Suppose you have a directory containing:
+
+You can download a Spring Cloud Stream Python App binary (e.g., with Rabbit or Kafka Binder) in the root directory of a
+Python app, and push it using the [Java Python Buildpack]. This build pack extends the [Python buildpack] to
+support the deployment of a full Python app in the container. The Spring Cloud Stream App will be started and will
+launch a local Python process or run a packaged script using an embedded Jython ScriptEngine, depending on the
+configuration. For example. Suppose you have a directory containing:
 
 ```
 myapp.py
@@ -100,3 +100,5 @@ springcloudstream>=1.0
 ```
 
 
+[Java Python Buildpack] https://github.com/dturanski/java-python-buildpack
+[Python buildpack] https://github.com/cloudfoundry/python-buildpack
