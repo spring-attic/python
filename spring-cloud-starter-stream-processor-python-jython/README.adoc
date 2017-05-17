@@ -1,27 +1,10 @@
-# spring-cloud-stream-processor-python-http
+# spring-cloud-stream-processor-python-jython
 :imagesdir: ../images
+
 Spring Cloud Stream App Starters for integrating with python
 
-This component integrates with a Python REST service which may be accessed by the normal httpclient-processor. However this enables a Python developer to provide wrapper scripts pre and post the REST call to perform any data transformation needed. If you don't require any custom transformation, use the httpclient-processor instead. 
-
-The diagram shows input and output side wrappers. These are actually functions defined in a single script that must conform to a simple convention:
-
-```python
-def input():
-    return "Pre" + payload;
-
-def output():
-    return payload + "Post";
-
-result = locals()[channel]()
-```
-
-The function names `input` and `output` map to the conventional channel names used by Spring Cloud Stream processors. the last line is a bit of Python reflection majic that invokes the function by name, given by the bound variable `channel`. As usual with Spring Integration Scripting, `headers` and `payload` are bound to the Message headers and payload respectively. The payload on the `input` side is the object you use to build the REST request. The output side is the response. If you don't need any additional processing on one side. Implement the function with  `pass` as the body:
-
-```python
-def output():
-   pass
-```
+This component runs a single Jython script that binds `payload` and `headers` variables to the Message payload and headers respectively. 
+In addition you may provide the `jython.variables` property to a comma delimited string `var1=val1,var2=val2,...` 
 
 [NOTE]
 ====
