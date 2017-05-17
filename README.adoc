@@ -9,16 +9,14 @@ Spring Cloud Stream App Starters for integrating with Python
 Each of these applications in the Python family include configuration properties that specify Python script locations and directories. These properties use Spring's http://docs.spring.io/spring/docs/current/spring-framework-reference/html/resources.html[Resource] abstraction.  Python script and directory locations reference to a local file  or URL resources (e.g. http). 
 
 Classpath resources are intentionally not supported as it would require a Python developer to package Pyhton scripts in the jar. 
-If you provide a `git.url` to a repository, the application will clone the repository to the local file system during initialization and load scripts from there.  For local file system scripts (including a Git clone), if `requirements.txt` exists in the base directory, the application will `pip install` any Python dependencies. If you are running on Cloud Foundry, you need to use the link:docs/JavaPythonBuilPpack[Java Python buildpack]. 
+If you provide a `git.url` to a repository, the application will clone the repository to the local file system during initialization and load scripts from there.  For local file system scripts (including a Git clone), if `requirements.txt` exists in the base directory, the application will `pip install` any Python dependencies. If you are running on Cloud Foundry, you need to use the link:docs/JavaPythonBuilPpack[Java Python buildpack].
 
+[[NOTE]]
+----
+Conda apps require prior Conda to be installed on the local host. When running on Cloud Foundry, the Java Python buildpack will install the Conda environment per `environment.yml`.  
+----
 
-## Python via Http
-
-These applications provide a simple way to integrate with an external Python application exposed as an http service.
-This will technically work with any http service. It is a specialized implementation of the
-https://github.com/spring-cloud-stream-app-starters/httpclient[httpclient]
-processor that provides support for local execution of a Python wrapper script via an embedded Jython ScriptEngine to
-transform data in and out of the http server.
+For more information on the available Spring Cloud Stream apps for Python, see the following pages.
 
 ## Python Http Processor
 include::spring-cloud-starter-stream-processor-python-http/README.adoc[]
@@ -26,9 +24,7 @@ include::spring-cloud-starter-stream-processor-python-http/README.adoc[]
 ## Jython Processor
 include::spring-cloud-starter-stream-processor-python-jython/README.adoc[]
 
-# Python Local Process
-
-These applications install and run an external Python application in the local container.
+# Python Local Processor
 
 ## Python Local Processor
 include::spring-cloud-starter-stream-processor-python-local/README.adoc[]
@@ -37,34 +33,5 @@ include::spring-cloud-starter-stream-processor-python-local/README.adoc[]
 include::spring-cloud-starter-stream-sink-python-local/README.adoc[]
 
 
-## Prerequisites
-
-These applications install and run an external Python application in the local container. These applications typically 
-import https://pypi.python.org/pypi/springcloudstream[springcloudstream] to handle low level I/O. Simply provide a
-single argument Function that returns a value. Both the argument and return value must be `str` types.
-
-For example
-
-```python
-from springcloudstream.stream import Processor
-
-def echo(data):
-    return data
-
-
-process = Processor()
-process.start(echo)
-```
-
-The application requires that Python (2.7 or 3) is installed along with Java in the local container or server.
-
-* Standalone - Install Python per instructions for your OS.
-* CloudFoundry - Use the https://github.com/dturanski/java-python-buildpack[java-python-buildpack].
-* Docker - Use one of the of the java-python images https://hub.docker.com/u/korekontrol/[here],
-
-If the Python app is pulled from Git at runtime, the Java application will invoke `pip` to install any dependencies
-listed in `requirements.txt`. If using the Java Python Buildpack, the buildpack will handle this.
-In either case, include the line
-```
-springcloudstream>=1.0
-```
+## Docker Images 
+Use one of the of the java-python images https://hub.docker.com/u/korekontrol/[here],
