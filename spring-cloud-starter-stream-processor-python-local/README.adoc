@@ -7,7 +7,7 @@ Spring Cloud Stream App Starters for integrating with python
 
 This component starts a local Python process in the local container, sends message payloads to it and receives the results via a tcp pipe. The process must define a function with a single `<str>` argument that returns a `<str>`. By default the tcp connection is configured for text with `\n` or `\r\n` delimiters. However you can set the encoder to `BINARY` to use `pickle` serialization for example. The binary encoder uses `x1a` as the string terminator. For convenience you can import {python-springcloudstream}[springcloudstream] module to handle the low level I/O. Here's an example that works with the `time-source` stream app:
 
-## The script
+## The Script
 
 time-transformer.py
 [source,python]
