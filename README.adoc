@@ -12,10 +12,10 @@ Classpath resources are intentionally not supported as it would require a Python
 If you provide a `git.url` to a repository, the application will clone the repository to the local file system during initialization and load scripts from there.  For local file system scripts (including a Git clone), if `requirements.txt` exists in the base directory, the application will `pip install` any Python dependencies. If you are running on Cloud Foundry, you need to use the link:docs/JavaPythonBuildPack.adoc[Java Python buildpack].
 
 [NOTE]
-----
+====
 Conda apps require prior Conda to be installed on the local host. 
 When running on Cloud Foundry, the Java Python buildpack will install the Conda environment per `environment.yml`.  
-----
+====
 
 For more information on the available Spring Cloud Stream apps for Python, see the following pages.
 
