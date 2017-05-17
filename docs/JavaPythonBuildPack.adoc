@@ -3,36 +3,53 @@
 :java-python-buildpack:  https://github.com/dturanski/java-python-buildpack
 :python-buildpack: https://github.com/cloudfoundry/python-buildpack
 :java-buildpack: https://github.com/cloudfoundry/python-buildpack
+:python-springcloudstream: https://pypi.python.org/pypi/springcloudstream
 
 ## Java Python Buildpack
 
+The {java-python-buildpack}[Java Python Buildpack] is specifically for hybrid Java and Python apps in which the container requires Java and Python runtime environments. In this context, the buildpack supports the packaging of a Spring Cloud Stream Python App that provides the messaging infrastructure, health check, and scaffolding for delegating message processing to the Python components, along with Python scripts that implement the application logic. In general Python resources may include an in-container Native Python application (anything that the {python-buildpack}Python buildpack supports) as well as Jython scripts which execute via Jython Script Engine embedded in the JVM. Supported configurations include a standalone Jython script, and an optional Jython `wrapper` to provide an adapter to the local Python app, or a Python REST service. 
+
+The Java Python buildpack supports an application layout that Python developers will find easy to use. Simply bundle the appropriate Spring Cloud Stream Python app along with your app, deploy it with the buildpack providing the script locations. If you wish to run as a standalone Spring Cloud Stream app, you will need to provide binding properties as well. 
+
+## Application Layout
+
+Basically you just download the appropriate Spring Cloud Stream Python app executable jar (e.g., prepackaged with a Rabbit or Kafka Binder) in the root directory of your Python app. Unless you are using Spring Cloud Dataflow, you can `cf push` the app as you would a normal Python Cloud Foundry specifying the {java-python-buildpack}[Java Python buildpack]. If you are deploying with Dataflow, you need to zip up your App directory with the jar included in the bundle. The buildpack will take care of the rest, providing the full functionality of the Python buildpack, along with a specialized Java buildpack component. Note that you should not provide a Procfile or startup script. The Java app will take care of starting the Python process. This is necessary since it establishes a tcp I/O pipe to deliver message payloads and receive the reply. 
+
+Minimally, the Java Python buildpack will install your Python or Jython script(s) in the root app directory. If there is no `requirements.txt`, `environment.yml` or `setup.py` as required by the {python-buildpack}[Python buildpack], the Python buildpack will not be invoked. This is typically the case for Jython scripts. Even an external Python script will run locally with the pre-installed python in the container, however any non-standard `imports` will not be there. 
 
 
-You can download a Spring Cloud Stream Python App binary (e.g., with Rabbit or Kafka Binder) in the root directory of a
-Python app, and push it using the {java-python-buildpack}[Java Python buildpack]. This build pack extends the
-{python-buildpack}[Python buildpack] to support the deployment of a full Python app in the container. The Spring
-Cloud Stream App will be started and willlaunch a local Python process
-or run a packaged script using an embedded Jython ScriptEngine, depending on the configuration. For example. Suppose
-you have a directory containing:
+### Example
+
+Suppose you have start with a simple ap in a directory containing:
 
 ```
 myapp.py
 requirements.txt
-python-local-processor-rabbit-1.2.1.BUILD-SNAPSHOT.jar
 ```
+You download `python-local-processor-rabbit-1.2.1.BUILD-SNAPSHOT.jar` 
 
-You can:
+```
+$ wget https://github.com/dturanski/spring-cloud-stream-binaries/blob/master/binaries/python-local-processor-rabbit-1.2.1.BUILD-SNAPSHOT.jar?raw=true -O python-local-processor-rabbit-1.2.1.BUILD-SNAPSHOT.jar
+```
+Or eventually from the Spring IO Maven repo.
+
+
+Next,
 
 ```
 $ cf push -b  https://github.com/dturanski/java-python-buildpack
 ```
 
-Or for use with Spring Cloud Data Flow Cloud Foundry Server, you can zip the directory and register the zip file as
-processor. You must also specify the Java Python buildpack as a deployment property
-
-```
+Or for use with Spring Cloud Data Flow Cloud Foundry Server, zip the directory 
+$```
 $ zip ../myapp.zip -r *
 ```
+and register the zip file as processor. You must also specify the {java-python-buildpack}Java Python buildpack as a deployment property. e.g.,
+
+```
+dataflow:>stream deploy my-stream --properties "deployer.myapp.cloudfoundry.buildpack=https://github.com/dturanski/java-python-buildpack"
+```
+
 {nbsp} +
 
 image::packaging-python-stream-apps.png[Packaging]
