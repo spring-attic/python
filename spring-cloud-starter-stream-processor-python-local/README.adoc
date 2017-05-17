@@ -1,13 +1,39 @@
 # spring-cloud-stream-processor-python-local
 :imagesdir: ../images
+:python-springcloudstream: https://pypi.python.org/pypi/springcloudstream
+
 
 Spring Cloud Stream App Starters for integrating with python
 
-This component starts a local Python process in the local container, sends message payloads to it and receives the results via a tcp pipe. The process must define a function with a single `<str>` argument that returns a `<str>`. By default the tcp connection is configured for text with `\n` or `\r\n` delimiters. However you can set the encoder to `BINARY` to use `pickle` serialization for example. The binary encoder uses `x1a` as the string terminator.  
+This component starts a local Python process in the local container, sends message payloads to it and receives the results via a tcp pipe. The process must define a function with a single `<str>` argument that returns a `<str>`. By default the tcp connection is configured for text with `\n` or `\r\n` delimiters. However you can set the encoder to `BINARY` to use `pickle` serialization for example. The binary encoder uses `x1a` as the string terminator. For convenience you can import {python-springcloudstream}[springcloudstream] module to handle the low level I/O. Here's an example that works with the `time-source` stream app:
 
+## The script
 
+```python
+from datetime import datetime
+from springcloudstream.stream import Processor
 
-If you need to convert types to and from `<str>`, you may configure a Jython wrapper. 
+#06/01/16 09:45:11
+def time_delta(data):
+	format = '%m/%d/%y %H:%M:%S'
+	delta = datetime.now() - datetime.strptime(data,format)
+	return str(delta)
+
+process = Processor()
+process.start(time_delta)
+
+```
+
+[NOTE]
+====
+Currently I/O is bound to `stdin` an `stdout` so any prints will cause problems. We're working on an option to use available ports.
+====
+
+Since you are importing `springcloudstream`, you need to provide `requirements.txt` in the top level directory with an entry for `springcloudstream` minimally.
+
+If you need to convert types to and from `<str>`, you may configure a Jython wrapper. JSon should work well in most cases, but if you want to pickle something, its best to stick with standard types such as `<dict>`, `<tuple>`, etc. Pickling user defined objects between Jython and native Python has some known issues, but YMMV. 
+
+The Jython wrapper uses a simple convention illustrated by this example: 
 
 ```python
 import cPickle as pickle
@@ -32,7 +58,8 @@ class Page:
 # protocol = pickle.HIGHEST_PROTOCOL
 protocol = 1
 
-'payload is bound to Java object spring.io.data.Page'
+'payload is bound to Java object, e.g., spring.io.data.Page' representing a web page configuration 
+that has a map of link and a map of images.
 page = Page(payload)
 
 'Pickle the Page dict representation'
@@ -44,6 +71,50 @@ returned_page = pickle.loads(data)
 'transform to java String as Json'
 result = String(json.dumps(returned_page))
 ```
+[[Page.java]]
+[source, java]
+----
+public class Page {
+	//Map<String,URI> links = new HashMap<>();
+	Map<String, Object> links = new HashMap<>();
+	Map<String,Object> images = new HashMap<>();
+
+	public Page() {
+		try {
+			links.put("google", new URI("http://www.google.com"));
+			links.put("yahoo", new URI("http://www.yahoo.com"));
+			links.put("pivotal", new URI("http://www.pivotal.io"));
+			links.put("spring", new URI("http://www.spring.io"));
+
+			images.put("image1", "image1.gif");
+			images.put("image2", "image2.gif");
+			images.put("image3", "image3.gif");
+		}
+		catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public Map<String, Object> getLinks() {
+		return links;
+	}
+
+	public void setLinks(Map<String, Object> links) {
+		this.links = links;
+	}
+
+	public Map<String, Object> getImages() {
+		return images;
+	}
+
+	public void setImages(Map<String, Object> images) {
+		this.images = images;
+	}
+}
+
+----
+
 
 See link:../docs/JavaPythonBuildPack.adoc[Deploying to Cloud Foundry]
 
