@@ -12,4 +12,4 @@ The last line in the script must be an assignment statement. The variable name d
 
 {nbsp}
 
-image:local-procesor.gif[LocalProcessor]
+image:python-local-procesor.gif[LocalProcessor]
