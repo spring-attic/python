@@ -22,6 +22,7 @@ The function names `input` and `output` map to the conventional channel names us
 def output():
    pass
 ```
+
 [NOTE]
 ====
 The last line in the script must be an assignment statement. The variable name doesn't matter. This is always true when working with Jython with any of these apps.
