@@ -41,11 +41,10 @@ $ cf push -b  https://github.com/dturanski/java-python-buildpack
 ```
 
 Or for use with Spring Cloud Data Flow Cloud Foundry Server, zip the directory 
-$```
+```
 $ zip ../myapp.zip -r *
 ```
-and register the zip file as processor. You must also specify the {java-python-buildpack}Java Python buildpack as a deployment property. e.g.,
-
+and register the zip file as processor. You must also specify the {java-python-buildpack}Java Python buildpack as a deployment property. For example:
 ```
 dataflow:>stream deploy my-stream --properties "deployer.myapp.cloudfoundry.buildpack=https://github.com/dturanski/java-python-buildpack"
 ```
