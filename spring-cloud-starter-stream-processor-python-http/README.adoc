@@ -1,2 +1,6 @@
 # spring-cloud-stream-app-starters-python
+:imagesdir: ../images
 Spring Cloud Stream App Starters for integrating with python
+
+{nbsp}+
+mage::python-http-processor.jpg[]
