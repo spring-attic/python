@@ -3,4 +3,4 @@
 Spring Cloud Stream App Starters for integrating with python
 
 {nbsp}+
-image::python-http-processor.gif[]
+image:../images/python-http-processor.gif[PythonHttpProcessor]
