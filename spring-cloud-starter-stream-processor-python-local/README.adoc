@@ -5,10 +5,7 @@ Spring Cloud Stream App Starters for integrating with python
 
 This component starts a local Python process in the local container, sends message payloads to it and receives the results. 
 
-[NOTE]
-====
-The last line in the script must be an assignment statement. The variable name doesn't matter. This is always true when working with Jython with any of these apps.
-====
+See link:../docs/JavaPythonBuildPack.adoc[Deploying to Cloud Foundry]
 
 {nbsp}
 
