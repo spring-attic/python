@@ -13,7 +13,8 @@ If you provide a `git.url` to a repository, the application will clone the repos
 
 [[NOTE]]
 ----
-Conda apps require prior Conda to be installed on the local host. When running on Cloud Foundry, the Java Python buildpack will install the Conda environment per `environment.yml`.  
+Conda apps require prior Conda to be installed on the local host. 
+When running on Cloud Foundry, the Java Python buildpack will install the Conda environment per `environment.yml`.  
 ----
 
 For more information on the available Spring Cloud Stream apps for Python, see the following pages.
