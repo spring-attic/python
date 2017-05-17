@@ -1,5 +1,5 @@
 # spring-cloud-stream-app-starters-python
-:imagesdir: ../images
+:imagesdir: ../../images
 Spring Cloud Stream App Starters for integrating with python
 
 {nbsp}+
