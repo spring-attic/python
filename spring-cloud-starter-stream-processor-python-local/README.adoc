@@ -9,7 +9,9 @@ This component starts a local Python process in the local container, sends messa
 
 ## The script
 
-```python
+time-transformer.py
+[source,python]
+----
 from datetime import datetime
 from springcloudstream.stream import Processor
 
@@ -21,8 +23,7 @@ def time_delta(data):
 
 process = Processor()
 process.start(time_delta)
-
-```
+----
 
 [NOTE]
 ====
@@ -35,7 +36,9 @@ If you need to convert types to and from `<str>`, you may configure a Jython wra
 
 The Jython wrapper uses a simple convention illustrated by this example: 
 
-```python
+pickle-page.py
+[source,python]
+----
 import cPickle as pickle
 import json
 from java.lang import String
@@ -70,12 +73,12 @@ data = processor.sendAndReceive(input)
 returned_page = pickle.loads(data)
 'transform to java String as Json'
 result = String(json.dumps(returned_page))
-```
-[[Page.java]]
+----
+
+Page.java
 [source, java]
 ----
 public class Page {
-	//Map<String,URI> links = new HashMap<>();
 	Map<String, Object> links = new HashMap<>();
 	Map<String,Object> images = new HashMap<>();
 
