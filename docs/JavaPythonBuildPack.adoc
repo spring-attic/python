@@ -35,5 +35,5 @@ $ zip ../myapp.zip -r *
 ```
 {nbsp} +
 
-image::packaging-python-stream-apps.png[Packaging,500,280, ]
+image::packaging-python-stream-apps.png[Packaging]
 
