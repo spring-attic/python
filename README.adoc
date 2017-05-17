@@ -1,7 +1,4 @@
 # spring-cloud-stream-app-starters-python
-:java-python-buildpack:  https://github.com/dturanski/java-python-buildpack
-:python-buildpack: https://github.com/cloudfoundry/python-buildpack
-:java-buildpack: https://github.com/cloudfoundry/python-buildpack
 
 Spring Cloud Stream App Starters for integrating with Python
 
@@ -17,34 +14,7 @@ Additionally if you provide a `git.url` to a valid repository, the application w
 file system during initialization and load scripts from there.
 
 
-# CloudFoundry Deployment
 
-
-You can download a Spring Cloud Stream Python App binary (e.g., with Rabbit or Kafka Binder) in the root directory of a
-Python app, and push it using the {java-python-buildpack}[Java Python buildpack]. This build pack extends the
-{python-buildpack}[Python buildpack] to support the deployment of a full Python app in the container. The Spring
-Cloud Stream App will be started and willlaunch a local Python process
-or run a packaged script using an embedded Jython ScriptEngine, depending on the configuration. For example. Suppose
-you have a directory containing:
-
-```
-myapp.py
-requirements.txt
-python-local-processor-rabbit-1.2.1.BUILD-SNAPSHOT.jar
-```
-
-You can:
-
-```
-$ cf push -b  https://github.com/dturanski/java-python-buildpack
-```
-
-Or for use with Spring Cloud Data Flow Cloud Foundry Server, you can zip the directory and register the zip file as
-processor. You must also specify the Java Python buildpack as a deployment property
-
-```
-$ zip ../myapp.zip -r *
-```
 
 
 # Python via Http
