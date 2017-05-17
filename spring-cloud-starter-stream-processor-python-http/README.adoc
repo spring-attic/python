@@ -30,4 +30,4 @@ The last line in the script must be an assignment statement. The variable name d
 
 {nbsp}
 
-image:python-http-processor.gif[PythonHttpProcessor]
+image:python-http-processorv1.gif[PythonHttpProcessor]
