@@ -19,6 +19,7 @@ package org.springframework.cloud.stream.app.python.jython.processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
 import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptProperties;
@@ -31,10 +32,14 @@ import org.springframework.integration.dsl.scripting.Scripts;
 import org.springframework.integration.handler.MessageProcessor;
 import org.springframework.integration.scripting.DefaultScriptVariableGenerator;
 import org.springframework.integration.scripting.ScriptVariableGenerator;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.util.StringUtils;
+import sun.font.Script;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,15 +61,22 @@ public class PythonJythonProcessorConfiguration {
 	@Autowired
 	private ScriptVariableGenerator scriptVariableGenerator;
 
-	@Bean
-	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-	public MessageProcessor<?> transformer() {
+	@StreamListener(Processor.INPUT)
+	@SendTo(Processor.OUTPUT)
+	public Object transformer(Message<?> message) {
 		if (gitResourceRepository != null) {
 			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
 		}
+			return messageProcessor().processMessage(message);
+	}
+
+	@Bean
+	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
+	public MessageProcessor<?> messageProcessor() {
 		return Scripts.script(properties.getScriptResource()).lang("python")
 				.variableGenerator(this.scriptVariableGenerator).get();
 	}
+
 
 	@Bean(name = "variableGenerator")
 	public ScriptVariableGenerator scriptVariableGenerator() throws IOException {
