@@ -36,6 +36,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,6 +75,24 @@ public abstract class PythonProcessorTests {
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
 			assertThat(received.getPayload()).isEqualTo("hello world");
+		}
+	}
+
+
+	@TestPropertySource(properties = {
+			"python.basedir=src/test/resources/python",
+			"python.script=processor_example.py" })
+	public static class TestArrayList extends PythonProcessorTests {
+		@Test
+		public void test() throws InterruptedException {
+			List<String> list = new ArrayList<>();
+			list.add("hello");
+			list.add("world");
+			Message<List<String>> message = new GenericMessage<>(list);
+			processor.input().send(message);
+			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
+					.poll(1, TimeUnit.SECONDS);
+			assertThat(received.getPayload()).isEqualTo("[hello, world]");
 		}
 	}
 
