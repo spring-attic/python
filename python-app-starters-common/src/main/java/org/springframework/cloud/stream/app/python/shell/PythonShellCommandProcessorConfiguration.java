@@ -32,6 +32,8 @@ import org.springframework.integration.ip.tcp.serializer.ByteArrayCrLfSerializer
 import org.springframework.integration.ip.tcp.serializer.ByteArrayLfSerializer;
 import org.springframework.integration.ip.tcp.serializer.ByteArraySingleTerminatorSerializer;
 
+import java.io.File;
+
 /**
  * @author David Turanski
  **/
@@ -69,14 +71,7 @@ public class PythonShellCommandProcessorConfiguration {
 	@Bean
 	@Profile("!cloud")
 	public ShellCommandProcessor shellCommandProcessor(AbstractByteArraySerializer serializer) {
-		if (repository != null) {
-			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(repository, properties, properties.getPath());
-		}
-
-		String command = StringUtils
-				.join(new String[] { properties.getCommandName(), properties.getArgs(), properties.getScript() }, " ");
-
-		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer, command);
+		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer, buildCommand());
 		shellCommandProcessor.setAutoStart(false);
 		return shellCommandProcessor;
 	}
@@ -84,18 +79,31 @@ public class PythonShellCommandProcessorConfiguration {
 	@Bean
 	@Profile("cloud")
 	public ShellCommandProcessor cfShellCommandProcessor(AbstractByteArraySerializer serializer) {
-		if (repository != null) {
-			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(repository, properties, properties.getPath());
-		}
-
-		String command = StringUtils
-				.join(new String[] { properties.getCommandName(), properties.getArgs(), properties.getScript() }, " ");
-		String scriptName =  new PythonEnvironmentHelper().wrappedCommand(command);
+		String scriptName = new PythonEnvironmentHelper().wrappedCommand(buildCommand());
 		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer, scriptName);
-
 		shellCommandProcessor.setAutoStart(false);
 		return shellCommandProcessor;
 	}
 
+	private String buildCommand() {
+		return StringUtils.isEmpty(properties.getArgs()) ?
+				StringUtils.join(new String[] { properties.getCommandName(), buildScriptAbsolutePath() }, " ") :
+				StringUtils.join(new String[] { properties.getCommandName(), properties.getArgs(),
+						buildScriptAbsolutePath() }, " ");
+	}
+
+	private String buildScriptAbsolutePath() {
+		String script = null;
+		if (repository != null) {
+			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(repository, properties, properties.getPath());
+			script = properties.getScript();
+		}
+		else {
+			script = StringUtils.isEmpty(properties.getPath()) ?
+					properties.getScript() :
+					properties.getPath() + File.separator + properties.getScript();
+		}
+		return script;
+	}
 
 }

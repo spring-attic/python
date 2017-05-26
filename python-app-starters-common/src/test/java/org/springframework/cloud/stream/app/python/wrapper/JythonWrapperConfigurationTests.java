@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RunWith(SpringRunner.class)
 @DirtiesContext
-public abstract class JythonWrapperConfigTests {
+public abstract class JythonWrapperConfigurationTests {
 
 	@Autowired(required = false)
 	JythonScriptExecutor jythonWrapper;
@@ -52,7 +52,7 @@ public abstract class JythonWrapperConfigTests {
 	@Autowired(required = false)
 	JGitResourceRepository repository;
 
-	public static class TestWrapperConditionalOnWrapperScript extends JythonWrapperConfigTests {
+	public static class TestWrapperConditionalOnWrapperScript extends JythonWrapperConfigurationTests {
 		@Test
 		public void test() {
 			assertThat(jythonWrapper).isNull();
@@ -61,7 +61,7 @@ public abstract class JythonWrapperConfigTests {
 
 	@TestPropertySource(properties = { "wrapper.script=test-wrappers/upper.py",
 			"git.uri=https://github.com/dturanski/python-apps" })
-	public static class TestWrapperGitResource extends JythonWrapperConfigTests {
+	public static class TestWrapperGitResource extends JythonWrapperConfigurationTests {
 		@Ignore //TODO: Figure out how to test this case
 		@Test
 		public void test() throws IOException {
@@ -71,7 +71,7 @@ public abstract class JythonWrapperConfigTests {
 	}
 
 	@TestPropertySource(properties = { "wrapper.script=./src/test/resources/wrapper/simple_wrapper.py" })
-	public static class TestWrapperFileResource extends JythonWrapperConfigTests {
+	public static class TestWrapperFileResource extends JythonWrapperConfigurationTests {
 		@Test
 		public void test() throws IOException {
 			assertThat(repository).isNull();
@@ -82,7 +82,7 @@ public abstract class JythonWrapperConfigTests {
 
 	@TestPropertySource(properties = { "wrapper.script=./src/test/resources/wrapper/simple_wrapper.py", "use"
 			+ ".shell=true" })
-	public static class TestWrapperWithShellCommandProcessor extends JythonWrapperConfigTests {
+	public static class TestWrapperWithShellCommandProcessor extends JythonWrapperConfigurationTests {
 		@Test
 		public void test() throws IOException {
 			assertThat(repository).isNull();

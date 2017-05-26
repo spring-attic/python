@@ -79,14 +79,14 @@ public abstract class PythonProcessorTests {
 	@TestPropertySource(properties = {
 			"python.basedir=src/test/resources/python",
 			"python.script=processor_example.py" })
-	public static class TestSimpleFileSystem extends PythonProcessorTests {
+	public static class TestSimpleBytes extends PythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
-			Message<String> message = new GenericMessage<>("hello world");
+			Message<byte[]> message = new GenericMessage<>("hello world".getBytes());
 			processor.input().send(message);
-			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
+			Message<byte[]> received = (Message<byte[]>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
-			assertThat(received.getPayload()).isEqualTo("hello world");
+			assertThat(received.getPayload()).isEqualTo(message.getPayload());
 		}
 	}
 

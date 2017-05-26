@@ -27,6 +27,7 @@ import org.springframework.integration.ip.tcp.serializer.ByteArrayCrLfSerializer
 import org.springframework.integration.ip.tcp.serializer.ByteArrayLfSerializer;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -58,6 +59,13 @@ public class ShellCommandProcessorTests {
 		scp.afterPropertiesSet();
 		scp.start();
 		doEchoTest();
+	}
+
+	@Test
+	public void echoTestBytes() throws Exception {
+		scp = new ShellCommandProcessor(serializer, "python src/test/resources/echo.py");
+		scp.afterPropertiesSet();
+		scp.start();
 	}
 
 	@Test
@@ -162,6 +170,14 @@ public class ShellCommandProcessorTests {
 		assertEquals("hello", response);
 		response = scp.sendAndReceive("echo");
 		assertEquals("echo", response);
+	}
+
+	private void doEchoTestAsBytes() {
+		assertTrue(scp.isRunning());
+		byte[] response = scp.sendAndReceive("hello".getBytes(StandardCharsets.UTF_8));
+		assertEquals("hello", response.toString());
+		response = scp.sendAndReceive("echo".getBytes(StandardCharsets.UTF_8));
+		assertEquals("echo", response.toString());
 	}
 
 	@Test

@@ -17,14 +17,10 @@
 package org.springframework.cloud.stream.app.python.shell;
 
 import org.springframework.cloud.stream.app.python.script.ScriptProperties;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
-import java.io.File;
 
 /**
  * Configuration properties for a Python app which may include modules under a base directory, requirements.txt as well
@@ -37,40 +33,23 @@ public class PythonAppProperties extends ScriptProperties {
 	/**
 	 * The root path of Python app. If given, the script path must be relative to this location.
 	 */
-	private Resource basedir;
+	private FileSystemResource basedir;
 
 	/**
 	 * The pip command name, e.g., 'pip', 'pip3'.
 	 */
 	private String pipCommandName = "pip";
 
-	public Resource getBasedir() {
+	public FileSystemResource getBasedir() {
 		return basedir;
 	}
 
-	public void setBasedir(Resource basedir) {
+	public void setBasedir(FileSystemResource basedir) {
 		this.basedir = basedir;
 	}
 
-	protected Resource resolveResource(String resourceName) {
-		if (basedir != null) {
-			return new PathMatchingResourcePatternResolver().getResource("file:"+basedir
-					.getFilename
-					() +
-					File.separator +
-					resourceName);
-		}
-		return super.resolveResource(resourceName);
-	}
-
 	public String getPath() {
-		if (basedir instanceof FileSystemResource) {
-			return ((FileSystemResource) basedir).getPath();
-		}
-		else if (basedir instanceof ClassPathResource) {
-			return ((ClassPathResource) basedir).getPath();
-		}
-		return null;
+		return basedir.getPath();
 	}
 
 	@NotNull

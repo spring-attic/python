@@ -65,12 +65,17 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 			return jythonWrapper.execute(message);
 		}
 		else {
-			if (message.getPayload() instanceof String) {
+			if (message.getPayload() instanceof String ) {
 				return shellCommandProcessor.sendAndReceive((String) message.getPayload());
+			}
+			else if (message.getPayload() instanceof byte[] ) {
+				return shellCommandProcessor.sendAndReceive((byte[]) message.getPayload());
 			}
 			else {
 				throw new IllegalArgumentException(
-						"Only String payloads are supported with no Jython wrapper " + "configured");
+					String.format(
+							"Unsuported payload type [%s]: Only String and byte[] payloads are supported with no " +
+							"Jython wrapper configured", message.getPayload().getClass().getName()));
 			}
 		}
 	}

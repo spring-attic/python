@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,12 +76,11 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 
 	private final Object lifecycleLock = new Object();
 
-
 	/**
 	 * Creates a process to invoke a shell command to send and receive messages from the processes using the process's stdin and stdout.
 	 *
 	 * @param serializer an {@link AbstractByteArraySerializer} to delimit messages
-	 * @param command the shell command with command line arguments as separate strings
+	 * @param command    the shell command with command line arguments as separate strings
 	 */
 	public ShellCommandProcessor(AbstractByteArraySerializer serializer, String command) {
 		Assert.hasLength(command, "A shell command is required");
@@ -131,16 +131,20 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 
 	/**
 	 * Receive data from the process.
+	 *
 	 * @return any available data from stdout
 	 */
 	public synchronized String receive() {
-		Assert.isTrue(isRunning(), "Shell process is not started.");
+
 		String data;
+
+		byte[] buffer = receiveAsBytes();
+
 		try {
-			byte[] buffer = this.serializer.deserialize(this.stdout);
 			data = new String(buffer, this.charset);
 		}
-		catch (IOException e) {
+		catch (UnsupportedEncodingException e) {
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e.getMessage(), e);
 		}
 
@@ -148,13 +152,45 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 	}
 
 	/**
+	 * Receive data as byte[] from the process
+	 *
+	 * @return any available data
+	 */
+	public synchronized byte[] receiveAsBytes() {
+		Assert.isTrue(isRunning(), "Shell process is not started.");
+		try {
+			return this.serializer.deserialize(this.stdout);
+		}
+		catch (IOException e) {
+			log.error(e.getMessage(), e);
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+
+	/**
 	 * Send data as a String to stdin.
+	 *
 	 * @param data the data
 	 */
 	public synchronized void send(String data) {
+		try {
+			send(data.getBytes(this.charset));
+		}
+		catch (UnsupportedEncodingException e) {
+			log.error(e.getMessage(), e);
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Send data as byte[]
+	 *
+	 * @param data the bytes
+	 */
+	public synchronized void send(byte[] data) {
 		Assert.isTrue(isRunning(), "Shell process is not started.");
 		try {
-			this.serializer.serialize(data.getBytes(this.charset), this.stdin);
+			this.serializer.serialize(data, this.stdin);
 			this.stdin.flush();
 		}
 		catch (IOException e) {
@@ -165,6 +201,7 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 
 	/**
 	 * Send and receive data in request/response fashion.
+	 *
 	 * @param data the input
 	 * @return the output
 	 */
@@ -172,6 +209,18 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 		Assert.isTrue(isRunning(), "Shell process is not started");
 		send(data);
 		return receive();
+	}
+
+	/**
+	 * Send and receive data in request/response fashion.
+	 *
+	 * @param data the input
+	 * @return the output
+	 */
+	public synchronized byte[] sendAndReceive(byte[] data) {
+		Assert.isTrue(isRunning(), "Shell process is not started");
+		send(data);
+		return receiveAsBytes();
 	}
 
 	/**
@@ -189,6 +238,7 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 
 	/**
 	 * True by default. Set to false to manually start this component
+	 *
 	 * @param autoStart
 	 */
 	public void setAutoStart(boolean autoStart) {
@@ -202,6 +252,7 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 
 	/**
 	 * Set to true to redirect stderr to stdout.
+	 *
 	 * @param redirectErrorStream
 	 */
 	public void setRedirectErrorStream(boolean redirectErrorStream) {
@@ -210,6 +261,7 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 
 	/**
 	 * A map containing environment variables to add to the process environment.
+	 *
 	 * @param environment
 	 */
 	public void setEnvironment(Map<String, String> environment) {
@@ -218,6 +270,7 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 
 	/**
 	 * Set the process working directory
+	 *
 	 * @param workingDirectory the file path
 	 */
 	public void setWorkingDirectory(String workingDirectory) {
@@ -226,23 +279,31 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 
 	/**
 	 * Set the charset name for String encoding. Default is UTF-8
+	 *
 	 * @param charset the charset name
 	 */
 	public void setCharset(String charset) {
 		this.charset = charset;//NOSONAR
 	}
 
-	@Override public boolean isAutoStartup() {
+	@Override
+	public boolean isAutoStartup() {
 		return this.autoStart;
 	}
 
-	@Override public void stop(Runnable runnable) {
+	@Override
+	public void stop(Runnable runnable) {
 		runnable.run();
 		stop();
 	}
 
-	@Override public int getPhase() {
+	@Override
+	public int getPhase() {
 		return 0;
+	}
+
+	public String getCommand() {
+		return this.command;
 	}
 
 	@Override
@@ -339,6 +400,5 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 			}
 		});
 	}
-
 
 }
