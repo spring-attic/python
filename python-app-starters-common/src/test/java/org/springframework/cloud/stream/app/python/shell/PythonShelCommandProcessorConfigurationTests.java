@@ -16,21 +16,31 @@
 
 package org.springframework.cloud.stream.app.python.shell;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.Cloud;
+import org.springframework.cloud.CloudFactory;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author David Turanski
@@ -78,9 +88,62 @@ public abstract class PythonShelCommandProcessorConfigurationTests {
 		}
 	}
 
+	@TestPropertySource(properties = { "python.script=echo.py", "python.basedir=/scripts/python",
+			"python.args=--categories=\"{'ecstatic':0.90,'happy':0.75,'warm':0.65,'meh':0.55,'cool':0.45,'gloomy':0.25,"
+					+ "'doomed':0.0}\"" })
+	public static class TestCommandArgs extends PythonShelCommandProcessorConfigurationTests {
+		@Test
+		public void test() throws IOException {
+			assertThat(processor).isNotNull();
+			System.out.println(processor.getCommand());
+			assertThat(processor.getCommand()).isEqualTo(
+					"python /scripts/python/echo.py --categories=\"{'ecstatic':0.90,'happy':0.75,'warm':0.65,"
+							+ "'meh':0.55,'cool':0.45,'gloomy':0.25,'doomed':0.0}\"");
+		}
+	}
+
+	@TestPropertySource(properties = { "python.script=echo.py", "python.basedir=/scripts/python",
+			"python.args=--categories=\"{'ecstatic':0.90,'happy':0.75,'warm':0.65,'meh':0.55,'cool':0.45,'gloomy':0.25,"
+					+ "'doomed':0.0}\"", "spring.profiles.active=cloud" })
+	public static class TestCommandArgsForCloud extends PythonShelCommandProcessorConfigurationTests {
+
+		private File pythonProcessor = new File("python_processor.sh");
+
+		@Test
+		public void test() throws IOException {
+			assertThat(processor).isNotNull();
+			assertThat(pythonProcessor.exists()).isTrue();
+			assertThat(processor.getCommand()).isEqualTo(pythonProcessor.getAbsolutePath());
+			List<String> lines = FileUtils.readLines(pythonProcessor, StandardCharsets.UTF_8);
+
+			assertThat(lines).containsOnlyOnce(
+					"python /scripts/python/echo.py --categories=\"{'ecstatic':0.90,'happy':0.75,'warm':0.65,"
+							+ "'meh':0.55,'cool':0.45,'gloomy':0.25," + "'doomed':0.0}\"");
+		}
+
+		@After
+		public void cleanUp() {
+			if (pythonProcessor.exists()) {
+				pythonProcessor.delete();
+			}
+		}
+	}
+
 	@SpringBootApplication
 	@Import(PythonShellCommandProcessorConfiguration.class)
 	static class PythonApplication {
+		@Bean
+		@Profile("cloud")
+		public CloudFactory cloudFactory() {
+			CloudFactory cloudFactory = mock(CloudFactory.class);
+			when(cloudFactory.getCloud()).thenReturn(cloud());
+			return cloudFactory;
+		}
 
+		@Bean
+		@Profile("cloud")
+		public Cloud cloud() {
+			return mock(Cloud.class);
+		}
 	}
 }

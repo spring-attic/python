@@ -88,8 +88,8 @@ public class PythonShellCommandProcessorConfiguration {
 	private String buildCommand() {
 		return StringUtils.isEmpty(properties.getArgs()) ?
 				StringUtils.join(new String[] { properties.getCommandName(), buildScriptAbsolutePath() }, " ") :
-				StringUtils.join(new String[] { properties.getCommandName(), properties.getArgs(),
-						buildScriptAbsolutePath() }, " ");
+				StringUtils.join(new String[] { properties.getCommandName(), buildScriptAbsolutePath(),
+						properties.getArgs() }, " ");
 	}
 
 	private String buildScriptAbsolutePath() {

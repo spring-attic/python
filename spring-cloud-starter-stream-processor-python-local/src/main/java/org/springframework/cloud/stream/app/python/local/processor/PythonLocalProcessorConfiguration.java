@@ -72,7 +72,7 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 				return shellCommandProcessor.sendAndReceive((byte[]) message.getPayload());
 			}
 			else {
-				return shellCommandProcessor.sendAndReceive((String ) message.getPayload().toString());
+				return shellCommandProcessor.sendAndReceive((String) message.getPayload().toString());
 			}
 		}
 	}
