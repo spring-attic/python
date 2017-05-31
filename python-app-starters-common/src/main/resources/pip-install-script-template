@@ -3,7 +3,11 @@ if ! type ${PIP_COMMAND} > /dev/null; then
   # install pip
   wget -q https://bootstrap.pypa.io/get-pip.py
   python get-pip.py --user
-  PIP_INSTALL_LOCATION=${USER_HOME}/.local/bin/pip
+  PIP_INSTALL_LOCATION="${HOME}/.local/bin/pip"
+  if [ -e "$PIP_INSTALL_LOCATION" ]; then
+     echo "$PIP_INSTALL_LOCATION"
+  else
+      echo "WARNING: pip not installed at $PIP_INSTALL_LOCATION"
+  fi
   rm -rf get-pip.py
 fi
-echo $PIP_INSTALL_LOCATION

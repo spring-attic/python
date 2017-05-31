@@ -107,20 +107,21 @@ public abstract class AbstractPythonAppDeployer implements PythonAppDeployer {
 				StringUtils.join(new String[] { getAppDirPath(), "requirements.txt" }, File.separator));
 		if (requirementsDotTxt.exists()) {
 
-			ShellCommand installer = new ShellCommand(String.format(StringUtils
-					.join(new String[] { pipCommandName, "install", "--user","-r", requirementsDotTxt.getAbsolutePath
-									() },
-							" ")));;
-			if (log.isInfoEnabled()) {
-				log.info(String.format("executing command [ %s ]" ,installer.getCommand()));
+			String command = StringUtils.join(new String[] {
+					pipCommandName, "install", "--user","-r", requirementsDotTxt.getAbsolutePath() },
+					" ");
+
+			String userPipInstallHome =  System.getenv("HOME") + File.separator +
+					".local" + File.separator + "bin";
+
+			if (new File(userPipInstallHome + File.separator + "pip").exists()) {
+			    command = userPipInstallHome + File.separator + command;
 			}
 
-			String userPipInstallHome =  System.getProperty("user.home") + File.separator +
-					".local" + File.separator + "bin";
-			if (new File(userPipInstallHome + File.separator + "pip").exists()) {
-				Map<String, String> env = new HashMap<>(System.getenv());
-				env.put("PATH", env.get("PATH") + File.pathSeparator + userPipInstallHome);
-				installer.setEnvironment(env);
+			ShellCommand installer = new ShellCommand(command);;
+
+			if (log.isInfoEnabled()) {
+				log.info(String.format("executing command -- [ %s ]" ,installer.getCommand()));
 			}
 
 			ShellCommand.CommandResponse response = installer.execute();

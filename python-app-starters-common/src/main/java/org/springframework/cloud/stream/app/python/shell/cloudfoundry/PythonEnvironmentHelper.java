@@ -95,7 +95,7 @@ public class PythonEnvironmentHelper {
 			Writer file = new FileWriter(scriptFile);
 			Map<String, String> model = new HashMap<>();
 			model.put("PIP_COMMAND", pipCommand);
-			model.put("USER_HOME", System.getProperty("user.home"));
+			model.put("HOME", System.getenv("HOME"));
 			template.process(model, file);
 			file.flush();
 			file.close();

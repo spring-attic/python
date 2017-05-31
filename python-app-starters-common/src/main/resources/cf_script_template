@@ -3,7 +3,8 @@
 if [ -f ${PROFILE_PATH} ]; then
     source ${PROFILE_PATH}
 else
-    echo "WARNING: File not found: ${PROFILE_PATH}"
+    #echo "WARNING: File not found: ${PROFILE_PATH}"
+    :
 fi
 
 ${COMMAND}
