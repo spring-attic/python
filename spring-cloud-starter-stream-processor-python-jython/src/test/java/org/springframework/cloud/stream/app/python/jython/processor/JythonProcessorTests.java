@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.stream.app.python.jython.processor;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,7 @@ public abstract class JythonProcessorTests {
 
 	@TestPropertySource(properties = { "jython.script=test-wrappers/upper.py",
 			"git.uri=https://github.com/dturanski/python-apps" })
-	//@Ignore
+	@Ignore
 	public static class TestGit extends JythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
