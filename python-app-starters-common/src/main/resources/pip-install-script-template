@@ -1,0 +1,9 @@
+PIP_INSTALL_LOCATION=""
+if ! type ${PIP_COMMAND} > /dev/null; then
+  # install pip
+  wget -q https://bootstrap.pypa.io/get-pip.py
+  python get-pip.py --user
+  PIP_INSTALL_LOCATION=${USER_HOME}/.local/bin/pip
+  rm -rf get-pip.py
+fi
+echo $PIP_INSTALL_LOCATION

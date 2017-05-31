@@ -79,8 +79,13 @@ public class PythonShellCommandProcessorConfiguration {
 	@Bean
 	@Profile("cloud")
 	public ShellCommandProcessor cfShellCommandProcessor(AbstractByteArraySerializer serializer) {
-		String scriptName = new PythonEnvironmentHelper().wrappedCommand(buildCommand());
+
+		PythonEnvironmentHelper.installPipIfNecessary(properties.getPipCommandName());
+
+		String scriptName = PythonEnvironmentHelper.wrapCommandforCloud(buildCommand());
+
 		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer, scriptName);
+
 		shellCommandProcessor.setAutoStart(false);
 		return shellCommandProcessor;
 	}

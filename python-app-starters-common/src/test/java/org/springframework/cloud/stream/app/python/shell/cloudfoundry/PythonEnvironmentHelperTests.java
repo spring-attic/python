@@ -17,7 +17,12 @@
 package org.springframework.cloud.stream.app.python.shell.cloudfoundry;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.FalseFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.AfterClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -31,23 +36,72 @@ import static org.assertj.core.api.Assertions.assertThat;
  **/
 public class PythonEnvironmentHelperTests {
 	@Test
-	public void test() throws IOException {
-		PythonEnvironmentHelper helper = new PythonEnvironmentHelper();
+	public void testCfScript() throws IOException {
 
-		String command = helper.wrappedCommand("python foo.py");
-		File script = new File(PythonEnvironmentHelper.SCRIPT_FILE_NAME);
+		String command = PythonEnvironmentHelper.wrapCommandforCloud("python foo.py");
+		File script = new File(PythonEnvironmentHelper.CF_SCRIPT_FILE_NAME);
 		assertThat(command).isEqualTo(script.getAbsolutePath());
 
 		assertThat(script.exists()).isTrue();
 		assertThat(script.canExecute()).isTrue();
 		String contents = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
 		assertThat(contents).contains("python foo.py");
-		assertThat(contents).contains(PythonEnvironmentHelper.PROFILE_PATH);
+		assertThat(contents).contains(PythonEnvironmentHelper.CF_PROFILE_PATH);
+	}
+
+	@Test
+	@Ignore
+	/*
+	 * This will execute the install but won't install if pip is available.
+	 */ public void testPipInstallScript() {
+		String path = System.getProperty("user.home") + File.separator + ".local" + File.separator + "bin" + File
+				.separator + "pip";
+		doPipInstallTest("fooBarBaz", path);
+	}
+
+	@Test
+	@Ignore
+	public void testPipInstallScriptExistingPip() {
+		doPipInstallTest("pip", "");
+	}
+
+	private void doPipInstallTest(String pipCommand, String expectedResult) {
+
+		String path = System.getProperty("user.home") + File.separator + ".local" + File.separator + "bin";
+		boolean previousLocalPip = new File(path + File.separator + "pip").exists();
+
+		String installLocation = PythonEnvironmentHelper.installPipIfNecessary(pipCommand);
+		assertThat(installLocation).isEqualTo(expectedResult);
+
+
+		if (!previousLocalPip) {
+			for (File file : FileUtils.listFiles(new File(path), new WildcardFileFilter("pip*"), null)) {
+				System.out.println("deleting " + file.getAbsolutePath());
+				file.delete();
+			}
+
+			String libpath = System.getProperty("user.home") + File.separator + ".local" +
+					File.separator +"lib" + File.separator +"python2.7" + File.separator + "site-packages";
+			for (File file : FileUtils
+					.listFiles(new File(libpath), TrueFileFilter.INSTANCE, new WildcardFileFilter("pip*"))) {
+				if (file.getParentFile().getName().startsWith("pip")) {
+					System.out.println("deleting " + file.getAbsolutePath());
+					file.delete();
+				}
+			}
+		}
 
 	}
 
 	@AfterClass
 	public static void cleanUp() {
-		new File(PythonEnvironmentHelper.SCRIPT_FILE_NAME).delete();
+		File cfScript = new File(PythonEnvironmentHelper.CF_SCRIPT_FILE_NAME);
+		if (cfScript.exists()) {
+			cfScript.delete();
+		}
+		File pipInstallScript = new File(PythonEnvironmentHelper.PIP_INSTALL_SCRIPT_FILE_NAME);
+		if (pipInstallScript.exists()) {
+			pipInstallScript.delete();
+		}
 	}
 }

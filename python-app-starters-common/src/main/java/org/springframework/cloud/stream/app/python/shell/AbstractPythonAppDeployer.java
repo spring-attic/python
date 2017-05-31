@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.stream.app.python.shell;
 
+import com.sun.javafx.runtime.SystemProperties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -27,6 +28,8 @@ import org.springframework.util.Assert;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Base class for {@link PythonAppDeployer} implementations. This will install dependent Python packages as specified
@@ -103,13 +106,31 @@ public abstract class AbstractPythonAppDeployer implements PythonAppDeployer {
 		File requirementsDotTxt = new File(
 				StringUtils.join(new String[] { getAppDirPath(), "requirements.txt" }, File.separator));
 		if (requirementsDotTxt.exists()) {
-			ShellCommand installer = new ShellCommand(String.format(StringUtils
-					.join(new String[] { pipCommandName, "install", "-r", requirementsDotTxt.getAbsolutePath() },
-							" ")));
 
-			installer.afterPropertiesSet();
-			installer.start();
-			installer.stop();
+			ShellCommand installer = new ShellCommand(String.format(StringUtils
+					.join(new String[] { pipCommandName, "install", "--user","-r", requirementsDotTxt.getAbsolutePath
+									() },
+							" ")));;
+			if (log.isInfoEnabled()) {
+				log.info(String.format("executing command [ %s ]" ,installer.getCommand()));
+			}
+
+			String userPipInstallHome =  System.getProperty("user.home") + File.separator +
+					".local" + File.separator + "bin";
+			if (new File(userPipInstallHome + File.separator + "pip").exists()) {
+				Map<String, String> env = new HashMap<>(System.getenv());
+				env.put("PATH", env.get("PATH") + File.pathSeparator + userPipInstallHome);
+				installer.setEnvironment(env);
+			}
+
+			ShellCommand.CommandResponse response = installer.execute();
+
+			if (log.isInfoEnabled()) {
+				for (String line : StringUtils.split(response.output(), "\n")) {
+					log.info("STDOUT " + line);
+				}
+				log.info("Command completed exit value " + response.exitValue());
+			}
 		}
 	}
 

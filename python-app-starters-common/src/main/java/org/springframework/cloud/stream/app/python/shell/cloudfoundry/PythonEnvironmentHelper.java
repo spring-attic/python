@@ -19,8 +19,10 @@ package org.springframework.cloud.stream.app.python.shell.cloudfoundry;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.cloud.stream.shell.ShellCommand;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -35,34 +37,45 @@ import java.util.Map;
 public class PythonEnvironmentHelper {
 	private final static Log log = LogFactory.getLog(PythonEnvironmentHelper.class);
 
-	final static String PROFILE_PATH = "./.profile.d/python.sh";
+	final static String CF_PROFILE_PATH = "./.profile.d/python.sh";
 
-	final static String SCRIPT_FILE_NAME = "python_processor.sh";
+	final static String CF_SCRIPT_FILE_NAME = "python_processor.sh";
 
-	final static String TEMPLATE_FILE_NAME = "cf_script_template";
+	final static String CF_SCRIPT_TEMPLATE = "cf_script_template";
 
-	public String wrappedCommand(String command) {
-		createScriptFile(command);
-		return new File(SCRIPT_FILE_NAME).getAbsolutePath();
+	final static String PIP_INSTALL_SCRIPT_TEMPLATE = "pip-install-script-template";
+
+	final static String PIP_INSTALL_SCRIPT_FILE_NAME = "install-pip.sh";
+
+	private PythonEnvironmentHelper() {
 	}
 
-	public void createScriptFile(String command) {
+	public static String wrapCommandforCloud(String command) {
+		createScriptFileForCloud(command);
+		return new File(CF_SCRIPT_FILE_NAME).getAbsolutePath();
+	}
+
+	public static void createScriptFileForCloud(String command) {
 
 		Configuration configuration = new Configuration(Configuration.getVersion());
-		configuration.setClassForTemplateLoading(this.getClass(), "/");
+		configuration.setClassForTemplateLoading(PythonEnvironmentHelper.class, "/");
 
 		try {
-			Template template = configuration.getTemplate(TEMPLATE_FILE_NAME);
-			File scriptFile = new File(SCRIPT_FILE_NAME);
+			Template template = configuration.getTemplate(CF_SCRIPT_TEMPLATE);
+			File scriptFile = new File(CF_SCRIPT_FILE_NAME);
 			Writer file = new FileWriter(scriptFile);
 			Map<String, String> model = new HashMap<>();
-			model.put("PROFILE_PATH", PROFILE_PATH);
+			model.put("PROFILE_PATH", CF_PROFILE_PATH);
 			model.put("COMMAND", command);
 			template.process(model, file);
 			file.flush();
 			file.close();
-			log.debug("created command file " + scriptFile.getAbsolutePath());
-			Runtime.getRuntime().exec("chmod u+x " +  SCRIPT_FILE_NAME);
+
+			if (log.isDebugEnabled()) {
+				log.debug("created command file " + scriptFile.getAbsolutePath());
+			}
+
+			new ShellCommand("chmod u+x " + scriptFile.getAbsolutePath()).execute();
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e.getMessage(), e);
@@ -71,5 +84,50 @@ public class PythonEnvironmentHelper {
 			throw new RuntimeException(e.getMessage(), e);
 		}
 
+	}
+
+	public static String installPipIfNecessary(final String pipCommand) {
+		Configuration configuration = new Configuration(Configuration.getVersion());
+		configuration.setClassForTemplateLoading(PythonEnvironmentHelper.class, "/");
+		File scriptFile = new File(PIP_INSTALL_SCRIPT_FILE_NAME);
+		try {
+			Template template = configuration.getTemplate(PIP_INSTALL_SCRIPT_TEMPLATE);
+			Writer file = new FileWriter(scriptFile);
+			Map<String, String> model = new HashMap<>();
+			model.put("PIP_COMMAND", pipCommand);
+			model.put("USER_HOME", System.getProperty("user.home"));
+			template.process(model, file);
+			file.flush();
+			file.close();
+
+			if (log.isDebugEnabled()) {
+				log.debug("created command file " + scriptFile.getAbsolutePath());
+			}
+
+			new ShellCommand("chmod u+x " + scriptFile.getAbsolutePath()).execute();
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+		catch (TemplateException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+
+		ShellCommand pipInstaller = new ShellCommand(scriptFile.getAbsolutePath());
+		ShellCommand.CommandResponse response = pipInstaller.execute();
+
+		if (response.exitValue() != 0) {
+			throw new RuntimeException(
+					String.format("Error encountered installing pip. Exit value=%d [%s]",response.exitValue()
+							,response.output()));
+		}
+
+		String lines[] = StringUtils.split(response.output(),"\n");
+		if (log.isInfoEnabled()) {
+			for (String line: lines) {
+				log.info("STDOUT " + line);
+			}
+		}
+		return  (lines.length > 0 ) ? lines[lines.length-1].trim() : "";
 	}
 }

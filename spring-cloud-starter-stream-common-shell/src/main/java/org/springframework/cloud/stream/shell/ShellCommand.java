@@ -18,8 +18,6 @@ package org.springframework.cloud.stream.shell;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.Lifecycle;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -27,32 +25,24 @@ import org.springframework.util.StringUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Creates a process to sendAndRecieve a shell command and communicate with it using String payloads over stdin and stdout.
+ * Creates a process to execute a shell command synchronously.
  *
  * @author David Turanski
  * @author Gary Russell
  */
-public class ShellCommand implements Lifecycle, InitializingBean {
+public class ShellCommand {
 
 	private volatile boolean running = false;
 
 	private final ProcessBuilder processBuilder;
 
 	private volatile Process process;
-
-	private volatile InputStream stdout;
-
-	private volatile OutputStream stdin;
-
-	private boolean redirectErrorStream = true;
 
 	private final Map<String, String> environment = new ConcurrentHashMap<>();
 
@@ -64,18 +54,13 @@ public class ShellCommand implements Lifecycle, InitializingBean {
 
 	private final Object lifecycleLock = new Object();
 
-	private int exitValue;
-
-	private final boolean wait;
-
 	/**
 	 * Creates a process to invoke a shell command synchronously or asynchronously
 	 *
 	 * @param command he shell command with command line arguments as separate strings
-	 * @param wait    set to true to wait for command to complete
 	 */
-	public ShellCommand(String command, boolean wait) {
-		this.wait = wait;
+	public ShellCommand(String command) {
+
 		Assert.hasLength(command, "A shell command is required");
 		this.command = command;
 		ShellWordsParser shellWordsParser = new ShellWordsParser();
@@ -86,20 +71,31 @@ public class ShellCommand implements Lifecycle, InitializingBean {
 		processBuilder.redirectErrorStream(true);
 	}
 
-	/**
-	 * Creates a process to invoke a shell command asynchronously
-	 *
-	 * @param command the shell command with command line arguments as separate strings
-	 */
-	public ShellCommand(String command) {
-		this(command, false);
+	public static class CommandResponse {
+		private final int exitValue;
+		private final String output;
+
+		CommandResponse(int exitValue, String output) {
+			this.exitValue = exitValue;
+			this.output = output;
+		}
+
+		public int exitValue() {
+			return exitValue;
+		}
+
+		public String output() {
+			return output;
+		}
 	}
 
 	/**
-	 * Start the process.
+	 * Execute the process
 	 */
-	@Override
-	public void start() {
+
+	public CommandResponse execute() {
+		CommandResponse response = new CommandResponse(0, "");
+		this.init();
 		synchronized (lifecycleLock) {
 			if (!isRunning()) {
 				if (log.isDebugEnabled()) {
@@ -109,25 +105,25 @@ public class ShellCommand implements Lifecycle, InitializingBean {
 				try {
 					process = processBuilder.start();
 
-					stdout = process.getInputStream();
-					stdin = process.getOutputStream();
-
 					running = true;
-
-					if (this.wait) {
-						this.exitValue = waitForProcess(process);
-					}
 
 					if (log.isDebugEnabled()) {
 						log.debug("process started. Command = [" + command + "]");
 					}
 
-					BufferedReader reader = new BufferedReader(new InputStreamReader(stdout));
+					int exitValue = waitForProcess(process);
 
+					BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+					StringBuilder output = new StringBuilder("");
 					String line;
 					while ((line = reader.readLine()) != null) {
-						log.info("STDOUT " + line);
+						output.append(line).append("\n");
 					}
+
+					response = new CommandResponse(exitValue, output.toString());
+
+					this.stop();
 				}
 				catch (IOException e) {
 					log.error(e.getMessage(), e);
@@ -136,40 +132,16 @@ public class ShellCommand implements Lifecycle, InitializingBean {
 
 			}
 		}
-	}
 
-	public int exitValue() {
-		if (this.wait) {
-			return this.exitValue;
-		}
-		throw new UnsupportedOperationException("'exitValue() is only valid for the synchronous option");
+		return response;
 	}
 
 	/**
-	 * Stop the process and close streams.
-	 */
-	@Override
-	public void stop() {
-		synchronized (lifecycleLock) {
-			if (isRunning()) {
-				process.destroy();
-				running = false;
-			}
-		}
-	}
-
-	@Override
-	public boolean isRunning() {
-		return running;
-	}
-
-	/**
-	 * Set to true to redirect stderr to stdout.
 	 *
-	 * @param redirectErrorStream
+	 * @return the command.
 	 */
-	public void setRedirectErrorStream(boolean redirectErrorStream) {
-		this.redirectErrorStream = redirectErrorStream;
+	public String getCommand() {
+		return this.command;
 	}
 
 	/**
@@ -190,16 +162,17 @@ public class ShellCommand implements Lifecycle, InitializingBean {
 		this.workingDirectory = workingDirectory;
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		processBuilder.redirectErrorStream(redirectErrorStream);
-
+	private void init() {
 		if (StringUtils.hasLength(workingDirectory)) {
 			processBuilder.directory(new File(workingDirectory));
 		}
 		if (!CollectionUtils.isEmpty(environment)) {
 			processBuilder.environment().putAll(environment);
 		}
+	}
+
+	private boolean isRunning() {
+		return running;
 	}
 
 	private int waitForProcess(Process process) {
@@ -211,6 +184,19 @@ public class ShellCommand implements Lifecycle, InitializingBean {
 			Thread.currentThread().interrupt();
 			log.error(e.getMessage(), e);
 			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Stop the process and close streams.
+	 */
+
+	private void stop() {
+		synchronized (lifecycleLock) {
+			if (isRunning()) {
+				process.destroy();
+				running = false;
+			}
 		}
 	}
 

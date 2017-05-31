@@ -237,7 +237,7 @@ public class ShellCommandProcessor implements SmartLifecycle, InitializingBean {
 	}
 
 	/**
-	 * True by default. Set to false to manually start this component
+	 * True by default. Set to false to manually execute this component
 	 *
 	 * @param autoStart
 	 */
