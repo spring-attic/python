@@ -21,14 +21,13 @@ import org.springframework.cloud.stream.app.python.script.ScriptProperties;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
-import java.util.Properties;
 
 /**
  * Configuration properties for the Jython wrapper.
  *
  * @author David Turanski
  **/
-@ConfigurationProperties(prefix="jython")
+@ConfigurationProperties(prefix = "jython")
 @Validated
 public class JythonScriptProperties extends ScriptProperties {
 	/**

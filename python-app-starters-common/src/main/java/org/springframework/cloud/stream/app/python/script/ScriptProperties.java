@@ -20,6 +20,7 @@ import org.apache.catalina.webresources.FileResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
@@ -36,6 +37,19 @@ public class ScriptProperties {
 	 */
 	private String script;
 
+	/**
+	 * Sets the Content type header for the outgoing Message.
+	 */
+	private MediaType contentType;
+
+	public MediaType getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(MediaType contentType) {
+		this.contentType = contentType;
+	}
+
 	public String getScript() {
 		return this.script;
 	}
@@ -50,6 +64,5 @@ public class ScriptProperties {
 
 	protected Resource resolveResource(String resourceName) {
 		return new PathMatchingResourcePatternResolver().getResource("file:" + resourceName);
-
 	}
 }

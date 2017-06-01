@@ -29,7 +29,7 @@ import javax.validation.constraints.NotNull;
 @Validated
 @ConfigurationProperties(prefix = "python")
 public class PythonShellCommandProcessorProperties extends PythonAppProperties {
-	public static enum Encoder {LF,CRLF,BINARY}
+	public static enum Encoder {LF, CRLF, BINARY}
 
 	/**
 	 * The python command name, e.g., 'python', 'python3'.
@@ -42,7 +42,7 @@ public class PythonShellCommandProcessorProperties extends PythonAppProperties {
 	private String args = "";
 
 	/**
-	 * The encoder to use
+	 * The encoder to use.
 	 */
 	private Encoder encoder = Encoder.CRLF;
 

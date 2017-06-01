@@ -29,10 +29,12 @@ import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -87,6 +89,21 @@ public abstract class PythonShelCommandProcessorConfigurationTests {
 			assertThat(processor.getCommand()).isEqualTo("python /scripts/python/echo.py");
 		}
 	}
+
+	@TestPropertySource(properties = { "python.script=echo.py",
+			"python.basedir=scripts/python",
+			"python.contentType=application/json"})
+	public static class TestContentType extends PythonShelCommandProcessorConfigurationTests {
+		@Test
+		public void test() throws IOException {
+			assertThat(processor).isNotNull();
+			assertThat(properties.getPath()).isEqualTo("scripts/python");
+			assertThat(processor.getCommand()).isEqualTo("python scripts/python/echo.py");
+			assertThat(properties.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+		}
+	}
+
 
 	@TestPropertySource(properties = { "python.script=echo.py", "python.basedir=/scripts/python",
 			"python.args=--categories=\"{'ecstatic':0.90,'happy':0.75,'warm':0.65,'meh':0.55,'cool':0.45,'gloomy':0.25,"

@@ -23,12 +23,16 @@ import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
 import org.springframework.cloud.stream.app.python.shell.PythonGitAppDeployerConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProcessorConfiguration;
+import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProcessorProperties;
 import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.context.annotation.Import;
 import org.springframework.integration.annotation.Transformer;
+import org.springframework.integration.support.MutableMessage;
+import org.springframework.integration.support.MutableMessageBuilder;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 
 /**
  * A Processor that forks a shell to run a Python app configured as processor, sending and receiving messages via
@@ -48,6 +52,9 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 	@Autowired
 	private ShellCommandProcessor shellCommandProcessor;
 
+	@Autowired
+	private PythonShellCommandProcessorProperties properties;
+
 	@Autowired(required = false)
 	private JythonScriptExecutor jythonWrapper;
 
@@ -60,20 +67,32 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 	}
 
 	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-	public Object process(Message<?> message) {
+	public Message<Object> process(Message<?> message) {
+
+		Object result = null;
+
 		if (jythonWrapper != null) {
-			return jythonWrapper.execute(message);
+			result = jythonWrapper.execute(message);
 		}
 		else {
-			if (message.getPayload() instanceof String ) {
-				return shellCommandProcessor.sendAndReceive((String) message.getPayload());
+			if (message.getPayload() instanceof String) {
+				result = shellCommandProcessor.sendAndReceive((String) message.getPayload());
 			}
-			else if (message.getPayload() instanceof byte[] ) {
-				return shellCommandProcessor.sendAndReceive((byte[]) message.getPayload());
+			else if (message.getPayload() instanceof byte[]) {
+				result = shellCommandProcessor.sendAndReceive((byte[]) message.getPayload());
 			}
 			else {
-				return shellCommandProcessor.sendAndReceive((String) message.getPayload().toString());
+				result = shellCommandProcessor.sendAndReceive((String) message.getPayload().toString());
 			}
+		}
+
+		if (properties.getContentType() != null) {
+			return MutableMessageBuilder.withPayload(result).copyHeaders(message.getHeaders())
+					.setHeader(MessageHeaders.CONTENT_TYPE, properties.getContentType()).build();
+		}
+
+		else {
+			return MutableMessageBuilder.withPayload(result).copyHeaders(message.getHeaders()).build();
 		}
 	}
 }
