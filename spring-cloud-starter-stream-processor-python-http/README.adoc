@@ -2,8 +2,7 @@
 == Python Http Processor
 :imagesdir: ../images
 
-:httpclient-processor: https://github.com/spring-cloud-stream-app-starters/httpclient/blob/master/spring-cloud-starter
--stream-processor-httpclient/README.adoc
+:httpclient-processor: https://github.com/spring-cloud-stream-app-starters/httpclient/blob/master/spring-cloud-starter-stream-processor-httpclient/README.adoc
 
 Spring Cloud Stream App Starters for integrating with python
 
