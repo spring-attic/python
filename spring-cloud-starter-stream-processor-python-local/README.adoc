@@ -10,6 +10,21 @@ By default the tcp connection is configured for text with `\n` or `\r\n` delimit
 However you can set the encoder to `BINARY` to use `pickle` serialization for example.
 The binary encoder uses `x1a` as the string terminator. For convenience you can import
 the {python-springcloudstream}[springcloudstream] module to handle the low level I/O.
+
+
+
+
+[NOTE]
+====
+If you are running on Cloud Foundry, you need to use the link:docs/JavaPythonBuildPack.adoc[Java Python buildpack].
+Or if deploying as a Docker image, use one of the of the java-python images https://hub.docker.com/u/korekontrol/[here].
+====
+
+For local file system scripts (including a Git clone), if `requirements.txt` exists in the base directory,
+the application will `pip install` any Python dependencies during start up. If using Conda, the virtual environment must
+be configured and active. If the app is running in CloudFoundry, the Java Python buildpack will configure any Python
+dependencies.
+
 Here's an example that works with the `time-source` stream app:
 
 === The Script
