@@ -26,18 +26,24 @@ import org.springframework.cloud.stream.app.python.script.ScriptProperties;
  **/
 @ConfigurationProperties(prefix = "jython")
 public class JythonScriptProperties extends ScriptProperties {
+	/*
+	 * Not the cleanest, but works better with document generation
+	 */
 	public static enum Delimiter {
-		COMMA(","), SPACE(" "), TAB("\t"), NEWLINE("\n");
+		COMMA, SPACE, TAB, NEWLINE;
 
-		String val;
-
-		Delimiter(String val) {
-			this.val = val;
-		}
-
-		@Override
-		public String toString() {
-			return this.val;
+		public String value() {
+			switch (this) {
+			case COMMA:
+				return  ",";
+			case TAB:
+				return "\t";
+			case SPACE:
+				return " ";
+			case NEWLINE:
+				return "\n";
+			}
+			return ",";
 		}
 	}
 
@@ -47,9 +53,8 @@ public class JythonScriptProperties extends ScriptProperties {
 	private String variables;
 
 	/**
-	 * @return the delimiter.
+	 * The variable delimiter.
 	 */
-
 	private Delimiter delimiter = Delimiter.COMMA;
 
 	public String getVariables() {

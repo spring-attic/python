@@ -41,7 +41,7 @@ public class ScriptVariableGeneratorConfiguration {
 		Map<String, Object> variables = new HashMap<>();
 		if (properties.getVariables() != null) {
 			String[] props = StringUtils.delimitedListToStringArray(properties.getVariables(),
-					String.valueOf(properties.getDelimiter().toString()));
+					String.valueOf(properties.getDelimiter().value()));
 			for (String prop : props) {
 				String[] toks = StringUtils.split(prop, "=");
 				variables.put(toks[0].trim(), toks[1].trim());
