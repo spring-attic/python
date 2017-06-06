@@ -16,7 +16,7 @@ the {python-springcloudstream}[springcloudstream] module to handle the low level
 
 [NOTE]
 ====
-If you are running on Cloud Foundry, you need to use the link:docs/JavaPythonBuildPack.adoc[Java Python buildpack].
+If you are running on Cloud Foundry, you need to use the link:../docs/JavaPythonBuildPack.adoc[Java Python buildpack].
 Or if deploying as a Docker image, use one of the of the java-python images https://hub.docker.com/u/korekontrol/[here].
 ====
 
