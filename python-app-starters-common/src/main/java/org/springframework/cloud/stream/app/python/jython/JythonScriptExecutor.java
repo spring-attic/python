@@ -20,6 +20,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
+import org.springframework.integration.scripting.DefaultScriptVariableGenerator;
+import org.springframework.integration.scripting.ScriptVariableGenerator;
 import org.springframework.integration.scripting.jsr223.PythonScriptExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.scripting.ScriptSource;
@@ -30,97 +32,92 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Executes a Jython script executor to transform data to and from external Python applications.
+ * A Jython script executor.
  *
  * @author David Turanski
  **/
 public class JythonScriptExecutor implements InitializingBean {
-
-	protected final Log log = LogFactory.getLog(this.getClass());
-
+	private final static Log logger = LogFactory.getLog(JythonScriptExecutor.class);
+	private final ScriptVariableGenerator variableGenerator;
+	private final SimpleStringScriptSource script;
 	private final PythonScriptExecutor scriptExecutor;
+	private final Map<String, Object> staticVariables = new HashMap<>();
 
-	private final Map<String, Object> variables = new HashMap<>();
-
-	private ScriptSource scriptSource;
-
-	/**
-	 * Executes a Python script using a {@link PythonScriptExecutor}.
-	 * @param script
-	 */
-	public JythonScriptExecutor(Resource script) {
-
-		scriptSource = new CachingResourceScriptSource(script);
-		scriptExecutor = new PythonScriptExecutor();
+	public JythonScriptExecutor(Resource resource) {
+		this(resource, null);
 	}
 
-	/**
-	 * Execute the script
-	 *
-	 * @param message the incoming message, binding 'payload' and 'headers' to the script context.
-	 * @return the result
-	 */
+	public JythonScriptExecutor(Resource resource, ScriptVariableGenerator variableGenerator) {
+
+		ScriptSource scriptSource = new ResourceScriptSource(resource);
+
+		try {
+			this.script = new SimpleStringScriptSource(scriptSource.getScriptAsString());
+		}
+		catch (IOException e) {
+			throw new IllegalArgumentException(String.format("Cannot access script %s", resource.getFilename()));
+		}
+
+		this.scriptExecutor = new PythonScriptExecutor();
+
+		this.variableGenerator = variableGenerator == null ? new DefaultScriptVariableGenerator() : variableGenerator;
+
+		bindStaticVariables(this.staticVariables);
+	}
+
+
 	public Object execute(Message<?> message) {
 		return this.execute(message, null);
 	}
 
 	/**
-	 * Execute the script.
-	 * @param message the incoming message, binding 'payload' and 'headers' to the script context.
-	 * @param vars a map of additonal variables and values to bind to the script context.
-	 * @return
+	 *
+	 * @param message the message.
+	 * @param additionalVariables additional bind variables.
+	 * @return the result.
 	 */
-	public Object execute(Message<?> message, final Map<String, Object> vars) {
-		if (vars != null) {
-			this.variables.putAll(vars);
+	public Object execute(Message<?> message, Map<String, Object> additionalVariables) {
+		Map<String, Object> variables = variableGenerator.generateScriptVariables(message);
+		variables.putAll(this.staticVariables);
+		if (additionalVariables != null) {
+			variables.putAll(additionalVariables);
 		}
-		this.variables.put("payload", message.getPayload());
-		this.variables.put("headers", message.getHeaders());
-		return scriptExecutor.executeScript(scriptSource, this.variables);
+		return this.scriptExecutor.executeScript(this.script, variables);
 	}
 
-	/**
-	 * Subclasses override this to bind static variables required for the script.
-	 * @param variables
-	 */
-	protected void bindStaticVariables(final Map<String, Object> variables) {
+	public String getScript() {
+		return this.script.getScriptAsString();
+	}
+
+	protected void bindStaticVariables(Map<String, Object> variables) {
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		bindStaticVariables(variables);
+		bindStaticVariables(this.staticVariables);
 	}
 
+	static class SimpleStringScriptSource implements ScriptSource {
 
-	/* for testing */
-	public ScriptSource getScriptSource() {
-		return this.scriptSource;
-	}
+		private final String script;
 
-	/**
-	 * An implementation of {@link ResourceScriptSource} that caches the String contents and cannot be
-	 * modified.
-	 *
-	 * @author David Turanski
-	 **/
-	static class CachingResourceScriptSource extends ResourceScriptSource {
-		private String scriptBody;
-
-		public CachingResourceScriptSource(Resource resource) {
-			super(resource);
+		SimpleStringScriptSource(String script) {
+			this.script = script;
 		}
 
 		@Override
-		public String getScriptAsString() throws IOException {
-			if (this.scriptBody == null) {
-				this.scriptBody = super.getScriptAsString();
-			}
-			return this.scriptBody;
+		public String getScriptAsString() {
+			return script;
 		}
 
 		@Override
 		public boolean isModified() {
 			return false;
+		}
+
+		@Override
+		public String suggestedClassName() {
+			return SimpleStringScriptSource.class.getName();
 		}
 	}
 }

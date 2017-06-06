@@ -24,24 +24,30 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
 import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
+import org.springframework.cloud.stream.app.python.jython.ScriptVariableGeneratorConfiguration;
 import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.integration.scripting.ScriptVariableGenerator;
 
 /**
  * @author David Turanski
  **/
 @Configuration
 @EnableConfigurationProperties(JythonWrapperProperties.class)
-@Import(GitResourceRepositoryConfiguration.class)
+@Import({ GitResourceRepositoryConfiguration.class, ScriptVariableGeneratorConfiguration.class })
 public class JythonWrapperConfiguration {
+
+	@Autowired
+	private JythonWrapperProperties properties;
 
 	@Configuration
 	@ConditionalOnBean(ShellCommandProcessor.class)
 	@ConditionalOnProperty("wrapper.script")
 	static class ShellProcessorJythonWrapperConfig {
+
 		@Autowired(required = false)
 		private JGitResourceRepository gitResourceRepository;
 
@@ -49,11 +55,12 @@ public class JythonWrapperConfiguration {
 		private JythonWrapperProperties properties;
 
 		@Bean
-		public JythonScriptExecutor jythonWrapper(ShellCommandProcessor processor) {
+		public JythonScriptExecutor jythonWrapper(ScriptVariableGenerator variableGenerator,
+				ShellCommandProcessor processor) {
 			if (gitResourceRepository != null) {
 				ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
 			}
-			return new ShellCommandProcessorJythonWrapper(properties.getScriptResource(), processor);
+			return new ShellCommandProcessorJythonWrapper(properties.getScriptResource(), variableGenerator, processor);
 		}
 	}
 
@@ -68,11 +75,13 @@ public class JythonWrapperConfiguration {
 		private JythonWrapperProperties properties;
 
 		@Bean
-		public JythonScriptExecutor jythonWrapper() {
+		public JythonScriptExecutor jythonWrapper(ScriptVariableGenerator variableGenerator) {
 			if (gitResourceRepository != null) {
 				ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
 			}
-			return new JythonScriptExecutor(properties.getScriptResource());
+			return new JythonScriptExecutor(properties.getScriptResource(), variableGenerator);
 		}
+
 	}
+
 }

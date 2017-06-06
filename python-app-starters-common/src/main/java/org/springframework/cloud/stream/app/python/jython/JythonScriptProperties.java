@@ -18,9 +18,6 @@ package org.springframework.cloud.stream.app.python.jython;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.stream.app.python.script.ScriptProperties;
-import org.springframework.validation.annotation.Validated;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * Configuration properties for the Jython wrapper.
@@ -28,12 +25,32 @@ import javax.validation.constraints.NotNull;
  * @author David Turanski
  **/
 @ConfigurationProperties(prefix = "jython")
-@Validated
 public class JythonScriptProperties extends ScriptProperties {
+	public static enum Delimiter {
+		COMMA(","), SPACE(" "), TAB("\t"), NEWLINE("\n");
+
+		String val;
+
+		Delimiter(String val) {
+			this.val = val;
+		}
+
+		@Override
+		public String toString() {
+			return this.val;
+		}
+	}
+
 	/**
-	 * Variable bindings as a comma delimited string of name-value pairs, e.g. 'foo=bar,baz=car'.
+	 * Variable bindings as a delimited string of name-value pairs, e.g. 'foo=bar,baz=car'.
 	 */
 	private String variables;
+
+	/**
+	 * @return the delimiter.
+	 */
+
+	private Delimiter delimiter = Delimiter.COMMA;
 
 	public String getVariables() {
 		return variables;
@@ -43,7 +60,14 @@ public class JythonScriptProperties extends ScriptProperties {
 		this.variables = variables;
 	}
 
-	@NotNull
+	public Delimiter getDelimiter() {
+		return delimiter;
+	}
+
+	public void setDelimiter(Delimiter delimiter) {
+		this.delimiter = delimiter;
+	}
+
 	public String getScript() {
 		return super.getScript();
 	}

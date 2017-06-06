@@ -17,6 +17,7 @@
 package org.springframework.cloud.stream.app.python.wrapper;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.stream.app.python.jython.JythonScriptProperties;
 import org.springframework.cloud.stream.app.python.script.ScriptProperties;
 /**
  * Configuration properties for the Jython wrapper.
@@ -24,5 +25,5 @@ import org.springframework.cloud.stream.app.python.script.ScriptProperties;
  * @author David Turanski
  **/
 @ConfigurationProperties(prefix="wrapper")
-public class JythonWrapperProperties extends ScriptProperties {
+public class JythonWrapperProperties extends JythonScriptProperties {
 }

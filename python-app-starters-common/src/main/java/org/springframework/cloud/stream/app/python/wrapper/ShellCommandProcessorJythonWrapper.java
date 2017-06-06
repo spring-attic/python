@@ -19,6 +19,7 @@ package org.springframework.cloud.stream.app.python.wrapper;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.core.io.Resource;
+import org.springframework.integration.scripting.ScriptVariableGenerator;
 
 import java.util.Map;
 
@@ -30,11 +31,15 @@ import java.util.Map;
  **/
 public class ShellCommandProcessorJythonWrapper extends JythonScriptExecutor {
 
-
 	private ShellCommandProcessor shellCommandProcessor;
 
 	public ShellCommandProcessorJythonWrapper(Resource script, ShellCommandProcessor shellCommandProcessor) {
-		super(script);
+		this(script, null, shellCommandProcessor);
+	}
+
+	public ShellCommandProcessorJythonWrapper(Resource script, ScriptVariableGenerator variableGenerator,
+			ShellCommandProcessor shellCommandProcessor) {
+		super(script, variableGenerator);
 		this.shellCommandProcessor = shellCommandProcessor;
 	}
 

@@ -65,7 +65,7 @@ public abstract class JythonWrapperConfigurationTests {
 		@Ignore //TODO: Figure out how to test this case
 		@Test
 		public void test() throws IOException {
-			assertThat(jythonWrapper.getScriptSource().getScriptAsString().trim())
+			assertThat(jythonWrapper.getScript().trim())
 					.isEqualTo("result = payload.upper()");
 		}
 	}
@@ -75,7 +75,7 @@ public abstract class JythonWrapperConfigurationTests {
 		@Test
 		public void test() throws IOException {
 			assertThat(repository).isNull();
-			assertThat(jythonWrapper.getScriptSource().getScriptAsString().trim())
+			assertThat(jythonWrapper.getScript().trim())
 					.isEqualTo("result = payload.upper()");
 		}
 	}

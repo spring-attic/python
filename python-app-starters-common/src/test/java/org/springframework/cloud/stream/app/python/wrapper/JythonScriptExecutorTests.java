@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
  **/
 public class JythonScriptExecutorTests {
 
-	ShellCommandProcessor shellCommandProcessor = mock(ShellCommandProcessor.class);
+	private ShellCommandProcessor shellCommandProcessor = mock(ShellCommandProcessor.class);
 
 	@Before
 	public void setUp() {
@@ -54,8 +54,10 @@ public class JythonScriptExecutorTests {
 	}
 
 	@Test
-	public void simple() {
-		JythonScriptExecutor jythonScriptExecutor = new JythonScriptExecutor(new ClassPathResource("wrapper/simple_wrapper.py"));
+	public void simple() throws Exception {
+		JythonScriptExecutor jythonScriptExecutor = new JythonScriptExecutor(
+				new ClassPathResource("wrapper/simple_wrapper.py"));
+		jythonScriptExecutor.afterPropertiesSet();
 		assertThat(jythonScriptExecutor.execute(new GenericMessage<String>("hello"))).isEqualTo("HELLO");
 	}
 
@@ -74,7 +76,9 @@ public class JythonScriptExecutorTests {
 	public void scriptSource() throws Exception {
 		Resource script = new UrlResource(
 				"https://github.com/dturanski/python-apps/blob/master/test-wrappers/upper.py");
-		JythonScriptExecutor jythonScriptExecutor = new JythonScriptExecutor(new ClassPathResource("wrapper/simple_wrapper.py"));
+		JythonScriptExecutor jythonScriptExecutor = new JythonScriptExecutor(
+				new ClassPathResource("wrapper/simple_wrapper.py"));
+		jythonScriptExecutor.afterPropertiesSet();
 		Object result = jythonScriptExecutor.execute(new GenericMessage<String>("hello"));
 		assertThat(result).isEqualTo("HELLO");
 

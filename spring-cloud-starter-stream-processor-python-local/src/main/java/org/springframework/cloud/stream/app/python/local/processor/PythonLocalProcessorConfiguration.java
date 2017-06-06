@@ -29,7 +29,6 @@ import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.context.annotation.Import;
 import org.springframework.integration.annotation.Transformer;
-import org.springframework.integration.support.MutableMessage;
 import org.springframework.integration.support.MutableMessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;

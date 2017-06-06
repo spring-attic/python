@@ -16,14 +16,16 @@
 
 package org.springframework.cloud.stream.app.python.jython.processor;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
@@ -31,9 +33,14 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author David Turanski
@@ -50,8 +57,6 @@ public abstract class JythonProcessorTests {
 	@Autowired
 	MessageCollector messageCollector;
 
-
-
 	@TestPropertySource(properties = { "jython.script=./src/test/resources/wrapper/simple_wrapper.py" })
 	public static class TestSimpleFile extends JythonProcessorTests {
 		@Test
@@ -64,10 +69,8 @@ public abstract class JythonProcessorTests {
 		}
 	}
 
-	@TestPropertySource(properties = {
-			"jython.script=src/test/resources/wrapper/map_sentiments.py",
-			"jython.variables=positive=0.6, neutral=0.4"
-	})
+	@TestPropertySource(properties = { "jython.script=src/test/resources/wrapper/map_sentiments.py",
+			"jython.variables=positive=0.6,neutral=0.4", "jython.delimiter=COMMA" })
 	public static class TestWithVariables extends JythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
@@ -79,10 +82,11 @@ public abstract class JythonProcessorTests {
 		}
 	}
 
-	@TestPropertySource(properties = { "jython.script=test-wrappers/upper.py",
-			"git.uri=https://github.com/dturanski/python-apps" })
-	@Ignore
+	@TestPropertySource(properties = { "jython.script=test-wrappers/upper.py", "git.uri=https://example.com" })
 	public static class TestGit extends JythonProcessorTests {
+		@Autowired
+		JGitResourceRepository resourceRepository;
+
 		@Test
 		public void test() throws InterruptedException {
 			Message<String> message = new GenericMessage<>("hello world");
@@ -90,6 +94,7 @@ public abstract class JythonProcessorTests {
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
 			assertThat(received.getPayload()).isEqualTo("HELLO WORLD");
+			verify(resourceRepository,atLeast(1)).setUri("https://example.com");
 		}
 	}
 
@@ -97,6 +102,15 @@ public abstract class JythonProcessorTests {
 	@Import(PythonJythonProcessorConfiguration.class)
 	public static class PythonApplication {
 
+		@Bean
+		@ConditionalOnProperty("git.uri")
+		public JGitResourceRepository gitResourceRepository() {
+			JGitResourceRepository resourceRepository = mock(JGitResourceRepository.class);
+			when(resourceRepository.getBasedir()).thenReturn(new File("src/test/resources"));
+			return resourceRepository;
+		}
+
+		;
 	}
 
 }
