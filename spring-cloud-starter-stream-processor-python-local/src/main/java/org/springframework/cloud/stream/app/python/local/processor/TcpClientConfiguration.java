@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.app.python.script.ScriptProperties;
+import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProperties;
 import org.springframework.cloud.stream.app.python.shell.TcpProperties;
 import org.springframework.cloud.stream.app.python.tcp.EncoderDecoderFactoryBean;
 import org.springframework.cloud.stream.messaging.Processor;
@@ -50,7 +52,7 @@ import org.springframework.messaging.SubscribableChannel;
  * @author David Turanski
  */
 @EnableBinding(Processor.class)
-@EnableConfigurationProperties(TcpProperties.class)
+@EnableConfigurationProperties({TcpProperties.class, PythonShellCommandProperties.class})
 public class TcpClientConfiguration {
 
 	@Autowired
@@ -58,6 +60,11 @@ public class TcpClientConfiguration {
 
 	@Autowired
 	private TcpProperties properties;
+
+	@Autowired
+	private PythonShellCommandProperties scriptProperties;
+
+
 
 	@Bean
 	public MessageChannel monitorInput(){
@@ -69,16 +76,6 @@ public class TcpClientConfiguration {
 		return new DirectChannel();
 	}
 
-
-//	@Bean
-//	public MessageChannel tcpGatewayRequest(){
-//		return new DirectChannel();
-//	}
-//
-//	@Bean
-//	public MessageChannel tcpGatewayReply(){
-//		return new DirectChannel();
-//	}
 
 	@Bean
 	public TcpReceivingChannelAdapter monitorAdapter(@Qualifier("tcpMonitorConnectionFactory")
@@ -92,44 +89,6 @@ public class TcpClientConfiguration {
 		return adapter;
 	}
 
-//	@Bean
-//	public TcpReceivingChannelAdapter adapter(
-//			@Qualifier("tcpClientConnectionFactory") AbstractConnectionFactory connectionFactory) {
-//		TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
-//		adapter.setConnectionFactory(connectionFactory);
-//		adapter.setClientMode(true);
-//		adapter.setRetryInterval(this.properties.getRetryInterval());
-//		adapter.setOutputChannel(this.channels.output());
-//		adapter.setAutoStartup(false);
-//		return adapter;
-//	}
-
-
-//	@ServiceActivator(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-//	public MessageProcessor<Object> messageProcessor(
-//			@Qualifier("tcpGatewayRequest") MessageChannel tcpGatewayRequest,
-//			@Qualifier("tcpGatewayReply") SubscribableChannel tcpGatewayReply)
-//	{
-//		MessageHandler handler = new MessageHandler() {
-//			@Override
-//			public void handleMessage(Message<?> message) throws MessagingException {
-//				channels.output().send(message);
-//			}
-//		};
-//
-//		tcpGatewayReply.subscribe(handler);
-//
-//
-//		return new MessageProcessor<Object>() {
-//
-//			@Override
-//			public Object processMessage(Message<?> message) {
-//				tcpGatewayRequest().send(message);
-//
-//			}
-//		};
-//	}
-
 	@Bean
 	@ServiceActivator(inputChannel = Processor.INPUT)
 	public TcpProcessor tcpProcessor(@Qualifier("tcpClientConnectionFactory") AbstractConnectionFactory
@@ -137,6 +96,7 @@ public class TcpClientConfiguration {
 		TcpProcessor tcpProcessor = new TcpProcessor(properties.getCharset());
 		tcpProcessor.setConnectionFactory((AbstractClientConnectionFactory)connectionFactory);
 		tcpProcessor.setReplyChannel(channels.output());
+		tcpProcessor.setContentType(scriptProperties.getContentType());
 		return tcpProcessor;
 	}
 
@@ -149,14 +109,6 @@ public class TcpClientConfiguration {
 		return sendingMessageHandler;
 	}
 
-//	@Bean
-//	@ServiceActivator(inputChannel = Processor.INPUT)
-//	public TcpSendingMessageHandler sendingMessageHandler(
-//			@Qualifier("tcpClientConnectionFactory") AbstractConnectionFactory connectionFactory) {
-//		TcpSendingMessageHandler sendingMessageHandler = new TcpSendingMessageHandler();
-//		sendingMessageHandler.setConnectionFactory(connectionFactory);
-//		return sendingMessageHandler;
-//	}
 
 	@Bean
 	public TcpConnectionFactoryFactoryBean tcpClientConnectionFactory(

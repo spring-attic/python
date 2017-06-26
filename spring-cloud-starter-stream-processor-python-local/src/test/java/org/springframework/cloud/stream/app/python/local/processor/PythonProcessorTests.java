@@ -89,11 +89,12 @@ public abstract class PythonProcessorTests {
 	public static class TestSimpleWithContentType extends PythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
+
 			Message<String> message = new GenericMessage<>("{\"hello\" : \"world\"}");
 			processor.input().send(message);
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
-			assertThat(received.getPayload()).isEqualTo("{\"hello\" : \"world\"}");
+			assertThat(received.getPayload()).isEqualTo("{\"HELLO\" : \"WORLD\"}");
 			assertThat(received.getHeaders().get(MessageHeaders.CONTENT_TYPE)).isEqualTo(MediaType.APPLICATION_JSON);
 		}
 	}
@@ -112,7 +113,7 @@ public abstract class PythonProcessorTests {
 			processor.input().send(message);
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
-			assertThat(received.getPayload()).isEqualTo("[hello, world]");
+			assertThat(received.getPayload()).isEqualTo("[HELLO, WORLD]");
 		}
 	}
 
@@ -123,10 +124,12 @@ public abstract class PythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
 			Message<byte[]> message = new GenericMessage<>("hello world".getBytes());
-			processor.input().send(message);
-			Message<byte[]> received = (Message<byte[]>) messageCollector.forChannel(processor.output())
-					.poll(1, TimeUnit.SECONDS);
-			assertThat(received.getPayload()).isEqualTo(message.getPayload());
+			for (int i=0; i<100; i++) {
+				processor.input().send(message);
+				Message<byte[]> received = (Message<byte[]>) messageCollector.forChannel(processor.output())
+						.poll(1, TimeUnit.SECONDS);
+				assertThat(received.getPayload()).isEqualTo("HELLO WORLD".getBytes());
+			}
 		}
 	}
 
@@ -135,7 +138,9 @@ public abstract class PythonProcessorTests {
 			"python.script=pickle_page_example.py",
 			"python.encoder=BINARY",
 			"wrapper.script=src/test/resources/wrapper/page_wrapper.py" })
+
 	public static class TestPicklePage extends PythonProcessorTests {
+		@Ignore
 		@Test
 		public void test() throws IOException, InterruptedException {
 			Message<Page> message = new GenericMessage<>(new Page());

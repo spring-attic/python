@@ -52,7 +52,7 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 
 	@Autowired
 	private ShellCommand shellCommand;
-	
+
 
 	@Autowired
 	@Qualifier("monitorAdapter")
