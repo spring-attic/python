@@ -52,10 +52,7 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 
 	@Autowired
 	private ShellCommand shellCommand;
-
-	@Autowired
-	@Qualifier("adapter")
-	TcpReceivingChannelAdapter tcpAdapter;
+	
 
 	@Autowired
 	@Qualifier("monitorAdapter")
@@ -82,7 +79,7 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 			throw new RuntimeException("Unable to connect to shell process " + shellCommand.getCommand());
 		}
 		if (checkTcpConnection(tcpProperties.getPort())) {
-			tcpAdapter.start();
+			//tcpAdapter.start();
 		}
 		else {
 			throw new RuntimeException("Unable to connect to shell process " + shellCommand.getCommand());

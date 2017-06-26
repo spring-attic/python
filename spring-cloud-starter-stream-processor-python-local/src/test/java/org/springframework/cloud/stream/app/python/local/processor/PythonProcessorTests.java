@@ -75,10 +75,9 @@ public abstract class PythonProcessorTests {
 		public void test() throws InterruptedException {
 			Message<String> message = new GenericMessage<>("hello world");
 			processor.input().send(message);
-			Message<byte[]> received = (Message<byte[]>) messageCollector.forChannel(processor.output())
+			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
-			System.out.println(received.getPayload().getClass().getName());
-			assertThat(new String(received.getPayload(),Charset.defaultCharset())).isEqualTo("HELLO WORLD");
+			assertThat(received.getPayload()).isEqualTo("HELLO WORLD");
 		}
 	}
 

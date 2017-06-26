@@ -80,7 +80,8 @@ public class TcpClientConfiguration {
 //		return new DirectChannel();
 //	}
 
-	@Bean TcpReceivingChannelAdapter monitorAdapter(@Qualifier("tcpMonitorConnectionFactory")
+	@Bean
+	public TcpReceivingChannelAdapter monitorAdapter(@Qualifier("tcpMonitorConnectionFactory")
 			AbstractConnectionFactory connectionFactory){
 		TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
 		adapter.setConnectionFactory(connectionFactory);
@@ -91,17 +92,17 @@ public class TcpClientConfiguration {
 		return adapter;
 	}
 
-	@Bean
-	public TcpReceivingChannelAdapter adapter(
-			@Qualifier("tcpClientConnectionFactory") AbstractConnectionFactory connectionFactory) {
-		TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
-		adapter.setConnectionFactory(connectionFactory);
-		adapter.setClientMode(true);
-		adapter.setRetryInterval(this.properties.getRetryInterval());
-		adapter.setOutputChannel(this.channels.output());
-		adapter.setAutoStartup(false);
-		return adapter;
-	}
+//	@Bean
+//	public TcpReceivingChannelAdapter adapter(
+//			@Qualifier("tcpClientConnectionFactory") AbstractConnectionFactory connectionFactory) {
+//		TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
+//		adapter.setConnectionFactory(connectionFactory);
+//		adapter.setClientMode(true);
+//		adapter.setRetryInterval(this.properties.getRetryInterval());
+//		adapter.setOutputChannel(this.channels.output());
+//		adapter.setAutoStartup(false);
+//		return adapter;
+//	}
 
 
 //	@ServiceActivator(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
@@ -129,16 +130,15 @@ public class TcpClientConfiguration {
 //		};
 //	}
 
-//	@Bean
-//	TcpOutboundGateway tcpOutboundGateway(@Qualifier("tcpClientConnectionFactory") AbstractConnectionFactory
-//			connectionFactory){
-//		TcpOutboundGateway tcpOutboundGateway = new TcpOutboundGateway();
-//		tcpOutboundGateway.setConnectionFactory((AbstractClientConnectionFactory)connectionFactory);
-//		tcpOutboundGateway.s
-//		tcpOutboundGateway.setOutputChannel(channels.input());
-//		tcpOutboundGateway.setReplyChannel(channels.output());
-//		return tcpOutboundGateway;
-//	}
+	@Bean
+	@ServiceActivator(inputChannel = Processor.INPUT)
+	public TcpProcessor tcpProcessor(@Qualifier("tcpClientConnectionFactory") AbstractConnectionFactory
+			connectionFactory){
+		TcpProcessor tcpProcessor = new TcpProcessor(properties.getCharset());
+		tcpProcessor.setConnectionFactory((AbstractClientConnectionFactory)connectionFactory);
+		tcpProcessor.setReplyChannel(channels.output());
+		return tcpProcessor;
+	}
 
 	@Bean
 	@ServiceActivator(inputChannel = "monitorInput")
@@ -149,14 +149,14 @@ public class TcpClientConfiguration {
 		return sendingMessageHandler;
 	}
 
-	@Bean
-	@ServiceActivator(inputChannel = Processor.INPUT)
-	public TcpSendingMessageHandler sendingMessageHandler(
-			@Qualifier("tcpClientConnectionFactory") AbstractConnectionFactory connectionFactory) {
-		TcpSendingMessageHandler sendingMessageHandler = new TcpSendingMessageHandler();
-		sendingMessageHandler.setConnectionFactory(connectionFactory);
-		return sendingMessageHandler;
-	}
+//	@Bean
+//	@ServiceActivator(inputChannel = Processor.INPUT)
+//	public TcpSendingMessageHandler sendingMessageHandler(
+//			@Qualifier("tcpClientConnectionFactory") AbstractConnectionFactory connectionFactory) {
+//		TcpSendingMessageHandler sendingMessageHandler = new TcpSendingMessageHandler();
+//		sendingMessageHandler.setConnectionFactory(connectionFactory);
+//		return sendingMessageHandler;
+//	}
 
 	@Bean
 	public TcpConnectionFactoryFactoryBean tcpClientConnectionFactory(
