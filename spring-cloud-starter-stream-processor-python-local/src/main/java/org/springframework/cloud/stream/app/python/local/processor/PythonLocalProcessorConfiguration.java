@@ -98,6 +98,8 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 		return adapter;
 	}
 
+
+
 	@Bean
 	@ServiceActivator(inputChannel = Processor.INPUT)
 	public TcpProcessor tcpProcessor(
