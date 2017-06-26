@@ -51,8 +51,8 @@ import org.springframework.messaging.SubscribableChannel;
  * @author Gary Russell
  * @author David Turanski
  */
-@EnableBinding(Processor.class)
-@EnableConfigurationProperties({TcpProperties.class, PythonShellCommandProperties.class})
+//@EnableBinding(Processor.class)
+//@EnableConfigurationProperties({TcpProperties.class, PythonShellCommandProperties.class})
 public class TcpClientConfiguration {
 
 	@Autowired

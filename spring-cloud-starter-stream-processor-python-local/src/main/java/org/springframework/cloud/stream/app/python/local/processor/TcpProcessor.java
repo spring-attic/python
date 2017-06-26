@@ -6,12 +6,14 @@ import org.springframework.integration.support.MutableMessageBuilder;
 import org.springframework.integration.transformer.MessageTransformationException;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.messaging.support.MessageBuilder;
 
 import java.io.UnsupportedEncodingException;
 
 /**
- * Subclass of {@link TcpOutboundGateway} that converts reply to String if request is a String
+ * Subclass of {@link TcpOutboundGateway} that converts request to String if necessary and
+ * converts reply to String if request is a String
  *
  * @author David Turanski
  **/
@@ -28,6 +30,11 @@ public class TcpProcessor extends TcpOutboundGateway {
 
 	public void setContentType(MediaType contentType) {
 		this.contentType = contentType;
+	}
+
+	public Object sendAndRecieve(Object payload) {
+		Message<?> reply = (Message<?>) this.handleRequestMessage(new GenericMessage<Object>(payload));
+		return reply.getPayload();
 	}
 
 	@Override
@@ -63,7 +70,6 @@ public class TcpProcessor extends TcpOutboundGateway {
 	}
 
 	private Message<?> convertRequestPayloadToStringIfNecessary(Message<?> message) {
-
 		if (!(message.getPayload() instanceof String) &&
 				!(message.getPayload() instanceof byte[])) {
 			return MessageBuilder.withPayload(message.getPayload().toString()).copyHeaders(message.getHeaders())
@@ -71,5 +77,4 @@ public class TcpProcessor extends TcpOutboundGateway {
 		}
 		return message;
 	}
-
 }

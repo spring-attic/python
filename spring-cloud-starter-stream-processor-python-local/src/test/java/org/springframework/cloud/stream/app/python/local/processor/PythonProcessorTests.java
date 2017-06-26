@@ -33,12 +33,10 @@ import org.springframework.http.MediaType;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.GenericMessage;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -54,8 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class PythonProcessorTests {
 
 	@ClassRule
-	public static SpringCloudStreamPythonAvailableRule springCloudStreamPythonAvailableRule
-			= new SpringCloudStreamPythonAvailableRule();
+	public static SpringCloudStreamPythonAvailableRule springCloudStreamPythonAvailableRule = new SpringCloudStreamPythonAvailableRule();
 
 	@Autowired
 	Processor processor;
@@ -66,8 +63,7 @@ public abstract class PythonProcessorTests {
 	@Autowired
 	ObjectMapper objectMapper;
 
-	@TestPropertySource(properties = {
-			"python.basedir=src/test/resources/python",
+	@TestPropertySource(properties = { "python.basedir=src/test/resources/python",
 			"python.script=processor_example.py" })
 	public static class TestSimple extends PythonProcessorTests {
 		@Test
@@ -80,11 +76,8 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-
-	@TestPropertySource(properties = {
-			"python.basedir=src/test/resources/python",
-			"python.script=processor_example.py",
-			"python.contentType=application/json"})
+	@TestPropertySource(properties = { "python.basedir=src/test/resources/python", "python.script=processor_example.py",
+			"python.contentType=application/json" })
 	public static class TestSimpleWithContentType extends PythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
@@ -98,9 +91,7 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-
-	@TestPropertySource(properties = {
-			"python.basedir=src/test/resources/python",
+	@TestPropertySource(properties = { "python.basedir=src/test/resources/python",
 			"python.script=processor_example.py" })
 	public static class TestArrayList extends PythonProcessorTests {
 		@Test
@@ -116,14 +107,13 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-	@TestPropertySource(properties = {
-			"python.basedir=src/test/resources/python",
+	@TestPropertySource(properties = { "python.basedir=src/test/resources/python",
 			"python.script=processor_example.py" })
 	public static class TestSimpleBytes extends PythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
 			Message<byte[]> message = new GenericMessage<>("hello world".getBytes());
-			for (int i=0; i<100; i++) {
+			for (int i = 0; i < 100; i++) {
 				processor.input().send(message);
 				Message<byte[]> received = (Message<byte[]>) messageCollector.forChannel(processor.output())
 						.poll(1, TimeUnit.SECONDS);
@@ -132,10 +122,8 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-	@TestPropertySource(properties = {
-			"python.basedir=src/test/resources/python",
-			"python.script=pickle_page_example.py",
-			"python.encoder=BINARY",
+	@TestPropertySource(properties = { "python.basedir=src/test/resources/python",
+			"python.script=pickle_page_example.py", "python.encoder=L2",
 			"wrapper.script=src/test/resources/wrapper/page_wrapper.py" })
 
 	public static class TestPicklePage extends PythonProcessorTests {
@@ -153,10 +141,8 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-	@TestPropertySource(properties = {
-			"git.uri=https://github.com/dturanski/python-apps",
-			"python.basedir=test-stream-scripts/time-transformer",
-			"python.script=time-delta.py" })
+	@TestPropertySource(properties = { "git.uri=https://github.com/dturanski/python-apps",
+			"python.basedir=test-stream-scripts/time-transformer", "python.script=time-delta.py" })
 	public static class TestGitRepo extends PythonProcessorTests {
 		@Test
 		@Ignore //TODO figure out a way to mock this
