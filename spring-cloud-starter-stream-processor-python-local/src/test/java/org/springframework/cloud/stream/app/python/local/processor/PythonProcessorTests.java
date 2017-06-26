@@ -51,7 +51,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RunWith(SpringRunner.class)
-@DirtiesContext
 public abstract class PythonProcessorTests {
 
 	@ClassRule
