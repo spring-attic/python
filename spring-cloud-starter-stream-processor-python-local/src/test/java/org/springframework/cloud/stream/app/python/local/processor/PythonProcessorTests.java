@@ -29,6 +29,7 @@ import org.springframework.cloud.stream.app.test.python.SpringCloudStreamPythonA
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.GenericMessage;
@@ -37,6 +38,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -73,9 +75,10 @@ public abstract class PythonProcessorTests {
 		public void test() throws InterruptedException {
 			Message<String> message = new GenericMessage<>("hello world");
 			processor.input().send(message);
-			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
+			Message<byte[]> received = (Message<byte[]>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
-			assertThat(received.getPayload()).isEqualTo("hello world");
+			System.out.println(received.getPayload().getClass().getName());
+			assertThat(new String(received.getPayload(),Charset.defaultCharset())).isEqualTo("HELLO WORLD");
 		}
 	}
 
@@ -92,7 +95,7 @@ public abstract class PythonProcessorTests {
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
 			assertThat(received.getPayload()).isEqualTo("{\"hello\" : \"world\"}");
-			assertThat(received.getHeaders().get(MessageHeaders.CONTENT_TYPE)).isEqualTo("application/json");
+			assertThat(received.getHeaders().get(MessageHeaders.CONTENT_TYPE)).isEqualTo(MediaType.APPLICATION_JSON);
 		}
 	}
 

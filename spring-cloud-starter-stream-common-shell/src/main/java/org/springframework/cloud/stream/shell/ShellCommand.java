@@ -18,6 +18,8 @@ package org.springframework.cloud.stream.shell;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -36,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author David Turanski
  * @author Gary Russell
  */
-public class ShellCommand {
+public class ShellCommand implements DisposableBean {
 
 	private volatile boolean running = false;
 
@@ -71,6 +73,11 @@ public class ShellCommand {
 		processBuilder.redirectErrorStream(true);
 	}
 
+	@Override
+	public void destroy() throws Exception {
+		this.process.destroy();
+	}
+
 	public static class CommandResponse {
 		private final int exitValue;
 		private final String output;
@@ -89,10 +96,36 @@ public class ShellCommand {
 		}
 	}
 
+	public void executeAsync() {
+		this.init();
+		synchronized (lifecycleLock) {
+			if (!isRunning()) {
+				if (log.isInfoEnabled()) {
+					log.info("starting process. Command = [" + command + "]");
+				}
+
+			}
+			try {
+				process = processBuilder.start();
+
+				running = true;
+
+				monitorProcess();
+
+				if (log.isInfoEnabled()) {
+					log.info("process started. Command = [" + command + "]");
+				}
+			}
+			catch (IOException e) {
+				log.error(e.getMessage(), e);
+				throw new RuntimeException(e.getMessage(), e);
+			}
+		}
+	}
+
 	/**
 	 * Execute the process
 	 */
-
 	public CommandResponse execute() {
 		CommandResponse response = new CommandResponse(0, "");
 		this.init();
@@ -173,6 +206,38 @@ public class ShellCommand {
 
 	private boolean isRunning() {
 		return running;
+	}
+
+	/**
+	 * Runs a thread that waits for the Process result.
+	 */
+	private void monitorProcess() {
+		new SimpleAsyncTaskExecutor().execute(new Runnable() {
+
+			@Override
+			public void run() {
+				Process process = ShellCommand.this.process;
+				if (process == null) {
+					if (log.isDebugEnabled()) {
+						log.debug("Process destroyed before starting process monitor");
+					}
+					return;
+				}
+
+				BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+				StringBuilder output = new StringBuilder("");
+				String line;
+				try {
+					while ((line = reader.readLine()) != null) {
+						System.out.println(line);
+					}
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	private int waitForProcess(Process process) {

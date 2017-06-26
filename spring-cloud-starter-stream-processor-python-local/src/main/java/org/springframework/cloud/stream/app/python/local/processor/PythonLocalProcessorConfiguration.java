@@ -18,20 +18,22 @@ package org.springframework.cloud.stream.app.python.local.processor;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
 import org.springframework.cloud.stream.app.python.shell.PythonGitAppDeployerConfiguration;
-import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProcessorConfiguration;
-import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProcessorProperties;
+import org.springframework.cloud.stream.app.python.shell.PythonShellCommandConfiguration;
+import org.springframework.cloud.stream.app.python.shell.TcpProperties;
 import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.messaging.Processor;
-import org.springframework.cloud.stream.shell.ShellCommandProcessor;
+import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.context.annotation.Import;
-import org.springframework.integration.annotation.Transformer;
-import org.springframework.integration.support.MutableMessageBuilder;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
+import org.springframework.integration.ip.tcp.TcpReceivingChannelAdapter;
+import org.springframework.integration.ip.tcp.connection.DefaultTcpNetSocketFactorySupport;
+import org.springframework.integration.ip.tcp.connection.TcpSocketFactorySupport;
+
+import java.io.IOException;
 
 /**
  * A Processor that forks a shell to run a Python app configured as processor, sending and receiving messages via
@@ -40,58 +42,74 @@ import org.springframework.messaging.MessageHeaders;
  *
  * @author David Turanski
  **/
-@EnableBinding(Processor.class)
-@Import({ PythonShellCommandProcessorConfiguration.class, JythonWrapperConfiguration.class,
-		PythonGitAppDeployerConfiguration.class})
+
+@Import({ PythonShellCommandConfiguration.class, JythonWrapperConfiguration.class,
+		PythonGitAppDeployerConfiguration.class })
 public class PythonLocalProcessorConfiguration implements InitializingBean {
 
 	@Autowired(required = false)
 	private PythonAppDeployer pythonAppDeployer;
 
 	@Autowired
-	private ShellCommandProcessor shellCommandProcessor;
+	private ShellCommand shellCommand;
 
 	@Autowired
-	private PythonShellCommandProcessorProperties properties;
+	@Qualifier("adapter")
+	TcpReceivingChannelAdapter tcpAdapter;
+
+	@Autowired
+	@Qualifier("monitorAdapter")
+	TcpReceivingChannelAdapter monitorAdapter;
+
+	@Autowired
+	private TcpProperties tcpProperties;
 
 	@Autowired(required = false)
+	//TODO: Implement this
 	private JythonScriptExecutor jythonWrapper;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+
 		if (pythonAppDeployer != null) {
 			pythonAppDeployer.deploy();
 		}
-		shellCommandProcessor.start();
-	}
-
-	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-	public Message<Object> process(Message<?> message) {
-
-		Object result = null;
-
-		if (jythonWrapper != null) {
-			result = jythonWrapper.execute(message);
+		shellCommand.executeAsync();
+		if (checkTcpConnection(tcpProperties.getMonitorPort())) {
+			monitorAdapter.start();
 		}
 		else {
-			if (message.getPayload() instanceof String) {
-				result = shellCommandProcessor.sendAndReceive((String) message.getPayload());
-			}
-			else if (message.getPayload() instanceof byte[]) {
-				result = shellCommandProcessor.sendAndReceive((byte[]) message.getPayload());
-			}
-			else {
-				result = shellCommandProcessor.sendAndReceive((String) message.getPayload().toString());
-			}
+			throw new RuntimeException("Unable to connect to shell process " + shellCommand.getCommand());
 		}
-
-		if (properties.getContentType() != null) {
-			return MutableMessageBuilder.withPayload(result).copyHeaders(message.getHeaders())
-					.setHeader(MessageHeaders.CONTENT_TYPE, properties.getContentType()).build();
+		if (checkTcpConnection(tcpProperties.getPort())) {
+			tcpAdapter.start();
 		}
-
 		else {
-			return MutableMessageBuilder.withPayload(result).copyHeaders(message.getHeaders()).build();
+			throw new RuntimeException("Unable to connect to shell process " + shellCommand.getCommand());
 		}
+
 	}
+
+	private boolean checkTcpConnection(int port) {
+		int max_tries = 3;
+
+		TcpSocketFactorySupport socketFactorySupport = new DefaultTcpNetSocketFactorySupport();
+		int tries = 0;
+		while (tries++ < max_tries) {
+			try {
+				socketFactorySupport.getSocketFactory().createSocket("localhost", port);
+				return true;
+			}
+			catch (IOException e) {
+				try {
+					Thread.sleep(1000);
+				}
+				catch (InterruptedException e1) {
+					Thread.interrupted();
+				}
+			}
+		}
+		return false;
+	}
+
 }

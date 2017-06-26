@@ -34,7 +34,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -57,7 +56,7 @@ public abstract class PythonShelCommandProcessorConfigurationTests {
 	ShellCommandProcessor processor;
 
 	@Autowired
-	PythonShellCommandProcessorProperties properties;
+	PythonShellCommandProperties properties;
 
 	@TestPropertySource(properties = { "python.script=echo.py", "python.basedir=." })
 	public static class TestCWDpath extends PythonShelCommandProcessorConfigurationTests {
@@ -147,7 +146,7 @@ public abstract class PythonShelCommandProcessorConfigurationTests {
 	}
 
 	@SpringBootApplication
-	@Import(PythonShellCommandProcessorConfiguration.class)
+	@Import(PythonShellCommandConfiguration.class)
 	static class PythonApplication {
 		@Bean
 		@Profile("cloud")

@@ -160,7 +160,6 @@ $$git.username$$:: $$The username for the remote repository.$$ *($$String$$, def
 $$python.args$$:: $$The Python command line args.$$ *($$String$$, default: `$$<empty string>$$`)*
 $$python.basedir$$:: $$The root path of Python app. If given, the script path must be relative to this location.$$ *($$FileSystemResource$$, default: `$$<none>$$`)*
 $$python.command-name$$:: $$The python command name, e.g., 'python', 'python3'.$$ *($$String$$, default: `$$python$$`)*
-$$python.encoder$$:: $$The encoder to use.$$ *($$Encoder$$, default: `$$<none>$$`, possible values: `LF`,`CRLF`,`BINARY`)*
 $$python.pip-command-name$$:: $$The pip command name, e.g., 'pip', 'pip3'.$$ *($$String$$, default: `$$pip$$`)*
 $$python.script$$:: $$The Python script file name.$$ *($$String$$, default: `$$<none>$$`)*
 $$wrapper.delimiter$$:: $$The variable delimiter.$$ *($$Delimiter$$, default: `$$<none>$$`, possible values: `COMMA`,`SPACE`,`TAB`,`NEWLINE`)*
