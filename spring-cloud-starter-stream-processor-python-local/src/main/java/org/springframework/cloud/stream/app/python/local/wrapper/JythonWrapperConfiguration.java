@@ -26,6 +26,7 @@ import org.springframework.cloud.stream.app.common.resource.repository.config.Gi
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.app.python.jython.ScriptVariableGeneratorConfiguration;
 import org.springframework.cloud.stream.app.python.local.processor.TcpProcessor;
+import org.springframework.cloud.stream.app.python.local.processor.TcpProcessorConfiguration;
 import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.context.annotation.Bean;
@@ -38,7 +39,8 @@ import org.springframework.integration.scripting.ScriptVariableGenerator;
  **/
 @Configuration
 @EnableConfigurationProperties(JythonWrapperProperties.class)
-@Import({ GitResourceRepositoryConfiguration.class, ScriptVariableGeneratorConfiguration.class })
+@Import({ GitResourceRepositoryConfiguration.class, ScriptVariableGeneratorConfiguration.class,
+		TcpProcessorConfiguration.class})
 public class JythonWrapperConfiguration {
 
 	@Autowired

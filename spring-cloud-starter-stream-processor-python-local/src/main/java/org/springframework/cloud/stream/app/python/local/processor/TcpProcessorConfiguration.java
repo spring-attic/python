@@ -8,6 +8,7 @@ import org.springframework.cloud.stream.app.python.shell.PythonShellCommandPrope
 import org.springframework.cloud.stream.app.python.shell.TcpProperties;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.integration.ip.tcp.connection.AbstractClientConnectionFactory;
 import org.springframework.integration.ip.tcp.connection.AbstractConnectionFactory;
 
@@ -15,6 +16,7 @@ import org.springframework.integration.ip.tcp.connection.AbstractConnectionFacto
  * @author David Turanski
  **/
 @EnableBinding(Processor.class)
+@Import(TcpConnectionFactoryConfiguration.class)
 @EnableConfigurationProperties({ TcpProperties.class, PythonShellCommandProperties.class })
 public class TcpProcessorConfiguration {
 
