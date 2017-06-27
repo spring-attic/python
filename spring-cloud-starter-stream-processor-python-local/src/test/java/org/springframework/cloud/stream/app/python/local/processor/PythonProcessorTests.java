@@ -140,11 +140,14 @@ public abstract class PythonProcessorTests {
 		}
 	}
 
-	@TestPropertySource(properties = { "git.uri=https://github.com/dturanski/python-apps",
-			"python.basedir=test-stream-scripts/time-transformer", "python.script=time-delta.py" })
+	@TestPropertySource(properties = {
+			"git.uri=https://github.com/dturanski/python-apps",
+			"git.label=tcp",
+			"python.basedir=test-stream-scripts/time-transformer",
+			"python.script=time-delta.py" })
 	public static class TestGitRepo extends PythonProcessorTests {
 		@Test
-		//@Ignore //TODO figure out a way to mock this
+		@Ignore //TODO figure out a way to mock this
 		public void test() throws InterruptedException {
 			Message<String> message = new GenericMessage<>("06/01/16 09:45:11");
 			processor.input().send(message);

@@ -14,22 +14,17 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.local.wrapper;
+package org.springframework.cloud.stream.app.python.http.wrapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
 import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.app.python.jython.ScriptVariableGeneratorConfiguration;
-import org.springframework.cloud.stream.app.python.local.processor.TcpProcessor;
-import org.springframework.cloud.stream.app.python.local.processor.TcpProcessorConfiguration;
 import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperProperties;
-import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -40,36 +35,12 @@ import org.springframework.integration.scripting.ScriptVariableGenerator;
  **/
 @Configuration
 @EnableConfigurationProperties(JythonWrapperProperties.class)
-@Import({ GitResourceRepositoryConfiguration.class, ScriptVariableGeneratorConfiguration.class,
-		TcpProcessorConfiguration.class})
+@Import({ GitResourceRepositoryConfiguration.class, ScriptVariableGeneratorConfiguration.class })
 public class JythonWrapperConfiguration {
 
 	@Autowired
 	private JythonWrapperProperties properties;
 
-	@Configuration
-	@ConditionalOnBean(ShellCommand.class)
-	@ConditionalOnProperty("wrapper.script")
-	static class TcpProcessorJythonWrapperConfig {
-
-		@Autowired(required = false)
-		private JGitResourceRepository gitResourceRepository;
-
-		@Autowired
-		private JythonWrapperProperties properties;
-
-		@Bean
-		public JythonScriptExecutor jythonWrapper(ScriptVariableGenerator variableGenerator,
-				TcpProcessor processor) {
-			if (gitResourceRepository != null) {
-				ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
-			}
-			return new TcpProcessorJythonWrapper(properties.getScriptResource(), variableGenerator, processor);
-		}
-	}
-
-	@Configuration
-	@ConditionalOnMissingBean(ShellCommand.class)
 	@ConditionalOnProperty("wrapper.script")
 	static class DefaultJythonWrapperConfig {
 		@Autowired(required = false)
