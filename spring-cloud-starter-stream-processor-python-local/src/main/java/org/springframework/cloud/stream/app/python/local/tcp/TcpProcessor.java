@@ -34,7 +34,7 @@ import java.io.UnsupportedEncodingException;
  * @author David Turanski
  **/
 
-public class TcpProcessor extends TcpOutboundGateway {
+public class TcpProcessor extends TcpOutboundGateway implements Exchanger {
 
 	private final String charset;
 	private MediaType contentType;
@@ -49,8 +49,9 @@ public class TcpProcessor extends TcpOutboundGateway {
 	}
 
 
+	@Override
 	public Object sendAndReceive(Object payload) {
-		Message<?> reply = (Message<?>) this.handleRequestMessage(new GenericMessage<Object>(payload));
+		Message<?> reply = (Message<?>) this.handleRequestMessage(new GenericMessage<>(payload));
 		return reply.getPayload();
 	}
 

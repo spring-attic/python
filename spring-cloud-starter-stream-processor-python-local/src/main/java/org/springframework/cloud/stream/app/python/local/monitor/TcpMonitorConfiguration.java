@@ -19,6 +19,7 @@ package org.springframework.cloud.stream.app.python.local.monitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.stream.app.python.local.tcp.Exchanger;
 import org.springframework.cloud.stream.app.python.local.tcp.TcpConnectionFactoryConfiguration;
 import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessor;
 import org.springframework.cloud.stream.app.python.shell.TcpProperties;
@@ -53,8 +54,13 @@ public class TcpMonitorConfiguration {
 	}
 
 	@Bean
+	PythonProcessHealthIndicator pythonProcessHealthIndicator(Exchanger tcpMonitor){
+		return new PythonProcessHealthIndicator(tcpMonitor);
+	}
+
+	@Bean
 	@ServiceActivator(inputChannel = "monitorInput")
-	public TcpProcessor tcpMonitor(
+	public Exchanger tcpMonitor(
 			@Qualifier("tcpMonitorConnectionFactory") AbstractConnectionFactory connectionFactory) {
 		TcpProcessor tcpProcessor = new TcpProcessor(properties.getCharset());
 		tcpProcessor.setConnectionFactory((AbstractClientConnectionFactory) connectionFactory);

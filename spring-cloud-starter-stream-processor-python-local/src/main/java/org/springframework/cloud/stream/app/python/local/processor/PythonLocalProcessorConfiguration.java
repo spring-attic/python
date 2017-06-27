@@ -18,7 +18,6 @@ package org.springframework.cloud.stream.app.python.local.processor;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.stream.annotation.EnableBinding;
@@ -72,7 +71,7 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 	@ConditionalOnMissingBean(JythonScriptExecutor.class)
 	@ServiceActivator(inputChannel = Processor.INPUT)
 	@Bean
-	TcpProcessor tcpProcessorServiceActivator(@Qualifier("tcpProcessor") TcpProcessor tcpProcessor) {
+	TcpProcessor tcpProcessorServiceActivator(TcpProcessor tcpProcessor) {
 		return tcpProcessor;
 	}
 
