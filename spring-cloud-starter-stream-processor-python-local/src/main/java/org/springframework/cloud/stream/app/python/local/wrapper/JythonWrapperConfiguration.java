@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.stream.app.python.local.wrapper;
 
-import freemarker.ext.jython.JythonWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -56,7 +56,8 @@ public class JythonWrapperConfiguration {
 		private JythonWrapperProperties properties;
 
 		@Bean
-		public JythonScriptExecutor jythonWrapper(ScriptVariableGenerator variableGenerator, TcpProcessor processor) {
+		public JythonScriptExecutor jythonWrapper(ScriptVariableGenerator variableGenerator,
+				@Qualifier("tcpProcessor") TcpProcessor processor) {
 			if (gitResourceRepository != null) {
 				ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
 			}

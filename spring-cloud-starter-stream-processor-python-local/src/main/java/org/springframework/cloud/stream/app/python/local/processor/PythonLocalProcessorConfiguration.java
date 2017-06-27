@@ -18,18 +18,18 @@ package org.springframework.cloud.stream.app.python.local.processor;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
+import org.springframework.cloud.stream.app.python.local.monitor.TcpMonitorConfiguration;
 import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessor;
 import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessorConfiguration;
 import org.springframework.cloud.stream.app.python.local.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
 import org.springframework.cloud.stream.app.python.shell.PythonGitAppDeployerConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonShellCommandConfiguration;
-import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProperties;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.context.annotation.Bean;
@@ -41,17 +41,14 @@ import org.springframework.messaging.Message;
 
 /**
  * A Processor that forks a shell to run a Python app configured as processor, sending and receiving messages via
- * stdin/stdout. Optionally this may use a Jython wrapper script to transform data to and from the remote app. If no
- * wrapper is configured, the payload must be String.
+ * tcp sockets. Optionally this may use a Jython wrapper script to transform data to and from the remote app.
  *
  * @author David Turanski
  **/
 
 @EnableBinding(Processor.class)
-@Import({ PythonShellCommandConfiguration.class,
-		TcpProcessorConfiguration.class,
-		PythonGitAppDeployerConfiguration.class,
-		JythonWrapperConfiguration.class })
+@Import({ PythonShellCommandConfiguration.class, TcpProcessorConfiguration.class, TcpMonitorConfiguration.class,
+		PythonGitAppDeployerConfiguration.class, JythonWrapperConfiguration.class })
 public class PythonLocalProcessorConfiguration implements InitializingBean {
 
 	@Autowired(required = false)
@@ -75,7 +72,7 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 	@ConditionalOnMissingBean(JythonScriptExecutor.class)
 	@ServiceActivator(inputChannel = Processor.INPUT)
 	@Bean
-	TcpProcessor tcpProcessorServiceActivator(TcpProcessor tcpProcessor) {
+	TcpProcessor tcpProcessorServiceActivator(@Qualifier("tcpProcessor") TcpProcessor tcpProcessor) {
 		return tcpProcessor;
 	}
 

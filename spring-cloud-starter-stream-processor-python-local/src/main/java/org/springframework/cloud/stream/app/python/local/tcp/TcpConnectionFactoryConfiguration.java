@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.ip.config.TcpConnectionFactoryFactoryBean;
 import org.springframework.integration.ip.tcp.connection.TcpMessageMapper;
 import org.springframework.integration.ip.tcp.serializer.AbstractByteArraySerializer;
+import org.springframework.integration.ip.tcp.serializer.ByteArrayLfSerializer;
 
 /**
  * @author David Turanski
@@ -46,7 +47,7 @@ public class TcpConnectionFactoryConfiguration {
 	@Bean
 	public TcpConnectionFactoryFactoryBean tcpMonitorConnectionFactory(AbstractByteArraySerializer encoder,
 			TcpMessageMapper mapper) throws Exception {
-		return connectionFactoryFactoryBean(encoder, mapper, properties.getMonitorPort());
+		return connectionFactoryFactoryBean(new ByteArrayLfSerializer(), mapper, properties.getMonitorPort());
 	}
 
 	private TcpConnectionFactoryFactoryBean connectionFactoryFactoryBean(AbstractByteArraySerializer encoder,

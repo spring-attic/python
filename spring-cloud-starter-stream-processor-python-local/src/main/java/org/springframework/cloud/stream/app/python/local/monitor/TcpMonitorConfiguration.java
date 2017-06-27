@@ -14,19 +14,20 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.local.tcp;
+package org.springframework.cloud.stream.app.python.local.monitor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpConnectionFactoryConfiguration;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessor;
 import org.springframework.cloud.stream.app.python.shell.TcpProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.ip.tcp.TcpReceivingChannelAdapter;
-import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
+import org.springframework.integration.ip.tcp.connection.AbstractClientConnectionFactory;
 import org.springframework.integration.ip.tcp.connection.AbstractConnectionFactory;
 import org.springframework.messaging.MessageChannel;
 
@@ -52,23 +53,14 @@ public class TcpMonitorConfiguration {
 	}
 
 	@Bean
-	public TcpReceivingChannelAdapter monitorAdapter(
+	@ServiceActivator(inputChannel = "monitorInput")
+	public TcpProcessor tcpMonitor(
 			@Qualifier("tcpMonitorConnectionFactory") AbstractConnectionFactory connectionFactory) {
-		TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
-		adapter.setConnectionFactory(connectionFactory);
-		adapter.setClientMode(true);
-		adapter.setRetryInterval(this.properties.getRetryInterval());
-		adapter.setOutputChannel(monitorOutput());
-		adapter.setAutoStartup(false);
-		return adapter;
+		TcpProcessor tcpProcessor = new TcpProcessor(properties.getCharset());
+		tcpProcessor.setConnectionFactory((AbstractClientConnectionFactory) connectionFactory);
+		tcpProcessor.setReplyChannel(monitorOutput());
+		tcpProcessor.start();
+		return tcpProcessor;
 	}
 
-	@Bean
-	@ServiceActivator(inputChannel = "monitorInput")
-	public TcpSendingMessageHandler monitorMessageHandler(
-			@Qualifier("tcpMonitorConnectionFactory") AbstractConnectionFactory connectionFactory) {
-		TcpSendingMessageHandler sendingMessageHandler = new TcpSendingMessageHandler();
-		sendingMessageHandler.setConnectionFactory(connectionFactory);
-		return sendingMessageHandler;
-	}
 }
