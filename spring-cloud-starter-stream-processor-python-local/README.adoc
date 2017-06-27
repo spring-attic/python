@@ -162,9 +162,6 @@ $$python.basedir$$:: $$The root path of Python app. If given, the script path mu
 $$python.command-name$$:: $$The python command name, e.g., 'python', 'python3'.$$ *($$String$$, default: `$$python$$`)*
 $$python.pip-command-name$$:: $$The pip command name, e.g., 'pip', 'pip3'.$$ *($$String$$, default: `$$pip$$`)*
 $$python.script$$:: $$The Python script file name.$$ *($$String$$, default: `$$<none>$$`)*
-$$wrapper.delimiter$$:: $$The variable delimiter.$$ *($$Delimiter$$, default: `$$<none>$$`, possible values: `COMMA`,`SPACE`,`TAB`,`NEWLINE`)*
-$$wrapper.script$$:: $$The Python script file name.$$ *($$String$$, default: `$$<none>$$`)*
-$$wrapper.variables$$:: $$Variable bindings as a delimited string of name-value pairs, e.g. 'foo=bar,baz=car'.$$ *($$String$$, default: `$$<none>$$`)*
 //end::configuration-properties[]
 
 $$python.contentType$$:: $$The output contentType, e.g., application/json.$$ *($$String$$, default: `$$<none>$$`)*

@@ -80,9 +80,6 @@ $$httpclient.headers-expression$$:: $$A SpEL expression used to derive the http 
 $$httpclient.http-method$$:: $$The kind of http method to use.$$ *($$HttpMethod$$, default: `$$<none>$$`, possible values: `GET`,`HEAD`,`POST`,`PUT`,`PATCH`,`DELETE`,`OPTIONS`,`TRACE`)*
 $$httpclient.reply-expression$$:: $$A SpEL expression used to compute the final result, applied against the whole http response.$$ *($$Expression$$, default: `$$body$$`)*
 $$httpclient.url-expression$$:: $$A SpEL expression against incoming message to determine the URL to use.$$ *($$Expression$$, default: `$$<none>$$`)*
-$$wrapper.delimiter$$:: $$The variable delimiter.$$ *($$Delimiter$$, default: `$$<none>$$`, possible values: `COMMA`,`SPACE`,`TAB`,`NEWLINE`)*
-$$wrapper.script$$:: $$The Python script file name.$$ *($$String$$, default: `$$<none>$$`)*
-$$wrapper.variables$$:: $$Variable bindings as a delimited string of name-value pairs, e.g. 'foo=bar,baz=car'.$$ *($$String$$, default: `$$<none>$$`)*
 //end::configuration-properties[]
 
 == Build
