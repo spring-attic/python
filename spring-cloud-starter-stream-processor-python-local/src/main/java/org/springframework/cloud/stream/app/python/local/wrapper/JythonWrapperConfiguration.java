@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.wrapper;
+package org.springframework.cloud.stream.app.python.local.wrapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -25,8 +25,9 @@ import org.springframework.cloud.stream.app.common.resource.repository.JGitResou
 import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.app.python.jython.ScriptVariableGeneratorConfiguration;
+import org.springframework.cloud.stream.app.python.local.processor.TcpProcessor;
 import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
-import org.springframework.cloud.stream.shell.ShellCommandProcessor;
+import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -44,9 +45,9 @@ public class JythonWrapperConfiguration {
 	private JythonWrapperProperties properties;
 
 	@Configuration
-	@ConditionalOnBean(ShellCommandProcessor.class)
+	@ConditionalOnBean(ShellCommand.class)
 	@ConditionalOnProperty("wrapper.script")
-	static class ShellProcessorJythonWrapperConfig {
+	static class TcpProcessorJythonWrapperConfig {
 
 		@Autowired(required = false)
 		private JGitResourceRepository gitResourceRepository;
@@ -56,16 +57,16 @@ public class JythonWrapperConfiguration {
 
 		@Bean
 		public JythonScriptExecutor jythonWrapper(ScriptVariableGenerator variableGenerator,
-				ShellCommandProcessor processor) {
+				TcpProcessor processor) {
 			if (gitResourceRepository != null) {
 				ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
 			}
-			return new ShellCommandProcessorJythonWrapper(properties.getScriptResource(), variableGenerator, processor);
+			return new TcpProcessorJythonWrapper(properties.getScriptResource(), variableGenerator, processor);
 		}
 	}
 
 	@Configuration
-	@ConditionalOnMissingBean(ShellCommandProcessor.class)
+	@ConditionalOnMissingBean(ShellCommand.class)
 	@ConditionalOnProperty("wrapper.script")
 	static class DefaultJythonWrapperConfig {
 		@Autowired(required = false)

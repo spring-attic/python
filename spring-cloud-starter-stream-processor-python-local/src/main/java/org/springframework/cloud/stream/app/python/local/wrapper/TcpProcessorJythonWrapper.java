@@ -14,37 +14,38 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.wrapper;
+package org.springframework.cloud.stream.app.python.local.wrapper;
 
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
-import org.springframework.cloud.stream.shell.ShellCommandProcessor;
+import org.springframework.cloud.stream.app.python.local.processor.TcpProcessor;
+import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.core.io.Resource;
 import org.springframework.integration.scripting.ScriptVariableGenerator;
 
 import java.util.Map;
 
 /**
- * Runs a @{link JythonScriptExecutor} implementation to invoke a script with a {@link ShellCommandProcessor}
+ * Runs a @{link JythonScriptExecutor} implementation to invoke a script with a {@link ShellCommand}
  * bound as a variable named 'processor'.
  *
  * @author David Turanski
  **/
-public class ShellCommandProcessorJythonWrapper extends JythonScriptExecutor {
+public class TcpProcessorJythonWrapper extends JythonScriptExecutor {
 
-	private ShellCommandProcessor shellCommandProcessor;
+	private TcpProcessor tcpProcessor;
 
-	public ShellCommandProcessorJythonWrapper(Resource script, ShellCommandProcessor shellCommandProcessor) {
-		this(script, null, shellCommandProcessor);
+	public TcpProcessorJythonWrapper(Resource script, TcpProcessor tcpProcessor) {
+		this(script, null, tcpProcessor);
 	}
 
-	public ShellCommandProcessorJythonWrapper(Resource script, ScriptVariableGenerator variableGenerator,
-			ShellCommandProcessor shellCommandProcessor) {
+	public TcpProcessorJythonWrapper(Resource script, ScriptVariableGenerator variableGenerator,
+			TcpProcessor tcpProcessor) {
 		super(script, variableGenerator);
-		this.shellCommandProcessor = shellCommandProcessor;
+		this.tcpProcessor = tcpProcessor;
 	}
 
 	@Override
 	protected void bindStaticVariables(Map<String, Object> variables) {
-		variables.put("processor", shellCommandProcessor);
+		variables.put("processor", tcpProcessor);
 	}
 }

@@ -24,7 +24,6 @@ import org.springframework.cloud.stream.app.common.resource.repository.JGitResou
 import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.app.python.shell.cloudfoundry.PythonEnvironmentHelper;
 import org.springframework.cloud.stream.shell.ShellCommand;
-import org.springframework.cloud.stream.shell.ShellCommandProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -35,7 +34,7 @@ import java.io.File;
  * @author David Turanski
  **/
 @Configuration
-@ConditionalOnMissingBean(ShellCommandProcessor.class)
+@ConditionalOnMissingBean(ShellCommand.class)
 @EnableConfigurationProperties({ PythonShellCommandProperties.class, TcpProperties.class })
 public class PythonShellCommandConfiguration {
 

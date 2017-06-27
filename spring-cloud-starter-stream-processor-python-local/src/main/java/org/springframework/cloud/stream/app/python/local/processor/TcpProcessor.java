@@ -32,7 +32,7 @@ public class TcpProcessor extends TcpOutboundGateway {
 		this.contentType = contentType;
 	}
 
-	public Object sendAndRecieve(Object payload) {
+	public Object sendAndReceive(Object payload) {
 		Message<?> reply = (Message<?>) this.handleRequestMessage(new GenericMessage<Object>(payload));
 		return reply.getPayload();
 	}

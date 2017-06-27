@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.wrapper;
+package org.springframework.cloud.stream.app.python.local.wrapper;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,11 +25,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
-import org.springframework.cloud.stream.shell.ShellCommandProcessor;
+import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.integration.ip.tcp.serializer.ByteArrayCrLfSerializer;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -65,8 +64,7 @@ public abstract class JythonWrapperConfigurationTests {
 		@Ignore //TODO: Figure out how to test this case
 		@Test
 		public void test() throws IOException {
-			assertThat(jythonWrapper.getScript().trim())
-					.isEqualTo("result = payload.upper()");
+			assertThat(jythonWrapper.getScript().trim()).isEqualTo("result = payload.upper()");
 		}
 	}
 
@@ -75,18 +73,17 @@ public abstract class JythonWrapperConfigurationTests {
 		@Test
 		public void test() throws IOException {
 			assertThat(repository).isNull();
-			assertThat(jythonWrapper.getScript().trim())
-					.isEqualTo("result = payload.upper()");
+			assertThat(jythonWrapper.getScript().trim()).isEqualTo("result = payload.upper()");
 		}
 	}
 
-	@TestPropertySource(properties = { "wrapper.script=./src/test/resources/wrapper/simple_wrapper.py", "use"
-			+ ".shell=true" })
+	@TestPropertySource(properties = { "wrapper.script=./src/test/resources/wrapper/simple_wrapper.py",
+			"use" + ".shell=true" })
 	public static class TestWrapperWithShellCommandProcessor extends JythonWrapperConfigurationTests {
 		@Test
 		public void test() throws IOException {
 			assertThat(repository).isNull();
-			assertThat(jythonWrapper).isInstanceOf(ShellCommandProcessorJythonWrapper.class);
+			assertThat(jythonWrapper).isInstanceOf(TcpProcessorJythonWrapper.class);
 
 		}
 	}
@@ -99,8 +96,8 @@ public abstract class JythonWrapperConfigurationTests {
 		static class ShellConfiguration {
 			@Bean
 			@ConditionalOnProperty("use.shell")
-			public ShellCommandProcessor shellCommandProcessor() {
-				return new ShellCommandProcessor(new ByteArrayCrLfSerializer(), "python");
+			public ShellCommand shellCommand() {
+				return new ShellCommand("python");
 			}
 		}
 

@@ -25,7 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudFactory;
-import org.springframework.cloud.stream.shell.ShellCommandProcessor;
+import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
@@ -50,54 +50,54 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @DirtiesContext
 
-public abstract class PythonShelCommandProcessorConfigurationTests {
+public abstract class PythonShelCommandConfigurationTests {
 
 	@Autowired
-	ShellCommandProcessor processor;
+	ShellCommand shellCommand;
 
 	@Autowired
 	PythonShellCommandProperties properties;
 
 	@TestPropertySource(properties = { "python.script=echo.py", "python.basedir=." })
-	public static class TestCWDpath extends PythonShelCommandProcessorConfigurationTests {
+	public static class TestCWDpath extends PythonShelCommandConfigurationTests {
 		@Test
 		public void test() throws IOException {
-			assertThat(processor).isNotNull();
+			assertThat(shellCommand).isNotNull();
 			assertThat(properties.getPath()).isEmpty();
-			assertThat(processor.getCommand()).isEqualTo("python echo.py");
+			assertThat(shellCommand.getCommand()).isEqualTo("python echo.py");
 		}
 	}
 
 	@TestPropertySource(properties = { "python.script=echo.py", "python.basedir=scripts/python" })
-	public static class TestRelativePath extends PythonShelCommandProcessorConfigurationTests {
+	public static class TestRelativePath extends PythonShelCommandConfigurationTests {
 		@Test
 		public void test() throws IOException {
-			assertThat(processor).isNotNull();
+			assertThat(shellCommand).isNotNull();
 			assertThat(properties.getPath()).isEqualTo("scripts/python");
-			assertThat(processor.getCommand()).isEqualTo("python scripts/python/echo.py");
+			assertThat(shellCommand.getCommand()).isEqualTo("python scripts/python/echo.py");
 
 		}
 	}
 
 	@TestPropertySource(properties = { "python.script=echo.py", "python.basedir=/scripts/python" })
-	public static class TestAbsolutePath extends PythonShelCommandProcessorConfigurationTests {
+	public static class TestAbsolutePath extends PythonShelCommandConfigurationTests {
 		@Test
 		public void test() throws IOException {
-			assertThat(processor).isNotNull();
+			assertThat(shellCommand).isNotNull();
 			assertThat(properties.getPath()).isEqualTo("/scripts/python");
-			assertThat(processor.getCommand()).isEqualTo("python /scripts/python/echo.py");
+			assertThat(shellCommand.getCommand()).isEqualTo("python /scripts/python/echo.py");
 		}
 	}
 
 	@TestPropertySource(properties = { "python.script=echo.py",
 			"python.basedir=scripts/python",
 			"python.contentType=application/json"})
-	public static class TestContentType extends PythonShelCommandProcessorConfigurationTests {
+	public static class TestContentType extends PythonShelCommandConfigurationTests {
 		@Test
 		public void test() throws IOException {
-			assertThat(processor).isNotNull();
+			assertThat(shellCommand).isNotNull();
 			assertThat(properties.getPath()).isEqualTo("scripts/python");
-			assertThat(processor.getCommand()).isEqualTo("python scripts/python/echo.py");
+			assertThat(shellCommand.getCommand()).isEqualTo("python scripts/python/echo.py");
 			assertThat(properties.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
 		}
@@ -107,12 +107,12 @@ public abstract class PythonShelCommandProcessorConfigurationTests {
 	@TestPropertySource(properties = { "python.script=echo.py", "python.basedir=/scripts/python",
 			"python.args=--categories=\"{'ecstatic':0.90,'happy':0.75,'warm':0.65,'meh':0.55,'cool':0.45,'gloomy':0.25,"
 					+ "'doomed':0.0}\"" })
-	public static class TestCommandArgs extends PythonShelCommandProcessorConfigurationTests {
+	public static class TestCommandArgs extends PythonShelCommandConfigurationTests {
 		@Test
 		public void test() throws IOException {
-			assertThat(processor).isNotNull();
-			System.out.println(processor.getCommand());
-			assertThat(processor.getCommand()).isEqualTo(
+			assertThat(shellCommand).isNotNull();
+			System.out.println(shellCommand.getCommand());
+			assertThat(shellCommand.getCommand()).isEqualTo(
 					"python /scripts/python/echo.py --categories=\"{'ecstatic':0.90,'happy':0.75,'warm':0.65,"
 							+ "'meh':0.55,'cool':0.45,'gloomy':0.25,'doomed':0.0}\"");
 		}
@@ -121,15 +121,15 @@ public abstract class PythonShelCommandProcessorConfigurationTests {
 	@TestPropertySource(properties = { "python.script=echo.py", "python.basedir=/scripts/python",
 			"python.args=--categories=\"{'ecstatic':0.90,'happy':0.75,'warm':0.65,'meh':0.55,'cool':0.45,'gloomy':0.25,"
 					+ "'doomed':0.0}\"", "spring.profiles.active=cloud" })
-	public static class TestCommandArgsForCloud extends PythonShelCommandProcessorConfigurationTests {
+	public static class TestCommandArgsForCloud extends PythonShelCommandConfigurationTests {
 
 		private File pythonProcessor = new File("python_processor.sh");
 
 		@Test
 		public void test() throws IOException {
-			assertThat(processor).isNotNull();
+			assertThat(shellCommand).isNotNull();
 			assertThat(pythonProcessor.exists()).isTrue();
-			assertThat(processor.getCommand()).isEqualTo(pythonProcessor.getAbsolutePath());
+			assertThat(shellCommand.getCommand()).isEqualTo(pythonProcessor.getAbsolutePath());
 			List<String> lines = FileUtils.readLines(pythonProcessor, StandardCharsets.UTF_8);
 
 			assertThat(lines).containsOnlyOnce(

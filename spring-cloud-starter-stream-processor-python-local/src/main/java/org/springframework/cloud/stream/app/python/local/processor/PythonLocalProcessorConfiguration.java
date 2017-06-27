@@ -22,27 +22,22 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
+import org.springframework.cloud.stream.app.python.local.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
 import org.springframework.cloud.stream.app.python.shell.PythonGitAppDeployerConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonShellCommandConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProperties;
 import org.springframework.cloud.stream.app.python.shell.TcpProperties;
-import org.springframework.cloud.stream.app.python.tcp.EncoderDecoderFactoryBean;
-import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.ip.config.TcpConnectionFactoryFactoryBean;
-import org.springframework.integration.ip.tcp.TcpReceivingChannelAdapter;
+import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
-import org.springframework.integration.ip.tcp.connection.AbstractClientConnectionFactory;
 import org.springframework.integration.ip.tcp.connection.AbstractConnectionFactory;
-import org.springframework.integration.ip.tcp.connection.TcpMessageMapper;
-import org.springframework.integration.ip.tcp.serializer.AbstractByteArraySerializer;
-import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.GenericMessage;
 
 /**
  * A Processor that forks a shell to run a Python app configured as processor, sending and receiving messages via
@@ -54,8 +49,8 @@ import org.springframework.messaging.MessageChannel;
 
 @EnableBinding(Processor.class)
 @Import({ PythonShellCommandConfiguration.class, JythonWrapperConfiguration.class,
-		PythonGitAppDeployerConfiguration.class })
-@EnableConfigurationProperties({ TcpProperties.class, PythonShellCommandProperties.class })
+		PythonGitAppDeployerConfiguration.class, TcpProcessorConfiguration.class })
+@EnableConfigurationProperties({PythonShellCommandProperties.class })
 public class PythonLocalProcessorConfiguration implements InitializingBean {
 
 	@Autowired(required = false)
@@ -64,157 +59,39 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 	@Autowired
 	private ShellCommand shellCommand;
 
-	@Autowired
-	private Processor channels;
-
-	@Autowired
-	private TcpProperties properties;
-
-	@Autowired
-	private PythonShellCommandProperties scriptProperties;
 
 	@Autowired(required = false)
 	private JythonScriptExecutor jythonWrapper;
 
-	@Bean
-	public MessageChannel monitorInput() {
-		return new DirectChannel();
+	@Autowired
+	private TcpProcessor tcpProcessor;
+
+	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
+	public Message<Object> process(Message<?> message) {
+
+		Object result = null;
+
+		if (jythonWrapper != null) {
+			result = jythonWrapper.execute(message);
+		}
+		else {
+			result = tcpProcessor.handleRequestMessage(message);
+		}
+		if (result instanceof Message) {
+			return (Message) result;
+		}
+
+		//TODO:...
+		return new GenericMessage<Object>(result);
 	}
 
-	@Bean
-	public MessageChannel monitorOutput() {
-		return new DirectChannel();
-	}
 
-	@Bean
-	public TcpReceivingChannelAdapter monitorAdapter(
-			@Qualifier("tcpMonitorConnectionFactory") AbstractConnectionFactory connectionFactory) {
-		TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
-		adapter.setConnectionFactory(connectionFactory);
-		adapter.setClientMode(true);
-		adapter.setRetryInterval(this.properties.getRetryInterval());
-		adapter.setOutputChannel(monitorOutput());
-		adapter.setAutoStartup(false);
-		return adapter;
-	}
-
-
-
-	@Bean
-	@ServiceActivator(inputChannel = Processor.INPUT)
-	public TcpProcessor tcpProcessor(
-			@Qualifier("tcpClientConnectionFactory") AbstractConnectionFactory connectionFactory) {
-		TcpProcessor tcpProcessor = new TcpProcessor(properties.getCharset());
-		tcpProcessor.setConnectionFactory((AbstractClientConnectionFactory) connectionFactory);
-		tcpProcessor.setReplyChannel(channels.output());
-		tcpProcessor.setContentType(scriptProperties.getContentType());
-		return tcpProcessor;
-	}
-
-	@Bean
-	@ServiceActivator(inputChannel = "monitorInput")
-	public TcpSendingMessageHandler monitorMessageHandler(
-			@Qualifier("tcpMonitorConnectionFactory") AbstractConnectionFactory connectionFactory) {
-		TcpSendingMessageHandler sendingMessageHandler = new TcpSendingMessageHandler();
-		sendingMessageHandler.setConnectionFactory(connectionFactory);
-		return sendingMessageHandler;
-	}
-
-	@Bean
-	public TcpConnectionFactoryFactoryBean tcpClientConnectionFactory(
-			@Qualifier("tcpClientEncoder") AbstractByteArraySerializer encoder,
-			@Qualifier("tcpClientMapper") TcpMessageMapper mapper,
-			@Qualifier("tcpClientDecoder") AbstractByteArraySerializer decoder) throws Exception {
-		return connectionFactoryFactoryBean(encoder, mapper, decoder, properties.getPort());
-
-	}
-
-	@Bean
-	public TcpConnectionFactoryFactoryBean tcpMonitorConnectionFactory(
-			@Qualifier("tcpClientEncoder") AbstractByteArraySerializer encoder,
-			@Qualifier("tcpClientMapper") TcpMessageMapper mapper,
-			@Qualifier("tcpClientDecoder") AbstractByteArraySerializer decoder) throws Exception {
-		return connectionFactoryFactoryBean(encoder, mapper, decoder, properties.getMonitorPort());
-	}
-
-	private TcpConnectionFactoryFactoryBean connectionFactoryFactoryBean(AbstractByteArraySerializer encoder,
-			TcpMessageMapper mapper, AbstractByteArraySerializer decoder, int port) throws Exception {
-		TcpConnectionFactoryFactoryBean factoryBean = new TcpConnectionFactoryFactoryBean();
-		factoryBean.setType("client");
-		factoryBean.setUsingNio(this.properties.isNio());
-		factoryBean.setUsingDirectBuffers(this.properties.isUseDirectBuffers());
-		factoryBean.setSerializer(encoder);
-		factoryBean.setDeserializer(decoder);
-		factoryBean.setSoTimeout(this.properties.getSocketTimeout());
-		factoryBean.setMapper(mapper);
-		factoryBean.setSingleUse(Boolean.FALSE);
-		factoryBean.setHost("localhost");
-		factoryBean.setPort(port);
-		return factoryBean;
-
-	}
-
-	@Bean
-	public EncoderDecoderFactoryBean tcpClientEncoder() {
-		return new EncoderDecoderFactoryBean(this.properties.getEncoder());
-	}
-
-	@Bean
-	public TcpMessageMapper tcpClientMapper() {
-		TcpMessageMapper mapper = new TcpMessageMapper();
-		mapper.setCharset(this.properties.getCharset());
-		return mapper;
-	}
-
-	@Bean
-	public EncoderDecoderFactoryBean tcpClientDecoder() {
-		EncoderDecoderFactoryBean factoryBean = new EncoderDecoderFactoryBean(this.properties.getDecoder());
-		factoryBean.setMaxMessageSize(this.properties.getBufferSize());
-		return factoryBean;
-	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-
 		if (pythonAppDeployer != null) {
 			pythonAppDeployer.deploy();
 		}
 		shellCommand.executeAsync();
-//		if (checkTcpConnection(properties.getMonitorPort())) {
-//			//monitorAdapter.start();
-//		}
-//		else {
-//			throw new RuntimeException("Unable to connect to shell process " + shellCommand.getCommand());
-//		}
-//		if (checkTcpConnection(properties.getPort())) {
-//
-//		}
-//		else {
-//			throw new RuntimeException("Unable to connect to shell process " + shellCommand.getCommand());
-//		}
-
 	}
-
-//	private boolean checkTcpConnection(int port) {
-//		int max_tries = 3;
-//
-//		TcpSocketFactorySupport socketFactorySupport = new DefaultTcpNetSocketFactorySupport();
-//		int tries = 0;
-//		while (tries++ < max_tries) {
-//			try {
-//				socketFactorySupport.getSocketFactory().createSocket("localhost", port);
-//				return true;
-//			}
-//			catch (IOException e) {
-//				try {
-//					Thread.sleep(1000);
-//				}
-//				catch (InterruptedException e1) {
-//					Thread.interrupted();
-//				}
-//			}
-//		}
-//		return false;
-//	}
-
 }
