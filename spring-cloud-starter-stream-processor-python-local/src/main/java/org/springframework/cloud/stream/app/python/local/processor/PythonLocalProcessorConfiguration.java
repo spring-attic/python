@@ -23,6 +23,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessor;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessorConfiguration;
 import org.springframework.cloud.stream.app.python.local.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
 import org.springframework.cloud.stream.app.python.shell.PythonGitAppDeployerConfiguration;
@@ -47,10 +49,9 @@ import org.springframework.messaging.Message;
 
 @EnableBinding(Processor.class)
 @Import({ PythonShellCommandConfiguration.class,
-		PythonGitAppDeployerConfiguration.class,
 		TcpProcessorConfiguration.class,
-		JythonWrapperConfiguration.class})
-@EnableConfigurationProperties({ PythonShellCommandProperties.class })
+		PythonGitAppDeployerConfiguration.class,
+		JythonWrapperConfiguration.class })
 public class PythonLocalProcessorConfiguration implements InitializingBean {
 
 	@Autowired(required = false)
@@ -74,7 +75,7 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 	@ConditionalOnMissingBean(JythonScriptExecutor.class)
 	@ServiceActivator(inputChannel = Processor.INPUT)
 	@Bean
-	TcpProcessor tcpProcessor(TcpProcessor tcpProcessor) {
+	TcpProcessor tcpProcessorServiceActivator(TcpProcessor tcpProcessor) {
 		return tcpProcessor;
 	}
 

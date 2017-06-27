@@ -24,7 +24,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.spring.io.data.Page;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
-import org.springframework.cloud.stream.app.python.local.processor.TcpProcessor;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;

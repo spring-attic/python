@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.stream.app.python.local.wrapper;
 
+import freemarker.ext.jython.JythonWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,8 +25,8 @@ import org.springframework.cloud.stream.app.common.resource.repository.JGitResou
 import org.springframework.cloud.stream.app.common.resource.repository.config.GitResourceRepositoryConfiguration;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.app.python.jython.ScriptVariableGeneratorConfiguration;
-import org.springframework.cloud.stream.app.python.local.processor.TcpProcessor;
-import org.springframework.cloud.stream.app.python.local.processor.TcpProcessorConfiguration;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessor;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessorConfiguration;
 import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperProperties;
 import org.springframework.cloud.stream.shell.ShellCommand;

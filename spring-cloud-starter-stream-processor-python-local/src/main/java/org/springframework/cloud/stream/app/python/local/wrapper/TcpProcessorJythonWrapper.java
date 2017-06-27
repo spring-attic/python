@@ -17,7 +17,7 @@
 package org.springframework.cloud.stream.app.python.local.wrapper;
 
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
-import org.springframework.cloud.stream.app.python.local.processor.TcpProcessor;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessor;
 import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.core.io.Resource;
 import org.springframework.integration.scripting.ScriptVariableGenerator;
