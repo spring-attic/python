@@ -77,8 +77,7 @@ public abstract class JythonWrapperConfigurationTests {
 		}
 	}
 
-	@TestPropertySource(properties = { "wrapper.script=./src/test/resources/wrapper/simple_wrapper.py",
-			"use" + ".shell=true" })
+	@TestPropertySource(properties = { "wrapper.script=./src/test/resources/wrapper/simple_wrapper.py"})
 	public static class TestWrapperWithShellCommandProcessor extends JythonWrapperConfigurationTests {
 		@Test
 		public void test() throws IOException {
@@ -95,7 +94,6 @@ public abstract class JythonWrapperConfigurationTests {
 		@Configuration
 		static class ShellConfiguration {
 			@Bean
-			@ConditionalOnProperty("use.shell")
 			public ShellCommand shellCommand() {
 				return new ShellCommand("python");
 			}

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
+import org.springframework.cloud.stream.app.python.local.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProperties;
 import org.springframework.cloud.stream.app.python.shell.TcpProperties;
 import org.springframework.cloud.stream.messaging.Processor;
@@ -16,7 +18,7 @@ import org.springframework.integration.ip.tcp.connection.AbstractConnectionFacto
  * @author David Turanski
  **/
 @EnableBinding(Processor.class)
-@Import(TcpConnectionFactoryConfiguration.class)
+@Import({ TcpConnectionFactoryConfiguration.class })
 @EnableConfigurationProperties({ TcpProperties.class, PythonShellCommandProperties.class })
 public class TcpProcessorConfiguration {
 

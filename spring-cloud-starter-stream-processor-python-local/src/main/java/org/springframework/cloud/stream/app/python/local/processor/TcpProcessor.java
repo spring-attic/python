@@ -1,5 +1,6 @@
 package org.springframework.cloud.stream.app.python.local.processor;
 
+import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.http.MediaType;
 import org.springframework.integration.ip.tcp.TcpOutboundGateway;
 import org.springframework.integration.support.MutableMessageBuilder;
@@ -31,6 +32,7 @@ public class TcpProcessor extends TcpOutboundGateway {
 	public void setContentType(MediaType contentType) {
 		this.contentType = contentType;
 	}
+
 
 	public Object sendAndReceive(Object payload) {
 		Message<?> reply = (Message<?>) this.handleRequestMessage(new GenericMessage<Object>(payload));

@@ -18,7 +18,6 @@ package org.springframework.cloud.stream.app.python.local.wrapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
@@ -41,11 +40,8 @@ import org.springframework.integration.scripting.ScriptVariableGenerator;
 @Configuration
 @EnableConfigurationProperties(JythonWrapperProperties.class)
 @Import({ GitResourceRepositoryConfiguration.class, ScriptVariableGeneratorConfiguration.class,
-		TcpProcessorConfiguration.class})
+		TcpProcessorConfiguration.class })
 public class JythonWrapperConfiguration {
-
-	@Autowired
-	private JythonWrapperProperties properties;
 
 	@Configuration
 	@ConditionalOnBean(ShellCommand.class)
@@ -59,33 +55,11 @@ public class JythonWrapperConfiguration {
 		private JythonWrapperProperties properties;
 
 		@Bean
-		public JythonScriptExecutor jythonWrapper(ScriptVariableGenerator variableGenerator,
-				TcpProcessor processor) {
+		public JythonScriptExecutor jythonWrapper(ScriptVariableGenerator variableGenerator, TcpProcessor processor) {
 			if (gitResourceRepository != null) {
 				ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
 			}
 			return new TcpProcessorJythonWrapper(properties.getScriptResource(), variableGenerator, processor);
 		}
 	}
-
-	@Configuration
-	@ConditionalOnMissingBean(ShellCommand.class)
-	@ConditionalOnProperty("wrapper.script")
-	static class DefaultJythonWrapperConfig {
-		@Autowired(required = false)
-		private JGitResourceRepository gitResourceRepository;
-
-		@Autowired
-		private JythonWrapperProperties properties;
-
-		@Bean
-		public JythonScriptExecutor jythonWrapper(ScriptVariableGenerator variableGenerator) {
-			if (gitResourceRepository != null) {
-				ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
-			}
-			return new JythonScriptExecutor(properties.getScriptResource(), variableGenerator);
-		}
-
-	}
-
 }

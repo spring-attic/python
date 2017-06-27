@@ -18,7 +18,8 @@ package org.springframework.cloud.stream.app.python.local.processor;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
@@ -27,17 +28,14 @@ import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
 import org.springframework.cloud.stream.app.python.shell.PythonGitAppDeployerConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonShellCommandConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProperties;
-import org.springframework.cloud.stream.app.python.shell.TcpProperties;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.annotation.Transformer;
-import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
-import org.springframework.integration.ip.tcp.connection.AbstractConnectionFactory;
+import org.springframework.integration.handler.MessageProcessor;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.support.GenericMessage;
 
 /**
  * A Processor that forks a shell to run a Python app configured as processor, sending and receiving messages via
@@ -48,9 +46,11 @@ import org.springframework.messaging.support.GenericMessage;
  **/
 
 @EnableBinding(Processor.class)
-@Import({ PythonShellCommandConfiguration.class, JythonWrapperConfiguration.class,
-		PythonGitAppDeployerConfiguration.class, TcpProcessorConfiguration.class })
-@EnableConfigurationProperties({PythonShellCommandProperties.class })
+@Import({ PythonShellCommandConfiguration.class,
+		PythonGitAppDeployerConfiguration.class,
+		TcpProcessorConfiguration.class,
+		JythonWrapperConfiguration.class})
+@EnableConfigurationProperties({ PythonShellCommandProperties.class })
 public class PythonLocalProcessorConfiguration implements InitializingBean {
 
 	@Autowired(required = false)
@@ -59,33 +59,24 @@ public class PythonLocalProcessorConfiguration implements InitializingBean {
 	@Autowired
 	private ShellCommand shellCommand;
 
-
-	@Autowired(required = false)
-	private JythonScriptExecutor jythonWrapper;
-
-	@Autowired
-	private TcpProcessor tcpProcessor;
-
+	@ConditionalOnBean(JythonScriptExecutor.class)
 	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-	public Message<Object> process(Message<?> message) {
-
-		Object result = null;
-
-		if (jythonWrapper != null) {
-			result = jythonWrapper.execute(message);
-		}
-		else {
-			result = tcpProcessor.handleRequestMessage(message);
-		}
-		if (result instanceof Message) {
-			return (Message) result;
-		}
-
-		//TODO:...
-		return new GenericMessage<Object>(result);
+	@Bean
+	public MessageProcessor<Object> messageProcessor(final JythonScriptExecutor jythonWrapper) {
+		return new MessageProcessor<Object>() {
+			@Override
+			public Object processMessage(Message<?> message) {
+				return jythonWrapper.execute(message);
+			}
+		};
 	}
 
-
+	@ConditionalOnMissingBean(JythonScriptExecutor.class)
+	@ServiceActivator(inputChannel = Processor.INPUT)
+	@Bean
+	TcpProcessor tcpProcessor(TcpProcessor tcpProcessor) {
+		return tcpProcessor;
+	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
