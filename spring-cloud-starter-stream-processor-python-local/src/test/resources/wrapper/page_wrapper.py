@@ -25,7 +25,8 @@ page = Page(payload)
 
 'Pickle the Page dict representation'
 input = pickle.dumps(page.__dict__, protocol)
-'processor is bound to ShellProcessor. Invoke the shell processor and receive a dict'
+'processor is bound to TcpProcessor. Invoke the processor and receive a dict'
+print(processor.getClass().getName())
 data = processor.sendAndReceive(input)
 'deserialize'
 returned_page = pickle.loads(data)

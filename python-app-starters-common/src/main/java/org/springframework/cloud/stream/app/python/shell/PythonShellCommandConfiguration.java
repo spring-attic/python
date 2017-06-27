@@ -77,7 +77,7 @@ public class PythonShellCommandConfiguration {
 						"--monitor-port", String.valueOf(tcpProperties.getMonitorPort()),
 						"--buffer-size",  String.valueOf(tcpProperties.getBufferSize()),
 						"--char-encoding", tcpProperties.getCharset(),
-						"--encoder", tcpProperties.getDecoder().name()
+						"--encoder", tcpProperties.getEncoder().name()
 				},
 				" ");
 	}

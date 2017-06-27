@@ -1,7 +1,6 @@
 package org.springframework.cloud.stream.app.python.local.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.app.python.shell.TcpProperties;
 import org.springframework.cloud.stream.app.python.tcp.EncoderDecoderFactoryBean;
@@ -22,30 +21,26 @@ public class TcpConnectionFactoryConfiguration {
 	private TcpProperties properties;
 
 	@Bean
-	public TcpConnectionFactoryFactoryBean tcpClientConnectionFactory(
-			@Qualifier("tcpClientEncoder") AbstractByteArraySerializer encoder,
-			@Qualifier("tcpClientMapper") TcpMessageMapper mapper,
-			@Qualifier("tcpClientDecoder") AbstractByteArraySerializer decoder) throws Exception {
-		return connectionFactoryFactoryBean(encoder, mapper, decoder, properties.getPort());
+	public TcpConnectionFactoryFactoryBean tcpClientConnectionFactory(AbstractByteArraySerializer encoder,
+			TcpMessageMapper mapper) throws Exception {
+		return connectionFactoryFactoryBean(encoder, mapper, properties.getPort());
 
 	}
 
 	@Bean
-	public TcpConnectionFactoryFactoryBean tcpMonitorConnectionFactory(
-			@Qualifier("tcpClientEncoder") AbstractByteArraySerializer encoder,
-			@Qualifier("tcpClientMapper") TcpMessageMapper mapper,
-			@Qualifier("tcpClientDecoder") AbstractByteArraySerializer decoder) throws Exception {
-		return connectionFactoryFactoryBean(encoder, mapper, decoder, properties.getMonitorPort());
+	public TcpConnectionFactoryFactoryBean tcpMonitorConnectionFactory(AbstractByteArraySerializer encoder,
+			TcpMessageMapper mapper) throws Exception {
+		return connectionFactoryFactoryBean(encoder, mapper, properties.getMonitorPort());
 	}
 
 	private TcpConnectionFactoryFactoryBean connectionFactoryFactoryBean(AbstractByteArraySerializer encoder,
-			TcpMessageMapper mapper, AbstractByteArraySerializer decoder, int port) throws Exception {
+			TcpMessageMapper mapper, int port) throws Exception {
 		TcpConnectionFactoryFactoryBean factoryBean = new TcpConnectionFactoryFactoryBean();
 		factoryBean.setType("client");
 		factoryBean.setUsingNio(this.properties.isNio());
 		factoryBean.setUsingDirectBuffers(this.properties.isUseDirectBuffers());
 		factoryBean.setSerializer(encoder);
-		factoryBean.setDeserializer(decoder);
+		factoryBean.setDeserializer(encoder);
 		factoryBean.setSoTimeout(this.properties.getSocketTimeout());
 		factoryBean.setMapper(mapper);
 		factoryBean.setSingleUse(Boolean.FALSE);
@@ -65,13 +60,6 @@ public class TcpConnectionFactoryConfiguration {
 		TcpMessageMapper mapper = new TcpMessageMapper();
 		mapper.setCharset(this.properties.getCharset());
 		return mapper;
-	}
-
-	@Bean
-	public EncoderDecoderFactoryBean tcpClientDecoder() {
-		EncoderDecoderFactoryBean factoryBean = new EncoderDecoderFactoryBean(this.properties.getDecoder());
-		factoryBean.setMaxMessageSize(this.properties.getBufferSize());
-		return factoryBean;
 	}
 
 }

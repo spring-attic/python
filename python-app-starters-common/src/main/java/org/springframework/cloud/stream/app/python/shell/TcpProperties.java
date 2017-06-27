@@ -41,11 +41,6 @@ public class TcpProperties extends AbstractTcpConnectionFactoryProperties {
 	private int monitorPort;
 
 	/**
-	 * The decoder to use when receiving messages.
-	 */
-	private Encoding decoder = Encoding.CRLF;
-
-	/**
 	 * The buffer size used when decoding messages; larger messages will be rejected.
 	 */
 	private int bufferSize = 2048;
@@ -65,14 +60,6 @@ public class TcpProperties extends AbstractTcpConnectionFactoryProperties {
 	 */
 	private long retryInterval = 60000;
 
-	@NotNull
-	public Encoding getDecoder() {
-		return this.decoder;
-	}
-
-	public void setDecoder(Encoding decoder) {
-		this.decoder = decoder;
-	}
 
 	public int getBufferSize() {
 		return bufferSize;

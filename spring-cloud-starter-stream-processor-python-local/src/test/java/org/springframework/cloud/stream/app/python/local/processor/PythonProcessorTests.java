@@ -123,11 +123,10 @@ public abstract class PythonProcessorTests {
 	}
 
 	@TestPropertySource(properties = { "python.basedir=src/test/resources/python",
-			"python.script=pickle_page_example.py", "python.encoder=L2",
+			"python.script=pickle_page_example.py", "tcp.encoder=L2",
 			"wrapper.script=src/test/resources/wrapper/page_wrapper.py" })
 
 	public static class TestPicklePage extends PythonProcessorTests {
-		@Ignore
 		@Test
 		public void test() throws IOException, InterruptedException {
 			Message<Page> message = new GenericMessage<>(new Page());
@@ -145,7 +144,7 @@ public abstract class PythonProcessorTests {
 			"python.basedir=test-stream-scripts/time-transformer", "python.script=time-delta.py" })
 	public static class TestGitRepo extends PythonProcessorTests {
 		@Test
-		@Ignore //TODO figure out a way to mock this
+		//@Ignore //TODO figure out a way to mock this
 		public void test() throws InterruptedException {
 			Message<String> message = new GenericMessage<>("06/01/16 09:45:11");
 			processor.input().send(message);
