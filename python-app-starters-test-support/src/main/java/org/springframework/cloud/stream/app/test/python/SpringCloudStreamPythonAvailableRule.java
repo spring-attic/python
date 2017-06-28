@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.stream.app.test.python;
 
+import org.springframework.util.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,7 +29,15 @@ public class SpringCloudStreamPythonAvailableRule extends PythonAvailableRule {
 	public static final String SPRINGCLOUDSTREAM_PYTHON_MODULE = "springcloudstream";
 
 	public SpringCloudStreamPythonAvailableRule() {
-		super("pip", "install", SPRINGCLOUDSTREAM_PYTHON_MODULE);
+		this(null);
+	}
+
+
+	public SpringCloudStreamPythonAvailableRule(String version) {
+
+		super("pip", "install", SPRINGCLOUDSTREAM_PYTHON_MODULE +
+				(StringUtils.hasText(version)? ("=="+version):""));
+
 		processBuilder.redirectErrorStream(true);
 	}
 

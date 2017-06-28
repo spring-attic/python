@@ -1,1 +1,1 @@
-springcloudstream>=1.0
+springcloudstream==1.0.0

@@ -54,7 +54,7 @@ public abstract class PythonProcessorTests {
 
 	@ClassRule
 	public static SpringCloudStreamPythonAvailableRule springCloudStreamPythonAvailableRule
-			= new SpringCloudStreamPythonAvailableRule();
+			= new SpringCloudStreamPythonAvailableRule("1.0.0");
 
 	@Autowired
 	Processor processor;
