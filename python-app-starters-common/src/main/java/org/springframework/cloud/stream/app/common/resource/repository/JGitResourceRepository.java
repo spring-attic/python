@@ -318,6 +318,9 @@ public class JGitResourceRepository implements InitializingBean {
 			if (git != null) {
 				git.close();
 			}
+			if (!this.label.equals(DEFAULT_LABEL)) {
+				refresh();
+			}
 		}
 
 	}

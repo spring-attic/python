@@ -2,10 +2,10 @@ from springcloudstream.stream import Processor
 
 __author__ = 'David Turanski'
 
+import sys
 
-def echo(data):
-    return data
+def upper(data):
+    return data.upper()
 
+Processor(upper,sys.argv).start()
 
-process = Processor()
-process.start(echo)

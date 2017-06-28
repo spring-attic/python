@@ -18,80 +18,68 @@ package org.springframework.cloud.stream.app.python.local.processor;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
+import org.springframework.cloud.stream.app.python.local.monitor.TcpMonitorConfiguration;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessor;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessorConfiguration;
+import org.springframework.cloud.stream.app.python.local.wrapper.JythonWrapperConfiguration;
 import org.springframework.cloud.stream.app.python.shell.PythonAppDeployer;
 import org.springframework.cloud.stream.app.python.shell.PythonGitAppDeployerConfiguration;
-import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProcessorConfiguration;
-import org.springframework.cloud.stream.app.python.shell.PythonShellCommandProcessorProperties;
-import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
+import org.springframework.cloud.stream.app.python.shell.PythonShellCommandConfiguration;
 import org.springframework.cloud.stream.messaging.Processor;
-import org.springframework.cloud.stream.shell.ShellCommandProcessor;
+import org.springframework.cloud.stream.shell.ShellCommand;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.annotation.Transformer;
-import org.springframework.integration.support.MutableMessageBuilder;
+import org.springframework.integration.handler.MessageProcessor;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
 
 /**
  * A Processor that forks a shell to run a Python app configured as processor, sending and receiving messages via
- * stdin/stdout. Optionally this may use a Jython wrapper script to transform data to and from the remote app. If no
- * wrapper is configured, the payload must be String.
+ * tcp sockets. Optionally this may use a Jython wrapper script to transform data to and from the remote app.
  *
  * @author David Turanski
  **/
+
 @EnableBinding(Processor.class)
-@Import({ PythonShellCommandProcessorConfiguration.class, JythonWrapperConfiguration.class,
-		PythonGitAppDeployerConfiguration.class})
+@Import({ PythonShellCommandConfiguration.class, TcpProcessorConfiguration.class, TcpMonitorConfiguration.class,
+		PythonGitAppDeployerConfiguration.class, JythonWrapperConfiguration.class })
 public class PythonLocalProcessorConfiguration implements InitializingBean {
 
 	@Autowired(required = false)
 	private PythonAppDeployer pythonAppDeployer;
 
 	@Autowired
-	private ShellCommandProcessor shellCommandProcessor;
+	private ShellCommand shellCommand;
 
-	@Autowired
-	private PythonShellCommandProcessorProperties properties;
+	@ConditionalOnBean(JythonScriptExecutor.class)
+	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
+	@Bean
+	public MessageProcessor<Object> messageProcessor(final JythonScriptExecutor jythonWrapper) {
+		return new MessageProcessor<Object>() {
+			@Override
+			public Object processMessage(Message<?> message) {
+				return jythonWrapper.execute(message);
+			}
+		};
+	}
 
-	@Autowired(required = false)
-	private JythonScriptExecutor jythonWrapper;
+	@ConditionalOnMissingBean(JythonScriptExecutor.class)
+	@ServiceActivator(inputChannel = Processor.INPUT)
+	@Bean
+	TcpProcessor tcpProcessorServiceActivator(TcpProcessor tcpProcessor) {
+		return tcpProcessor;
+	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (pythonAppDeployer != null) {
 			pythonAppDeployer.deploy();
 		}
-		shellCommandProcessor.start();
-	}
-
-	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-	public Message<Object> process(Message<?> message) {
-
-		Object result = null;
-
-		if (jythonWrapper != null) {
-			result = jythonWrapper.execute(message);
-		}
-		else {
-			if (message.getPayload() instanceof String) {
-				result = shellCommandProcessor.sendAndReceive((String) message.getPayload());
-			}
-			else if (message.getPayload() instanceof byte[]) {
-				result = shellCommandProcessor.sendAndReceive((byte[]) message.getPayload());
-			}
-			else {
-				result = shellCommandProcessor.sendAndReceive((String) message.getPayload().toString());
-			}
-		}
-
-		if (properties.getContentType() != null) {
-			return MutableMessageBuilder.withPayload(result).copyHeaders(message.getHeaders())
-					.setHeader(MessageHeaders.CONTENT_TYPE, properties.getContentType()).build();
-		}
-
-		else {
-			return MutableMessageBuilder.withPayload(result).copyHeaders(message.getHeaders()).build();
-		}
+		shellCommand.executeAsync();
 	}
 }

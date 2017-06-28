@@ -23,14 +23,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
 import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.app.python.shell.cloudfoundry.PythonEnvironmentHelper;
-import org.springframework.cloud.stream.shell.ShellCommandProcessor;
+import org.springframework.cloud.stream.shell.ShellCommand;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.integration.ip.tcp.serializer.AbstractByteArraySerializer;
-import org.springframework.integration.ip.tcp.serializer.ByteArrayCrLfSerializer;
-import org.springframework.integration.ip.tcp.serializer.ByteArrayLfSerializer;
-import org.springframework.integration.ip.tcp.serializer.ByteArraySingleTerminatorSerializer;
 
 import java.io.File;
 
@@ -38,63 +34,52 @@ import java.io.File;
  * @author David Turanski
  **/
 @Configuration
-@ConditionalOnMissingBean(ShellCommandProcessor.class)
-@EnableConfigurationProperties(PythonShellCommandProcessorProperties.class)
-public class PythonShellCommandProcessorConfiguration {
-
-	private final static byte BINARY_ENCODER_X1A = (byte) 26;
+@ConditionalOnMissingBean(ShellCommand.class)
+@EnableConfigurationProperties({ PythonShellCommandProperties.class, TcpProperties.class })
+public class PythonShellCommandConfiguration {
 
 	@Autowired
-	private PythonShellCommandProcessorProperties properties;
+	private PythonShellCommandProperties properties;
+
+	@Autowired
+	private TcpProperties tcpProperties;
 
 	@Autowired(required = false)
 	private JGitResourceRepository repository;
 
 	@Bean
-	public AbstractByteArraySerializer serializer() {
-
-		AbstractByteArraySerializer serializer = null;
-		switch (properties.getEncoder()) {
-		case LF:
-			serializer = new ByteArrayLfSerializer();
-			break;
-		case CRLF:
-			serializer = new ByteArrayCrLfSerializer();
-			break;
-		case BINARY:
-			serializer = new ByteArraySingleTerminatorSerializer(BINARY_ENCODER_X1A);
-			break;
-		}
-		return serializer;
-	}
-
-	@Bean
 	@Profile("!cloud")
-	public ShellCommandProcessor shellCommandProcessor(AbstractByteArraySerializer serializer) {
-		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer, buildCommand());
-		shellCommandProcessor.setAutoStart(false);
-		return shellCommandProcessor;
+	public ShellCommand shellCommand() {
+		ShellCommand shellCommand = new ShellCommand(buildCommand());
+		return shellCommand;
 	}
 
 	@Bean
 	@Profile("cloud")
-	public ShellCommandProcessor cfShellCommandProcessor(AbstractByteArraySerializer serializer) {
-
+	public ShellCommand cfShellCommand() {
 		PythonEnvironmentHelper.installPipIfNecessary(properties.getPipCommandName());
-
 		String scriptName = PythonEnvironmentHelper.wrapCommandforCloud(buildCommand());
+		return new ShellCommand(scriptName);
 
-		ShellCommandProcessor shellCommandProcessor = new ShellCommandProcessor(serializer, scriptName);
-
-		shellCommandProcessor.setAutoStart(false);
-		return shellCommandProcessor;
 	}
 
 	private String buildCommand() {
 		return StringUtils.isEmpty(properties.getArgs()) ?
-				StringUtils.join(new String[] { properties.getCommandName(), buildScriptAbsolutePath() }, " ") :
-				StringUtils.join(new String[] { properties.getCommandName(), buildScriptAbsolutePath(),
-						properties.getArgs() }, " ");
+				StringUtils.join(new String[] { properties.getCommandName(), buildScriptAbsolutePath(), buildTcpArgs(),
+				}, " ") :
+				StringUtils.join(new String[] { properties.getCommandName(), buildTcpArgs(), buildScriptAbsolutePath(),
+						buildTcpArgs(), properties.getArgs() }, " ");
+	}
+
+	private String buildTcpArgs() {
+		return StringUtils.join(new String[] {
+						"--port", String.valueOf(tcpProperties.getPort()),
+						"--monitor-port", String.valueOf(tcpProperties.getMonitorPort()),
+						"--buffer-size",  String.valueOf(tcpProperties.getBufferSize()),
+						"--char-encoding", tcpProperties.getCharset(),
+						"--encoder", tcpProperties.getEncoder().name()
+				},
+				" ");
 	}
 
 	private String buildScriptAbsolutePath() {

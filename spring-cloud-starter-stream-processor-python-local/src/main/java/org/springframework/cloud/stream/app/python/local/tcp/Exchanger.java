@@ -14,16 +14,11 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.wrapper;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.stream.app.python.jython.JythonScriptProperties;
+package org.springframework.cloud.stream.app.python.local.tcp;
 
 /**
- * Configuration properties for the Jython wrapper.
- *
  * @author David Turanski
  **/
-@ConfigurationProperties(prefix="wrapper")
-public class JythonWrapperProperties extends JythonScriptProperties {
+public interface Exchanger {
+	Object sendAndReceive(Object payload);
 }

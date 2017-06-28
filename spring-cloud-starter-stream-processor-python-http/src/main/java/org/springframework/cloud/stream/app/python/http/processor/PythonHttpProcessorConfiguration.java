@@ -19,7 +19,7 @@ package org.springframework.cloud.stream.app.python.http.processor;
 import org.springframework.cloud.stream.aggregate.AggregateApplication;
 import org.springframework.cloud.stream.aggregate.AggregateApplicationBuilder;
 import org.springframework.cloud.stream.app.httpclient.processor.HttpclientProcessorConfiguration;
-import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
+import org.springframework.cloud.stream.app.python.http.wrapper.JythonWrapperConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

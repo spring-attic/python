@@ -29,10 +29,10 @@ import org.springframework.cloud.stream.app.test.python.SpringCloudStreamPythonA
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.GenericMessage;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -49,12 +49,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RunWith(SpringRunner.class)
-@DirtiesContext
 public abstract class PythonProcessorTests {
 
 	@ClassRule
-	public static SpringCloudStreamPythonAvailableRule springCloudStreamPythonAvailableRule
-			= new SpringCloudStreamPythonAvailableRule();
+	public static SpringCloudStreamPythonAvailableRule springCloudStreamPythonAvailableRule = new SpringCloudStreamPythonAvailableRule();
 
 	@Autowired
 	Processor processor;
@@ -65,8 +63,7 @@ public abstract class PythonProcessorTests {
 	@Autowired
 	ObjectMapper objectMapper;
 
-	@TestPropertySource(properties = {
-			"python.basedir=src/test/resources/python",
+	@TestPropertySource(properties = { "python.basedir=src/test/resources/python",
 			"python.script=processor_example.py" })
 	public static class TestSimple extends PythonProcessorTests {
 		@Test
@@ -75,30 +72,26 @@ public abstract class PythonProcessorTests {
 			processor.input().send(message);
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
-			assertThat(received.getPayload()).isEqualTo("hello world");
+			assertThat(received.getPayload()).isEqualTo("HELLO WORLD");
 		}
 	}
 
-
-	@TestPropertySource(properties = {
-			"python.basedir=src/test/resources/python",
-			"python.script=processor_example.py",
-			"python.contentType=application/json"})
+	@TestPropertySource(properties = { "python.basedir=src/test/resources/python", "python.script=processor_example.py",
+			"python.contentType=application/json" })
 	public static class TestSimpleWithContentType extends PythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
+
 			Message<String> message = new GenericMessage<>("{\"hello\" : \"world\"}");
 			processor.input().send(message);
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
-			assertThat(received.getPayload()).isEqualTo("{\"hello\" : \"world\"}");
-			assertThat(received.getHeaders().get(MessageHeaders.CONTENT_TYPE)).isEqualTo("application/json");
+			assertThat(received.getPayload()).isEqualTo("{\"HELLO\" : \"WORLD\"}");
+			assertThat(received.getHeaders().get(MessageHeaders.CONTENT_TYPE)).isEqualTo(MediaType.APPLICATION_JSON);
 		}
 	}
 
-
-	@TestPropertySource(properties = {
-			"python.basedir=src/test/resources/python",
+	@TestPropertySource(properties = { "python.basedir=src/test/resources/python",
 			"python.script=processor_example.py" })
 	public static class TestArrayList extends PythonProcessorTests {
 		@Test
@@ -110,29 +103,29 @@ public abstract class PythonProcessorTests {
 			processor.input().send(message);
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
 					.poll(1, TimeUnit.SECONDS);
-			assertThat(received.getPayload()).isEqualTo("[hello, world]");
+			assertThat(received.getPayload()).isEqualTo("[HELLO, WORLD]");
 		}
 	}
 
-	@TestPropertySource(properties = {
-			"python.basedir=src/test/resources/python",
+	@TestPropertySource(properties = { "python.basedir=src/test/resources/python",
 			"python.script=processor_example.py" })
 	public static class TestSimpleBytes extends PythonProcessorTests {
 		@Test
 		public void test() throws InterruptedException {
 			Message<byte[]> message = new GenericMessage<>("hello world".getBytes());
-			processor.input().send(message);
-			Message<byte[]> received = (Message<byte[]>) messageCollector.forChannel(processor.output())
-					.poll(1, TimeUnit.SECONDS);
-			assertThat(received.getPayload()).isEqualTo(message.getPayload());
+			for (int i = 0; i < 100; i++) {
+				processor.input().send(message);
+				Message<byte[]> received = (Message<byte[]>) messageCollector.forChannel(processor.output())
+						.poll(1, TimeUnit.SECONDS);
+				assertThat(received.getPayload()).isEqualTo("HELLO WORLD".getBytes());
+			}
 		}
 	}
 
-	@TestPropertySource(properties = {
-			"python.basedir=src/test/resources/python",
-			"python.script=pickle_page_example.py",
-			"python.encoder=BINARY",
+	@TestPropertySource(properties = { "python.basedir=src/test/resources/python",
+			"python.script=pickle_page_example.py", "tcp.encoder=L2",
 			"wrapper.script=src/test/resources/wrapper/page_wrapper.py" })
+
 	public static class TestPicklePage extends PythonProcessorTests {
 		@Test
 		public void test() throws IOException, InterruptedException {
@@ -149,6 +142,7 @@ public abstract class PythonProcessorTests {
 
 	@TestPropertySource(properties = {
 			"git.uri=https://github.com/dturanski/python-apps",
+			"git.label=tcp",
 			"python.basedir=test-stream-scripts/time-transformer",
 			"python.script=time-delta.py" })
 	public static class TestGitRepo extends PythonProcessorTests {

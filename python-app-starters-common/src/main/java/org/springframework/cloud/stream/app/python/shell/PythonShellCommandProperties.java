@@ -28,8 +28,7 @@ import javax.validation.constraints.NotNull;
  **/
 @Validated
 @ConfigurationProperties(prefix = "python")
-public class PythonShellCommandProcessorProperties extends PythonAppProperties {
-	public static enum Encoder {LF, CRLF, BINARY}
+public class PythonShellCommandProperties extends PythonAppProperties {
 
 	/**
 	 * The python command name, e.g., 'python', 'python3'.
@@ -41,10 +40,6 @@ public class PythonShellCommandProcessorProperties extends PythonAppProperties {
 	 */
 	private String args = "";
 
-	/**
-	 * The encoder to use.
-	 */
-	private Encoder encoder = Encoder.CRLF;
 
 	@NotNull
 	public String getCommandName() {
@@ -63,14 +58,4 @@ public class PythonShellCommandProcessorProperties extends PythonAppProperties {
 	public void setArgs(String args) {
 		this.args = args;
 	}
-
-	@NotNull
-	public Encoder getEncoder() {
-		return encoder;
-	}
-
-	public void setEncoder(Encoder encoder) {
-		this.encoder = encoder;
-	}
-
 }

@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package org.springframework.cloud.stream.app.python.wrapper;
+package org.springframework.cloud.stream.app.python.local.wrapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
@@ -24,14 +24,14 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.spring.io.data.Page;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
-import org.springframework.cloud.stream.shell.ShellCommandProcessor;
+import org.springframework.cloud.stream.app.python.local.tcp.TcpProcessor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.messaging.support.GenericMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,11 +40,11 @@ import static org.mockito.Mockito.when;
  **/
 public class JythonScriptExecutorTests {
 
-	private ShellCommandProcessor shellCommandProcessor = mock(ShellCommandProcessor.class);
+	private TcpProcessor tcpProcessor = mock(TcpProcessor.class);
 
 	@Before
 	public void setUp() {
-		when(shellCommandProcessor.sendAndReceive(anyString())).thenAnswer(new Answer<String>() {
+		when(tcpProcessor.sendAndReceive(any())).thenAnswer(new Answer<String>() {
 			@Override
 			public String answer(InvocationOnMock invocation) throws Throwable {
 				Object[] args = invocation.getArguments();
@@ -63,8 +63,8 @@ public class JythonScriptExecutorTests {
 
 	@Test
 	public void picklePage() throws Exception {
-		ShellCommandProcessorJythonWrapper jythonWrapper = new ShellCommandProcessorJythonWrapper(
-				new ClassPathResource("wrapper/page_wrapper.py"), shellCommandProcessor);
+		TcpProcessorJythonWrapper jythonWrapper = new TcpProcessorJythonWrapper(
+				new ClassPathResource("wrapper/page_wrapper.py"), tcpProcessor);
 		jythonWrapper.afterPropertiesSet();
 		Object result = jythonWrapper.execute(new GenericMessage<Page>(new Page()));
 		assertThat(result).isNotNull();
