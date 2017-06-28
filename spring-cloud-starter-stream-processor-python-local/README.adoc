@@ -5,12 +5,16 @@
 
 
 A processor application that starts an external Python process in the local container, sends message payloads to it and
-receives the results via a tcp pipe. The process must define a function with a single `<str>` argument that returns a `<str>`.
-By default the tcp connection is configured for text with `\n` or `\r\n` delimiters.
-However you can set the encoder to `BINARY` to use `pickle` serialization for example.
-The binary encoder uses `x1a` as the string terminator. For convenience you can import
-the {python-springcloudstream}[springcloudstream] module to handle the low level I/O.
+receives the results via a TCP socket. The process must define a function with a single `<str>` or `<bytearray>`
+argument that returns a `<str>` or `<bytearray>`.
 
+By default the tcp connection is configured to encode text data delimited with `\r\n` `CRLF`.
+However you can set the `tcp.encoder` property to use message length headers, e.g., `L2` to use `pickle`
+or `struct` serialization for example. For convenience your Python app should import
+the {python-springcloudstream}[springcloudstream>=1.1.0] module to handle the encoding/decoding.
+
+Additionally, the {python-springcloudstream][springcloudstream] module configures a Monitor(ping) Server socket on a
+separate port that the Java component uses to monitor the health of the Python process.
 
 
 
@@ -32,6 +36,7 @@ Here's an example that works with the `time-source` stream app:
 time-transformer.py
 [source,python]
 ----
+import sys
 from datetime import datetime
 from springcloudstream.stream import Processor
 
@@ -41,26 +46,38 @@ def time_delta(data):
 	delta = datetime.now() - datetime.strptime(data,format)
 	return str(delta)
 
-process = Processor()
+#
+# The Processor takes a function plus an argument list. For interoperability, the Java application will provide
+# the required configuration arguments as command line arguments.
+# Options:
+#   -h, --help            show this help message and exit
+#   -p PORT, --port=PORT  the socket port to use
+#   -m MONITOR_PORT, --monitor-port=MONITOR_PORT
+#                         the socket to use for the monitoring server
+#   -s BUFFER_SIZE, --buffer-size=BUFFER_SIZE
+#                         the tcp buffer size
+#   -d, --debug           turn on debug logging
+#   -c CHAR_ENCODING, --char-encoding=CHAR_ENCODING
+#                         character encoding
+#   -e ENCODER, --encoder=ENCODER
+#                         The name of the encoder to use for delimiting messages
+#
+process = Processor(time_delta,sys.argv)
 process.start(time_delta)
 ----
 
-[NOTE]
-====
-Currently I/O is bound to `stdin` an `stdout` so any prints will cause problems. We're working on an option to use available ports.
-====
 
-Since you are importing `springcloudstream`, you need to provide `requirements.txt` in the top level directory with an entry for `springcloudstream` minimally.
+Since you are importing `springcloudstream`, you need to provide `requirements.txt` in the top level directory with
+an entry for `springcloudstream>=1.1.0` minimally.
 
 === Jython Wrapper
 
-If you need to convert types to and from `<str>`, you may optional configure a Jython wrapper. JSon should work well in
-most cases, but if you want to pickle something, its best to stick with standard types such as `<dict>`, `<tuple>`, etc.
-Pickling user defined objects between Jython and native Python has some known issues, but YMMV.
+If you need to do any conversion or transformation, you may optional configure a Jython wrapper.
 
-The Jython wrapper uses a simple convention illustrated by this example: 
+The Jython wrapper binds the TCP Processor to the `processor` variable as illustrated by this
+example:
 
-pickle-page.py
+page_wrapper.py
 [source,python]
 ----
 import cPickle as pickle
@@ -81,20 +98,18 @@ class Page:
         for key in page.images:
             self.images[key] = page.images[key]
 
+protocol = 1
 
-
-'payload is bound to Java Page object`
+'payload is bound to Java object spring.io.data.Page'
 page = Page(payload)
 
-'Pickle the Page <dict>'
+'Pickle the Page dict representation'
 input = pickle.dumps(page.__dict__, protocol)
-
-'The processor variable is bound to ShellProcessor. Invoke the shell processor and receive a dict'
+'processor is bound to TcpProcessor. Invoke the processor and receive a dict'
+print(processor.getClass().getName())
 data = processor.sendAndReceive(input)
-
 'deserialize'
 returned_page = pickle.loads(data)
-
 'transform to java String as Json'
 result = String(json.dumps(returned_page))
 ----
@@ -131,7 +146,37 @@ public class Page {
 
 ----
 
-The `pickle-page.py` wrapper transforms the input prior to invoking `processor.sendAndReceive`. This is the Java `ShellProcessor` that calls the external Python app. It is always bound to the variable named `processor`. Then the script transforms the output to a JSON string, which will be consumed by the next app in the stream.   
+pickle_page_example.py
+[source,python]
+----
+import cPickle as pickle
+import sys
+from springcloudstream.stream import Processor
+
+class Page:
+    def __init__(self, data):
+        self.links = data['links']
+        self.images = data['images']
+
+
+protocol = 1
+
+def unpickle(bytes):
+    data = str(bytes)
+    try:
+        data = pickle.loads(data)
+        return pickle.dumps(Page(data).__dict__, protocol)
+    except:
+        return "unpickle failed [%s] [%s] [%s]" % (sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+
+sys.argv.extend(['--debug','True'])
+Processor(unpickle, sys.argv).start()
+----
+
+TThe `page_wrapper.py` Jython wrapper transforms the input prior to invoking the Python app via `processor
+.sendAndReceive()`. This is the Java `TcpProcessor` that calls the `pickle_page_example.py` in this case. It is always
+bound to the variable named `processor`. The wrapper script subsequently transforms the result to a JSON string,
+which will be consumed by the next app in the stream.
 
 See link:../docs/JavaPythonBuildPack.adoc[Deploying to Cloud Foundry]
 
@@ -162,6 +207,13 @@ $$python.basedir$$:: $$The root path of Python app. If given, the script path mu
 $$python.command-name$$:: $$The python command name, e.g., 'python', 'python3'.$$ *($$String$$, default: `$$python$$`)*
 $$python.pip-command-name$$:: $$The pip command name, e.g., 'pip', 'pip3'.$$ *($$String$$, default: `$$pip$$`)*
 $$python.script$$:: $$The Python script file name.$$ *($$String$$, default: `$$<none>$$`)*
+$$tcp.buffer-size$$:: $$The buffer size used when decoding messages; larger messages will be rejected.$$ *($$Integer$$, default: `$$2048$$`)*
+$$tcp.charset$$:: $$The charset used when converting from bytes to String.$$ *($$String$$, default: `$$UTF-8$$`)*
+$$tcp.encoder$$:: $$The encoder to use when sending messages.$$ *($$Encoding$$, default: `$$<none>$$`, possible values: `CRLF`,`LF`,`STXETX`,`L1`,`L2`,`L4`)*
+$$tcp.nio$$:: $$<documentation missing>$$ *($$Boolean$$, default: `$$<none>$$`)*
+$$tcp.retry-interval$$:: $$Retry interval (in milliseconds) to check the connection and reconnect.$$ *($$Long$$, default: `$$60000$$`)*
+$$tcp.socket-timeout$$:: $$<documentation missing>$$ *($$Integer$$, default: `$$<none>$$`)*
+$$tcp.use-direct-buffers$$:: $$<documentation missing>$$ *($$Boolean$$, default: `$$<none>$$`)*
 //end::configuration-properties[]
 
 $$python.contentType$$:: $$The output contentType, e.g., application/json.$$ *($$String$$, default: `$$<none>$$`)*
