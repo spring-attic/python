@@ -45,7 +45,8 @@ public class ShellCommandProcessorTests {
 	private AbstractByteArraySerializer serializer = new ByteArrayCrLfSerializer();
 
 	@ClassRule
-	public static SpringCloudStreamPythonAvailableRule pythonAvailableRule = new SpringCloudStreamPythonAvailableRule();
+	public static SpringCloudStreamPythonAvailableRule pythonAvailableRule = new SpringCloudStreamPythonAvailableRule
+			("1.0.0");
 
 	@BeforeClass
 	public static void init() {
