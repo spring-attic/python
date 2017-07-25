@@ -20,7 +20,3 @@ include::spring-cloud-starter-stream-processor-python-http/README.adoc[]
 
 include::spring-cloud-starter-stream-processor-python-jython/README.adoc[]
 
-include::spring-cloud-starter-stream-processor-python-local/README.adoc[]
-
-include::spring-cloud-starter-stream-sink-python-local/README.adoc[]
-

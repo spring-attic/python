@@ -1,3 +1,0 @@
-result = payload.upper()
-
-

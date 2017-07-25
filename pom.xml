@@ -30,10 +30,8 @@
 	</parent>
 
 	<modules>
-		<module>spring-cloud-starter-stream-processor-python-local</module>
 		<module>spring-cloud-starter-stream-processor-python-http</module>
 		<module>spring-cloud-starter-stream-processor-python-jython</module>
-		<!--<module>spring-cloud-starter-stream-sink-python-local</module>-->
 		<module>spring-cloud-starter-stream-common-shell</module>
 		<module>python-app-starters-common</module>
 		<module>python-app-starters-test-support</module>
