@@ -55,7 +55,7 @@ need to increase the container memory accordingly. Similar tuning is advised in 
 
 {nbsp}
 
-image:python-http-processorv1.gif[PythonHttpProcessor]
+image:python-http-processor.gif[PythonHttpProcessor]
 
 == Options
 
