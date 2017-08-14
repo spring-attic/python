@@ -57,6 +57,31 @@ need to increase the container memory accordingly. Similar tuning is advised in 
 
 image:python-http-processor.gif[PythonHttpProcessor]
 
+== Input
+=== Headers
+Headers will be bound automatically to the wrapper script variable `headers`.
+
+=== Payload
+Any type. Payload will be automatically bound to the wrapper script variable `payload`. Jython scripts can
+effectively access any Java type on the app's classpath.
+
+== Output
+=== Headers
+Headers may be set by the Jython wrapper script if the `output()` script function returns a Message.
+
+=== Payload
+Whatever the `output()`wrapper script function returns.
+
+
+
+[NOTE]
+====
+The wrapper script is intended to perform some required transformations prior to sending an HTTP request and/or after
+ the response is received. The return value of the input adapter will be the inbound payload of the
+ https://github.com/spring-cloud-stream-app-starters/httpclient[httpclient processor] and shoud conform to its requirements. Likewise
+ the HTTP `reply-expression` will bound to be the payload when the `output()` function is invoked.
+====
+
 == Options
 
 The **$$python-http$$** $$processor$$ has the following options:
@@ -79,6 +104,7 @@ $$httpclient.expected-response-type$$:: $$The type used to interpret the respons
 $$httpclient.headers-expression$$:: $$A SpEL expression used to derive the http headers map to use.$$ *($$Expression$$, default: `$$<none>$$`)*
 $$httpclient.http-method$$:: $$The kind of http method to use.$$ *($$HttpMethod$$, default: `$$<none>$$`, possible values: `GET`,`HEAD`,`POST`,`PUT`,`PATCH`,`DELETE`,`OPTIONS`,`TRACE`)*
 $$httpclient.reply-expression$$:: $$A SpEL expression used to compute the final result, applied against the whole http response.$$ *($$Expression$$, default: `$$body$$`)*
+$$httpclient.url$$:: $$The URL to issue an http request to, as a static value.$$ *($$String$$, default: `$$<none>$$`)*
 $$httpclient.url-expression$$:: $$A SpEL expression against incoming message to determine the URL to use.$$ *($$Expression$$, default: `$$<none>$$`)*
 $$wrapper.delimiter$$:: $$The variable delimiter.$$ *($$Delimiter$$, default: `$$<none>$$`, possible values: `COMMA`,`SPACE`,`TAB`,`NEWLINE`)*
 $$wrapper.script$$:: $$The Python script file name.$$ *($$String$$, default: `$$<none>$$`)*
@@ -90,6 +116,19 @@ $$wrapper.variables$$:: $$Variable bindings as a delimited string of name-value 
 [source, bash]
 ----
 $./mvnw package
+----
+
+== Examples
+See https://github.com/spring-cloud-stream-app-starters/httpclient[httpclient processor] for more examples on
+`httpclient` properties.
+
+[source, bash]
+----
+$java -jar python-http-processor.jar --wrapper.script=/local/directory/build-json.py --httpclient.url=http://someurl
+--httpclient.http-method=POST --httpclient.headers-expression="{'Content-Type':'application/json'}"
+
+$java -jar python-http-processor.jar --git.uri=https://github.com/some-repo --wrapper.script=some-script.py --wrapper
+.variables=foo=0.45,bar=0.55 --httpclient.url=http://someurl
 ----
 
 //end::ref-doc[]
