@@ -24,6 +24,20 @@ override the calculated value (and others) by specifying `-XXMaxMetaspaceSize` e
 need to increase the container memory accordingly. Similar tuning is advised in any containerized environment.
 ====
 
+== Input
+=== Headers
+Headers will be bound automatically to the script variable `headers`.
+
+=== Payload
+Any type. Payload will be automatically bound to the script variable `payload`.
+
+== Output
+=== Headers
+Headers may be set by the Jython script if the script returns a Message.
+
+=== Payload
+Whatever the script returns.
+
 {nbsp}
 
 image:jython-processor.gif[JythonProcessor]
@@ -57,3 +71,14 @@ $./mvnw package
 ----
 
 //end::ref-doc[]
+
+== Examples
+
+[source,bash]
+----
+
+$java -jar python-jython-processor.jar --jython.script=/local/directory/to_uppercase.py
+
+$java -jar python-jython-processor.jar --git.uri=https://github.com/some-repo --jython
+.script=map-tweet-sentiments.py --jython.variables=neutral=0.45,positive=0.55
+----
