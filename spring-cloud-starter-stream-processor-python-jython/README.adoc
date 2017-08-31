@@ -80,8 +80,6 @@ You can find the corresponding binder based projects here. You can then cd into 
 $ ./mvnw clean package
 ```
 
-//end::ref-doc[]
-
 == Examples
 
 [source,bash]
@@ -92,3 +90,5 @@ $java -jar python-jython-processor.jar --jython.script=/local/directory/to_upper
 $java -jar python-jython-processor.jar --git.uri=https://github.com/some-repo --jython
 .script=map-tweet-sentiments.py --jython.variables=neutral=0.45,positive=0.55
 ----
+
+//end::ref-doc[]
