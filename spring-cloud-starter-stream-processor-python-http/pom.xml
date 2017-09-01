@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.springframework.cloud.stream.app</groupId>
 		<artifactId>python-app-starters-build</artifactId>
-		<version>1.2.1.BUILD-SNAPSHOT</version>
+		<version>1.0.0.BUILD-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -19,13 +19,13 @@
 		<dependency>
 			<groupId>org.springframework.cloud.stream.app</groupId>
 			<artifactId>python-app-starters-test-support</artifactId>
-			<version>1.2.1.BUILD-SNAPSHOT</version>
+			<version>1.0.0.BUILD-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud.stream.app</groupId>
 			<artifactId>python-app-starters-common</artifactId>
-			<version>1.2.1.BUILD-SNAPSHOT</version>
+			<version>1.0.0.BUILD-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
