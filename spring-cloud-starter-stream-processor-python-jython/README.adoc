@@ -1,5 +1,5 @@
 //tag::ref-doc[]
-== Jython Processor
+= Jython Processor
 :imagesdir: ../images
 
 This application executes a Jython script that binds `payload` and `headers` variables to the Message payload
