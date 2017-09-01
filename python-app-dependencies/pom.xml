@@ -35,11 +35,6 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud.stream.app</groupId>
-				<artifactId>spring-cloud-starter-stream-common-shell</artifactId>
-				<version>1.0.0.BUILD-SNAPSHOT</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud.stream.app</groupId>
 				<artifactId>python-app-starters-test-support</artifactId>
 				<scope>test</scope>
 				<version>1.0.0.BUILD-SNAPSHOT</version>

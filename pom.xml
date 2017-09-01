@@ -32,7 +32,6 @@
 	<modules>
 		<module>spring-cloud-starter-stream-processor-python-http</module>
 		<module>spring-cloud-starter-stream-processor-python-jython</module>
-		<module>spring-cloud-starter-stream-common-shell</module>
 		<module>python-app-starters-common</module>
 		<module>python-app-starters-test-support</module>
 		<module>python-app-dependencies</module>

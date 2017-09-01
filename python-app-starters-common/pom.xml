@@ -20,10 +20,6 @@
 			<artifactId>spring-integration-scripting</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.cloud.stream.app</groupId>
-			<artifactId>spring-cloud-starter-stream-common-shell</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-config-server</artifactId>
 		</dependency>
