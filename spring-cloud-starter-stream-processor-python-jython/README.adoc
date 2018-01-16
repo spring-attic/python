@@ -64,6 +64,7 @@ $$git.timeout$$:: $$Timeout (in seconds) for obtaining HTTP or SSH connection (i
  5 seconds.$$ *($$Integer$$, default: `$$5$$`)*
 $$git.uri$$:: $$The URI of the remote repository.$$ *($$String$$, default: `$$<none>$$`)*
 $$git.username$$:: $$The username for the remote repository.$$ *($$String$$, default: `$$<none>$$`)*
+$$jython.content-type$$:: $$Sets the Content type header for the outgoing Message.$$ *($$MediaType$$, default: `$$<none>$$`)*
 $$jython.delimiter$$:: $$The variable delimiter.$$ *($$Delimiter$$, default: `$$<none>$$`, possible values: `COMMA`,`SPACE`,`TAB`,`NEWLINE`)*
 $$jython.script$$:: $$The Python script file name.$$ *($$String$$, default: `$$<none>$$`)*
 $$jython.variables$$:: $$Variable bindings as a delimited string of name-value pairs, e.g. 'foo=bar,baz=car'.$$ *($$String$$, default: `$$<none>$$`)*

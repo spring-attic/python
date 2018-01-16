@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.aggregate.AggregateApplication;
@@ -31,7 +32,6 @@ import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -49,6 +49,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 /**
  * @author David Turanski
+ * @author Chris Schaefer
  **/
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -134,7 +135,9 @@ public abstract class PythonHttpProcessorTests {
 	}
 
 	@SpringBootApplication
-	@EnableWebSecurity
+	@EnableAutoConfiguration(exclude = {
+			org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class
+	})
 	@Import(PythonHttpProcessorConfiguration.class)
 	static class PythonProcessorApp {
 
