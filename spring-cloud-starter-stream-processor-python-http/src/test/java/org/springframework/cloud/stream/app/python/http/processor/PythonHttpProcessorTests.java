@@ -136,7 +136,7 @@ public abstract class PythonHttpProcessorTests {
 
 	@SpringBootApplication
 	@EnableAutoConfiguration(exclude = {
-			org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class
+			org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class
 	})
 	@Import(PythonHttpProcessorConfiguration.class)
 	static class PythonProcessorApp {

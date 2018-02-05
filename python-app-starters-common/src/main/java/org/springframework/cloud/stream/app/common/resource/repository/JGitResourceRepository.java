@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ import static org.springframework.util.StringUtils.hasText;
  * @author Daniel Lavoie
  * @author Ryan Lynch
  * @author David Turanski
+ * @author Chris Schaefer
  */
 @ConfigurationProperties("git")
 public class JGitResourceRepository implements InitializingBean {
@@ -270,7 +271,7 @@ public class JGitResourceRepository implements InitializingBean {
 				checkout(git, branch);
 			}
 			//always return what is currently HEAD as the version
-			return git.getRepository().getRef("HEAD").getObjectId().getName();
+			return git.getRepository().findRef("HEAD").getObjectId().getName();
 		}
 		catch (RefNotFoundException e) {
 			throw new NoSuchBranchException("No such branch: " + branch, e);
@@ -399,7 +400,7 @@ public class JGitResourceRepository implements InitializingBean {
 	private MergeResult merge(Git git, String branch) {
 		try {
 			MergeCommand merge = git.merge();
-			merge.include(git.getRepository().getRef("origin/" + branch));
+			merge.include(git.getRepository().findRef("origin/" + branch));
 			MergeResult result = merge.call();
 			if (!result.getMergeStatus().isSuccessful()) {
 				this.logger.warn("Merged from remote " + branch + " with result " + result.getMergeStatus());
