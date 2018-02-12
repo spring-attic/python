@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.scripting.ScriptVariableGenerator;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -38,6 +37,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
  * A Processor that runs a Jython script.
  *
  * @author David Turanski
+ * @author Artem Bilan
  **/
 @EnableBinding(Processor.class)
 @EnableConfigurationProperties(JythonScriptProperties.class)
@@ -53,19 +53,18 @@ public class PythonJythonProcessorConfiguration {
 	@Autowired
 	private JythonScriptExecutor jythonScriptExecutor;
 
-	@StreamListener(Processor.INPUT)
-	@SendTo(Processor.OUTPUT)
-	public Object transformer(Message<?> message) {
-		return jythonScriptExecutor.execute(message);
-	}
-
 	@Bean
-	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
 	public JythonScriptExecutor jythonScriptExecutor(ScriptVariableGenerator scriptVariableGenerator) {
 		if (gitResourceRepository != null) {
 			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
 		}
 		return new JythonScriptExecutor(properties.getScriptResource(), scriptVariableGenerator);
+	}
+
+	@StreamListener(Processor.INPUT)
+	@SendTo(Processor.OUTPUT)
+	public Object transformer(Message<?> message) {
+		return this.jythonScriptExecutor.execute(message);
 	}
 
 }
