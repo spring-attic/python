@@ -312,7 +312,7 @@ public class JGitResourceRepository implements InitializingBean {
 	 */
 	private void initClonedRepository() throws GitAPIException, IOException {
 		if (!getUri().startsWith(FILE_URI_PREFIX)) {
-			//deleteLocalRepoIfExists();
+			deleteLocalRepoIfExists();
 			Git git = cloneToBasedir();
 			if (git != null) {
 				git.close();
