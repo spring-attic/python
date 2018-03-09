@@ -39,7 +39,7 @@ import java.util.Map;
 public class JythonScriptExecutor implements InitializingBean {
 	private final static Log logger = LogFactory.getLog(JythonScriptExecutor.class);
 	private final ScriptVariableGenerator variableGenerator;
-	private final SimpleStringScriptSource script;
+	private SimpleStringScriptSource script;
 	private final PythonScriptExecutor scriptExecutor;
 	private final Map<String, Object> staticVariables = new HashMap<>();
 
@@ -50,12 +50,16 @@ public class JythonScriptExecutor implements InitializingBean {
 	public JythonScriptExecutor(Resource resource, ScriptVariableGenerator variableGenerator) {
 
 		ScriptSource scriptSource = new ResourceScriptSource(resource);
-
+		String scriptPath = null;
 		try {
+			scriptPath = resource.getFile().getAbsolutePath();
+			logger.debug( String.format("Loading script %s", scriptPath) );
 			this.script = new SimpleStringScriptSource(scriptSource.getScriptAsString());
 		}
 		catch (IOException e) {
-			throw new IllegalArgumentException(String.format("Cannot access script %s", resource.getFilename()));
+			String errorMessage = String.format("Cannot access script %s", scriptPath);
+			logger.error(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
 		}
 
 		this.scriptExecutor = new PythonScriptExecutor();
