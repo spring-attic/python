@@ -240,6 +240,9 @@ public class JGitResourceRepository implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		if (initialized) {
+			return;
+		}
 		Assert.state(getUri() != null, "You need to configure a uri for the git repository");
 		initialize();
 		if (this.cloneOnStart) {
