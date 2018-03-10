@@ -105,8 +105,8 @@ $$httpclient.body$$:: $$The (static) request body; if neither this nor bodyExpre
 $$httpclient.body-expression$$:: $$A SpEL expression to derive the request body from the incoming message.$$ *($$Expression$$, default: `$$<none>$$`)*
 $$httpclient.expected-response-type$$:: $$The type used to interpret the response.$$ *($$Class<?>$$, default: `$$<none>$$`)*
 $$httpclient.headers-expression$$:: $$A SpEL expression used to derive the http headers map to use.$$ *($$Expression$$, default: `$$<none>$$`)*
-$$httpclient.http-method$$:: $$The kind of http method to use.$$ *($$HttpMethod)$$, default: `$$<none>$$`)*
-$$httpclient.reply-expression$$:: $$A SpEL expression used to compute the final result, applied against the whole http response.$$ *($$Expression)$$, default: `$$body$$`)*
+$$httpclient.http-method$$:: $$The kind of http method to use.$$ *($$HttpMethod$$, default: `$$<none>$$`, possible values: `GET`,`HEAD`,`POST`,`PUT`,`PATCH`,`DELETE`,`OPTIONS`,`TRACE`)*
+$$httpclient.reply-expression$$:: $$A SpEL expression used to compute the final result, applied against the whole http response.$$ *($$Expression$$, default: `$$body$$`)*
 $$httpclient.url$$:: $$The URL to issue an http request to, as a static value.$$ *($$String$$, default: `$$<none>$$`)*
 $$httpclient.url-expression$$:: $$A SpEL expression against incoming message to determine the URL to use.$$ *($$Expression$$, default: `$$<none>$$`)*
 $$wrapper.content-type$$:: $$Sets the Content type header for the outgoing Message.$$ *($$MediaType$$, default: `$$<none>$$`)*
