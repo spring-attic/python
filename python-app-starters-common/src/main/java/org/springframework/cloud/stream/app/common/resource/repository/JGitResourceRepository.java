@@ -538,8 +538,17 @@ public class JGitResourceRepository implements InitializingBean {
 				dir = Files.createTempDirectory(prefix).toFile();
 			}
 			else {
-				getBasedir().mkdirs();
-				dir = Files.createTempDirectory(Paths.get(getBasedir().toURI()), prefix).toFile();
+				/*
+				 * If provided base dir is an existing directory than put the repo in a temporary directory that will
+				 * be deleted, otherwise use the provided directory.
+				 */
+				if (getBasedir().exists()) {
+
+					dir = Files.createTempDirectory(Paths.get(getBasedir().toURI()), prefix).toFile();
+				} else {
+					dir = getBasedir();
+					dir.mkdirs();
+				}
 			}
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
