@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  *   limitations under the License.
  */
 package org.springframework.cloud.stream.app.common.resource.repository;
+
+import static org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.TRACK;
+import static org.springframework.util.StringUtils.hasText;
 
 import com.jcraft.jsch.Session;
 import org.apache.commons.logging.Log;
@@ -51,12 +54,10 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.TRACK;
-import static org.springframework.util.StringUtils.hasText;
 
 /**
  * A Resource provider backed by a single git repository.
@@ -67,6 +68,7 @@ import static org.springframework.util.StringUtils.hasText;
  * @author Daniel Lavoie
  * @author Ryan Lynch
  * @author David Turanski
+ * @author Chris Schaefer
  */
 @ConfigurationProperties("git")
 public class JGitResourceRepository implements InitializingBean {
@@ -156,6 +158,7 @@ public class JGitResourceRepository implements InitializingBean {
 	}
 
 	public void setBasedir(File basedir) {
+
 		this.basedir = basedir.getAbsoluteFile();
 	}
 
@@ -237,6 +240,9 @@ public class JGitResourceRepository implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		if (initialized) {
+			return;
+		}
 		Assert.state(getUri() != null, "You need to configure a uri for the git repository");
 		initialize();
 		if (this.cloneOnStart) {
@@ -309,7 +315,7 @@ public class JGitResourceRepository implements InitializingBean {
 	 */
 	private void initClonedRepository() throws GitAPIException, IOException {
 		if (!getUri().startsWith(FILE_URI_PREFIX)) {
-			deleteBaseDirIfExists();
+			deleteLocalRepoIfExists();
 			Git git = cloneToBasedir();
 			if (git != null) {
 				git.close();
@@ -356,7 +362,7 @@ public class JGitResourceRepository implements InitializingBean {
 	@SuppressWarnings("unchecked")
 	private void logDirty(Status status) {
 		Set<String> dirties = dirties(status.getAdded(), status.getChanged(), status.getRemoved(), status.getMissing(),
-				status.getModified(), status.getConflicting(), status.getUntracked());
+			status.getModified(), status.getConflicting(), status.getUntracked());
 		this.logger.warn(String.format("Dirty files found: %s", dirties));
 	}
 
@@ -384,13 +390,13 @@ public class JGitResourceRepository implements InitializingBean {
 			FetchResult result = fetch.call();
 			if (result.getTrackingRefUpdates() != null && result.getTrackingRefUpdates().size() > 0) {
 				logger.info("Fetched for remote " + branch + " and found " + result.getTrackingRefUpdates().size()
-						+ " updates");
+					+ " updates");
 			}
 			return result;
 		}
 		catch (Exception ex) {
 			String message = "Could not fetch remote for " + branch + " remote: " + git.getRepository().getConfig()
-					.getString("remote", "origin", "url");
+				.getString("remote", "origin", "url");
 			warn(message, ex);
 			return null;
 		}
@@ -408,7 +414,7 @@ public class JGitResourceRepository implements InitializingBean {
 		}
 		catch (Exception ex) {
 			String message = "Could not merge remote for " + branch + " remote: " + git.getRepository().getConfig()
-					.getString("remote", "origin", "url");
+				.getString("remote", "origin", "url");
 			warn(message, ex);
 			return null;
 		}
@@ -426,8 +432,9 @@ public class JGitResourceRepository implements InitializingBean {
 			return resetRef;
 		}
 		catch (Exception ex) {
-			String message = "Could not reset to remote for " + branch + " (current ref=" + ref + "), remote: " + git
-					.getRepository().getConfig().getString("remote", "origin", "url");
+			String message =
+				"Could not reset to remote for " + branch + " (current ref=" + ref + "), remote: " + git.getRepository()
+					.getConfig().getString("remote", "origin", "url");
 			warn(message, ex);
 			return null;
 		}
@@ -446,7 +453,7 @@ public class JGitResourceRepository implements InitializingBean {
 	// together (this is a once only operation, so it only holds things up on the first
 	// request).
 	private synchronized Git copyRepository() throws IOException, GitAPIException {
-		deleteBaseDirIfExists();
+		deleteLocalRepoIfExists();
 		getBasedir().mkdirs();
 		Assert.state(getBasedir().exists(), "Could not create basedir: " + getBasedir());
 		if (getUri().startsWith(FILE_URI_PREFIX)) {
@@ -489,19 +496,19 @@ public class JGitResourceRepository implements InitializingBean {
 
 	private Git cloneToBasedir() throws GitAPIException {
 		CloneCommand clone = this.gitFactory.getCloneCommandByCloneRepository().setURI(getUri())
-				.setDirectory(getBasedir());
+			.setDirectory(this.basedir);
 		setTimeout(clone);
 		setCredentialsProvider(clone);
 		try {
 			return clone.call();
 		}
 		catch (GitAPIException e) {
-			deleteBaseDirIfExists();
+			deleteLocalRepoIfExists();
 			throw e;
 		}
 	}
 
-	private void deleteBaseDirIfExists() {
+	private void deleteLocalRepoIfExists() {
 		if (this.basedir.exists()) {
 			try {
 				FileUtils.delete(getBasedir(), FileUtils.RECURSIVE);
@@ -514,7 +521,9 @@ public class JGitResourceRepository implements InitializingBean {
 
 	private void initialize() {
 		if (!this.initialized) {
-			this.basedir = createBaseDir();
+
+			this.basedir = createTempBasedir();
+
 			SshSessionFactory.setInstance(new JschConfigSessionFactory() {
 				@Override
 				protected void configure(Host hc, Session session) {
@@ -525,9 +534,25 @@ public class JGitResourceRepository implements InitializingBean {
 		}
 	}
 
-	private File createBaseDir() {
+	private File createTempBasedir() {
 		try {
-			final File dir = Files.createTempDirectory(prefix).toFile();
+			final File dir;
+			if (StringUtils.isEmpty(getBasedir())) {
+				dir = Files.createTempDirectory(prefix).toFile();
+			}
+			else {
+				/*
+				 * If provided base dir is an existing directory than put the repo in a temporary directory that will
+				 * be deleted, otherwise use the provided directory.
+				 */
+				if (getBasedir().exists()) {
+
+					dir = Files.createTempDirectory(Paths.get(getBasedir().toURI()), prefix).toFile();
+				} else {
+					dir = getBasedir();
+					dir.mkdirs();
+				}
+			}
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
 				public void run() {
@@ -572,8 +597,8 @@ public class JGitResourceRepository implements InitializingBean {
 		}
 		catch (Exception e) {
 			String message =
-					"Could not execute status command on local repository. Cause: (" + e.getClass().getSimpleName()
-							+ ") " + e.getMessage();
+				"Could not execute status command on local repository. Cause: (" + e.getClass().getSimpleName() + ") "
+					+ e.getMessage();
 			warn(message, e);
 			return false;
 		}

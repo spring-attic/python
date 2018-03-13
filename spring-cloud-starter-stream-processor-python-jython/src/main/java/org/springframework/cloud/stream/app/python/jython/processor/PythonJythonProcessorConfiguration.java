@@ -29,7 +29,6 @@ import org.springframework.cloud.stream.app.python.script.ScriptResourceUtils;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.scripting.ScriptVariableGenerator;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -60,7 +59,6 @@ public class PythonJythonProcessorConfiguration {
 	}
 
 	@Bean
-	@Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
 	public JythonScriptExecutor jythonScriptExecutor(ScriptVariableGenerator scriptVariableGenerator) {
 		if (gitResourceRepository != null) {
 			ScriptResourceUtils.overwriteScriptLocationToGitCloneTarget(gitResourceRepository, properties);
