@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnProperty("git.uri")
 public class GitResourceRepositoryConfiguration {
+
 	@Bean
 	public JGitResourceRepository gitResourceRepository() {
 		return new JGitResourceRepository();

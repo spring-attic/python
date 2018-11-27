@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.stream.app.python.http.processor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
@@ -26,9 +29,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.support.MessageBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author David Turanski

@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.messaging.Processor;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;

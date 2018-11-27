@@ -30,12 +30,13 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import(JythonWrapperConfiguration.class)
 public class PythonHttpProcessorConfiguration {
+
 	@Bean
 	public AggregateApplication pythonProcessorApp() {
 		return new AggregateApplicationBuilder().parent(JythonWrapperConfiguration.class)
-				.from(HttpJythonProcessorInputConfiguration.class).namespace("in")
-				.via(HttpclientProcessorConfiguration.class)
-				.to(HttpJythonProcessorOutputConfiguration.class)
-				.namespace("out").build();
+			.from(HttpJythonProcessorInputConfiguration.class).namespace("in")
+			.via(HttpclientProcessorConfiguration.class).namespace("http")
+			.to(HttpJythonProcessorOutputConfiguration.class)
+			.namespace("out").build();
 	}
 }
