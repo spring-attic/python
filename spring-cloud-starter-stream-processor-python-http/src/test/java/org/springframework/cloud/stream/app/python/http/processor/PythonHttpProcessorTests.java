@@ -24,9 +24,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.stream.aggregate.AggregateApplication;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.context.annotation.Import;
@@ -50,9 +51,9 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 	webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
 	properties = {
 		"httpclient.urlExpression='http://localhost:' + @environment.getProperty('server.port') +'/py'",
-		"httpclient.httpMethod=POST", "wrapper.script=src/test/resources/simple-test.py",
-		"logging.level.org.springframework.integration=DEBUG" })
-@DirtiesContext public class PythonHttpProcessorTests {
+		"httpclient.httpMethod=POST", "wrapper.script=src/test/resources/simple-test.py" })
+@DirtiesContext
+public class PythonHttpProcessorTests {
 
 	/*
 	 * WebEnvironment.RANDOM_PORT doesn't work here because the port value is added to the parent environment after the
@@ -69,31 +70,28 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 	}
 
 	@Autowired
-	MessageCollector messageCollector;
+	private MessageCollector messageCollector;
 
 	@Autowired
-	AggregateApplication aggregateApplication;
+	private Processor processor;
 
 	@Test
-	public void testAggregateApplication() throws InterruptedException {
-		Processor inProcessor = aggregateApplication.getBinding(Processor.class, "in");
-		Processor outProcessor = aggregateApplication.getBinding(Processor.class, "out");
-		inProcessor.input().send(MessageBuilder.withPayload("Hello").build());
-		Message<?> receivedMessage = messageCollector.forChannel(outProcessor.output()).poll(1, TimeUnit.SECONDS);
+	public void testFlow() throws InterruptedException {
+
+		processor.input().send(MessageBuilder.withPayload("Hello").build());
+		Message<?> receivedMessage = messageCollector.forChannel(processor.output()).poll(1, TimeUnit.SECONDS);
 		assertThat(receivedMessage).isNotNull();
 		assertThat(receivedMessage.getPayload()).isEqualTo("PreHelloHttpPost");
 	}
 
-	@SpringBootApplication(exclude = {
-		org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class
-	})
-	@Import(PythonHttpProcessorConfiguration.class)
+	@SpringBootApplication(exclude = { SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class })
+	@Import({ PythonHttpProcessorConfiguration.class})
 	@RestController
 	static class PythonProcessorApp {
-
 		@PostMapping("/py")
 		public String greet(@RequestBody String payload) {
 			return payload + "Http";
 		}
+
 	}
 }

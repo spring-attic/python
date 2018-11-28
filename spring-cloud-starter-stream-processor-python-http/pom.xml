@@ -8,6 +8,10 @@
 	<name>spring-cloud-starter-stream-processor-python-http</name>
 	<description>Spring Cloud Stream python-http processor core</description>
 
+	<properties>
+		<spring.cloud.stream.app.starter.version>2.1.0.BUILD-SNAPSHOT</spring.cloud.stream.app.starter.version>
+	</properties>
+
 	<parent>
 		<groupId>org.springframework.cloud.stream.app</groupId>
 		<artifactId>python-app-starters-build</artifactId>
@@ -19,13 +23,13 @@
 		<dependency>
 			<groupId>org.springframework.cloud.stream.app</groupId>
 			<artifactId>python-app-starters-common</artifactId>
-			<version>2.1.0.BUILD-SNAPSHOT</version>
+			<version>${spring.cloud.stream.app.starter.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.cloud.stream.app</groupId>
 			<artifactId>spring-cloud-starter-stream-processor-httpclient</artifactId>
-			<version>2.0.2.RELEASE</version>
+			<version>${spring.cloud.stream.app.starter.version}</version>
 		</dependency>
 	</dependencies>
 

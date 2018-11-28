@@ -53,15 +53,12 @@ image:jython-processor.gif[JythonProcessor]
 The **$$jython$$** $$processor$$ has the following options:
 
 //tag::configuration-properties[]
-$$git.basedir$$:: $$The base directory where the repository should be cloned. If not specified, a temporary directory will be
- created.$$ *($$File$$, default: `$$<none>$$`)*
-$$git.clone-on-start$$:: $$Flag to indicate that the repository should be cloned on startup (not on demand).
- Generally leads to slower startup but faster first query.$$ *($$Boolean$$, default: `$$true$$`)*
+$$git.basedir$$:: $$The base directory where the repository should be cloned. If not specified, a temporary directory will be created.$$ *($$File$$, default: `$$<none>$$`)*
+$$git.clone-on-start$$:: $$Flag to indicate that the repository should be cloned on startup (not on demand). Generally leads to slower startup but faster first query.$$ *($$Boolean$$, default: `$$true$$`)*
 $$git.label$$:: $$The label or branch to clone.$$ *($$String$$, default: `$$master$$`)*
 $$git.passphrase$$:: $$The passphrase for the remote repository.$$ *($$String$$, default: `$$<none>$$`)*
 $$git.password$$:: $$The password for the remote repository.$$ *($$String$$, default: `$$<none>$$`)*
-$$git.timeout$$:: $$Timeout (in seconds) for obtaining HTTP or SSH connection (if applicable). Default
- 5 seconds.$$ *($$Integer$$, default: `$$5$$`)*
+$$git.timeout$$:: $$Timeout (in seconds) for obtaining HTTP or SSH connection (if applicable). Default 5 seconds.$$ *($$Integer$$, default: `$$5$$`)*
 $$git.uri$$:: $$The URI of the remote repository.$$ *($$String$$, default: `$$<none>$$`)*
 $$git.username$$:: $$The username for the remote repository.$$ *($$String$$, default: `$$<none>$$`)*
 $$jython.content-type$$:: $$Sets the Content type header for the outgoing Message.$$ *($$MediaType$$, default: `$$<none>$$`)*
