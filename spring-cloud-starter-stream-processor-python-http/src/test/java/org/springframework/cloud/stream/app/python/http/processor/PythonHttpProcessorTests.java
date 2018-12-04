@@ -16,34 +16,29 @@
 
 package org.springframework.cloud.stream.app.python.http.processor;
 
-import org.apache.commons.io.FileUtils;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.stream.aggregate.AggregateApplication;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.SocketUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
@@ -52,9 +47,13 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
  * @author Chris Schaefer
  **/
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = PythonHttpProcessorTests.PythonProcessorApp.class,
+	webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+	properties = {
+		"httpclient.urlExpression='http://localhost:' + @environment.getProperty('server.port') +'/py'",
+		"httpclient.httpMethod=POST", "wrapper.script=src/test/resources/simple-test.py" })
 @DirtiesContext
-public abstract class PythonHttpProcessorTests {
+public class PythonHttpProcessorTests {
 
 	/*
 	 * WebEnvironment.RANDOM_PORT doesn't work here because the port value is added to the parent environment after the
@@ -71,83 +70,27 @@ public abstract class PythonHttpProcessorTests {
 	}
 
 	@Autowired
-	MessageCollector messageCollector;
+	private MessageCollector messageCollector;
 
 	@Autowired
-	AggregateApplication aggregateApplication;
+	private Processor processor;
 
-	@TestPropertySource(properties = {
-			"httpclient.urlExpression='http://localhost:' + @environment.getProperty('server.port') +'/py'",
-			"httpclient.httpMethod=POST", "wrapper.script=src/test/resources/simple-test.py" })
-	public static class SimpleWrapperTest extends PythonHttpProcessorTests {
-		@BeforeClass
-		public static void setUp() {
-			PythonHttpProcessorTests.setUp();
-		}
+	@Test
+	public void testFlow() throws InterruptedException {
 
-		@Test
-		public void testAggregateApplication() throws InterruptedException {
-			Processor inProcessor = aggregateApplication.getBinding(Processor.class, "in");
-			Processor outProcessor = aggregateApplication.getBinding(Processor.class, "out");
-			inProcessor.input().send(MessageBuilder.withPayload("Hello").build());
-			Message<?> receivedMessage = messageCollector.forChannel(outProcessor.output()).poll(1, TimeUnit.SECONDS);
-			assertThat(receivedMessage).isNotNull();
-			assertThat(receivedMessage.getPayload()).isEqualTo("PreHelloHttpPost");
-		}
-
-		@AfterClass
-		public static void tearDown() {
-			PythonHttpProcessorTests.tearDown();
-		}
-
+		processor.input().send(MessageBuilder.withPayload("Hello").build());
+		Message<?> receivedMessage = messageCollector.forChannel(processor.output()).poll(1, TimeUnit.SECONDS);
+		assertThat(receivedMessage).isNotNull();
+		assertThat(receivedMessage.getPayload()).isEqualTo("PreHelloHttpPost");
 	}
 
-	@TestPropertySource(properties = { "httpclient.url=http://sentiment-compute.cfapps.pez.pivotal.io/polarity_compute",
-			"httpclient.httpMethod=POST", "httpclient.headersExpression={'Content-Type' : 'application/json'}",
-			"git.uri=https://github.com/dturanski/python-apps",
-			"wrapper.script=test-wrappers/get-tweet-sentiments-for-http.py" })
-	@Ignore
-	public static class SentimentAnalysisWrapperTest extends PythonHttpProcessorTests {
-		@BeforeClass
-		public static void setUp() {
-			PythonHttpProcessorTests.setUp();
-		}
-
-		@Test
-		public void testAggregateApplication() throws InterruptedException, IOException {
-			File tweets = new File("/Users/dturanski/python-dev/python-apps/test-wrappers/list-of-tweets.txt");
-			String data = FileUtils.readFileToString(tweets, Charset.forName("UTF-8"));
-
-			Processor inProcessor = aggregateApplication.getBinding(Processor.class, "in");
-			Processor outProcessor = aggregateApplication.getBinding(Processor.class, "out");
-
-			inProcessor.input().send(MessageBuilder.withPayload(data).build());
-			Message<?> receivedMessage = messageCollector.forChannel(outProcessor.output()).poll(1, TimeUnit.SECONDS);
-			assertThat(receivedMessage).isNotNull();
-			System.out.println(receivedMessage.getPayload());
-		}
-
-		@AfterClass
-		public static void tearDown() {
-			PythonHttpProcessorTests.tearDown();
-		}
-
-	}
-
-	@SpringBootApplication
-	@EnableAutoConfiguration(exclude = {
-			org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class
-	})
-	@Import(PythonHttpProcessorConfiguration.class)
+	@SpringBootApplication(exclude = { SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class })
+	@Import({ PythonHttpProcessorConfiguration.class})
+	@RestController
 	static class PythonProcessorApp {
-
-		@RestController
-		public static class AdditionalController {
-
-			@PostMapping("/py")
-			public String greet(@RequestBody String payload) {
-				return payload + "Http";
-			}
+		@PostMapping("/py")
+		public String greet(@RequestBody String payload) {
+			return payload + "Http";
 		}
 
 	}

@@ -33,6 +33,7 @@ import org.eclipse.jgit.api.errors.NotMergedException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.CredentialItem;
@@ -311,9 +312,7 @@ public class JGitResourceRepositoryTests {
 		when(git.merge()).thenReturn(mergeCommand);
 		when(mergeCommand.call()).thenThrow(new NotMergedException()); //here is our exception we are testing
 
-		//refresh()->return git.getRepository().getRef("HEAD").getObjectId().getName();
-		Ref headRef = mock(Ref.class);
-		when(repository.findRef(anyString())).thenReturn(headRef);
+		Ref headRef = mockRef(repository);
 
 		ObjectId newObjectId = ObjectId.fromRaw(new int[]{1,2,3,4,5});
 		when(headRef.getObjectId()).thenReturn(newObjectId);
@@ -380,8 +379,10 @@ public class JGitResourceRepositoryTests {
 		when(mergeCommand.call()).thenThrow(new NotMergedException()); //here is our exception we are testing
 
 		//refresh()->return git.getRepository().getRef("HEAD").getObjectId().getName();
+		RefDatabase database = mock(RefDatabase.class);
+		when(repository.getRefDatabase()).thenReturn(database);
 		Ref headRef = mock(Ref.class);
-		when(repository.findRef(anyString())).thenReturn(headRef);
+		when(database.getRef(anyString())).thenReturn(headRef);
 
 		ObjectId newObjectId = ObjectId.fromRaw(new int[]{1,2,3,4,5});
 		when(headRef.getObjectId()).thenReturn(newObjectId);
@@ -456,8 +457,7 @@ public class JGitResourceRepositoryTests {
 		when(resetCommand.call()).thenReturn(ref);
 
 		//refresh()->return git.getRepository().getRef("HEAD").getObjectId().getName();
-		Ref headRef = mock(Ref.class);
-		when(repository.findRef(anyString())).thenReturn(headRef);
+		Ref headRef = mockRef(repository);
 
 		ObjectId newObjectId = ObjectId.fromRaw(new int[] { 1, 2, 3, 4, 5 });
 		when(headRef.getObjectId()).thenReturn(newObjectId);
@@ -691,6 +691,15 @@ public class JGitResourceRepositoryTests {
 
 		int numberOfInvocations = mockingDetails(mockLogger).getInvocations().size();
 		assertEquals("should call isDebugEnabled warn and debug", 3, numberOfInvocations);
+	}
+
+	private Ref mockRef(Repository repository) throws Exception {
+		//refresh()->return git.getRepository().getRef("HEAD").getObjectId().getName();
+		RefDatabase database = mock(RefDatabase.class);
+		when(repository.getRefDatabase()).thenReturn(database);
+		Ref headRef = mock(Ref.class);
+		when(database.getRef(anyString())).thenReturn(headRef);
+		return headRef;
 	}
 
 	class MockCloneCommand extends CloneCommand {

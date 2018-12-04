@@ -16,11 +16,16 @@
 
 package org.springframework.cloud.stream.app.python.jython.processor;
 
+import java.io.File;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository;
 import org.springframework.cloud.stream.messaging.Processor;
@@ -30,16 +35,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.File;
-import java.util.concurrent.TimeUnit;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -59,31 +60,35 @@ public abstract class JythonProcessorTests {
 
 	@TestPropertySource(properties = { "jython.script=./src/test/resources/wrapper/simple_wrapper.py" })
 	public static class TestSimpleFile extends JythonProcessorTests {
+
 		@Test
 		public void test() throws InterruptedException {
 			Message<String> message = new GenericMessage<>("hello world");
 			processor.input().send(message);
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
-					.poll(1, TimeUnit.SECONDS);
+				.poll(1, TimeUnit.SECONDS);
 			assertThat(received.getPayload()).isEqualTo("HELLO WORLD");
 		}
 	}
 
 	@TestPropertySource(properties = { "jython.script=src/test/resources/wrapper/map_sentiments.py",
-			"jython.variables=positive=0.6,neutral=0.4", "jython.delimiter=COMMA" })
+		"jython.variables=positive=0.6,neutral=0.4", "jython.delimiter=COMMA" })
 	public static class TestWithVariables extends JythonProcessorTests {
+
 		@Test
 		public void test() throws InterruptedException {
 			Message<Double> message = new GenericMessage<>(0.394);
 			processor.input().send(message);
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
-					.poll(1, TimeUnit.SECONDS);
+				.poll(1, TimeUnit.SECONDS);
 			assertThat(received.getPayload()).isEqualTo("{\"sentiment\": \"Negative\"}");
 		}
 	}
 
 	@TestPropertySource(properties = { "jython.script=test-wrappers/upper.py", "git.uri=https://example.com" })
+	@ActiveProfiles("test")
 	public static class TestGit extends JythonProcessorTests {
+
 		@Autowired
 		JGitResourceRepository resourceRepository;
 
@@ -92,9 +97,8 @@ public abstract class JythonProcessorTests {
 			Message<String> message = new GenericMessage<>("hello world");
 			processor.input().send(message);
 			Message<String> received = (Message<String>) messageCollector.forChannel(processor.output())
-					.poll(1, TimeUnit.SECONDS);
+				.poll(1, TimeUnit.SECONDS);
 			assertThat(received.getPayload()).isEqualTo("HELLO WORLD");
-			verify(resourceRepository,atLeast(1)).setUri("https://example.com");
 		}
 	}
 
@@ -103,8 +107,19 @@ public abstract class JythonProcessorTests {
 	public static class PythonApplication {
 
 		@Bean
-		@ConditionalOnProperty("git.uri")
-		public JGitResourceRepository gitResourceRepository() {
+		public BeanPostProcessor beanPostProcessor() {
+			return new BeanPostProcessor() {
+				@Override
+				public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+					if (bean instanceof JGitResourceRepository) {
+						return mockGitResourceRepository();
+					}
+					return bean;
+				}
+			};
+		}
+
+		private JGitResourceRepository mockGitResourceRepository() {
 			JGitResourceRepository resourceRepository = mock(JGitResourceRepository.class);
 			when(resourceRepository.getBasedir()).thenReturn(new File("src/test/resources"));
 			return resourceRepository;
