@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.app.httpclient.processor.HttpclientProcessorFunction;
 import org.springframework.cloud.stream.app.httpclient.processor.HttpclientProcessorFunctionConfiguration;
 import org.springframework.cloud.stream.app.python.jython.JythonScriptExecutor;
 import org.springframework.cloud.stream.app.python.wrapper.JythonWrapperConfiguration;
@@ -49,8 +49,7 @@ public class PythonHttpProcessorConfiguration {
 	@Bean
 	IntegrationFlow pythonHttpFlow(Processor processor,
 		Function<Message<?>, Message<?>> preProcess,
-		@Qualifier(HttpclientProcessorFunctionConfiguration.HTTPCLIENT_PROCESSOR_FUNCTION_NAME)
-			Function<Message<?>, Object> httpRequest,
+		HttpclientProcessorFunction httpRequest,
 		Function<Message<?>, Message<?>> postProcess) {
 		return IntegrationFlows.from(processor.input())
 			.transform(Message.class, preProcess::apply)

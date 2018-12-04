@@ -16,31 +16,27 @@
 		<relativePath/>
 	</parent>
 
-	<properties>
-		<spring-cloud-starter-stream.version>2.1.0.BUILD-SNAPSHOT</spring-cloud-starter-stream.version>
-	</properties>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.cloud.stream.app</groupId>
 				<artifactId>spring-cloud-starter-stream-processor-python-http</artifactId>
-				<version>${spring-cloud-starter-stream.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud.stream.app</groupId>
 				<artifactId>spring-cloud-starter-stream-processor-httpclient</artifactId>
-				<version>${spring-cloud-starter-stream.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud.stream.app</groupId>
 				<artifactId>spring-cloud-starter-stream-processor-python-jython</artifactId>
-				<version>${spring-cloud-starter-stream.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud.stream.app</groupId>
 				<artifactId>python-app-starters-common</artifactId>
-				<version>${spring-cloud-starter-stream.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
