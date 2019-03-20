@@ -130,11 +130,11 @@ See https://github.com/spring-cloud-stream-app-starters/httpclient[httpclient pr
 
 [source, bash]
 ----
-$java -jar python-http-processor.jar --wrapper.script=/local/directory/build-json.py --httpclient.url=http://someurl
+$java -jar python-http-processor.jar --wrapper.script=/local/directory/build-json.py --httpclient.url=https://someurl
 --httpclient.http-method=POST --httpclient.headers-expression="{'Content-Type':'application/json'}"
 
 $java -jar python-http-processor.jar --git.uri=https://github.com/some-repo --wrapper.script=some-script.py --wrapper
-.variables=foo=0.45,bar=0.55 --httpclient.url=http://someurl
+.variables=foo=0.45,bar=0.55 --httpclient.url=https://someurl
 ----
 
 //end::ref-doc[]
