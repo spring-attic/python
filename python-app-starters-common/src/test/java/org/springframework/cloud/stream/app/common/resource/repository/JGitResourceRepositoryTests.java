@@ -160,7 +160,7 @@ public class JGitResourceRepositoryTests {
 
 		JGitResourceRepository resourceRepository = new JGitResourceRepository();
 		resourceRepository.setGitFactory(new MockGitFactory(mockGit, mockCloneCommand));
-		resourceRepository.setUri("http://somegitserver/somegitrepo");
+		resourceRepository.setUri("https://somegitserver/somegitrepo");
 		resourceRepository.setCloneOnStart(true);
 		resourceRepository.afterPropertiesSet();
 		verify(mockCloneCommand, times(1)).call();
@@ -177,7 +177,7 @@ public class JGitResourceRepositoryTests {
 		JGitResourceRepository resourceRepository = new JGitResourceRepository();
 		resourceRepository.setCloneOnStart(false);
 		resourceRepository.setGitFactory(new MockGitFactory(mockGit, mockCloneCommand));
-		resourceRepository.setUri("http://somegitserver/somegitrepo");
+		resourceRepository.setUri("https://somegitserver/somegitrepo");
 		resourceRepository.afterPropertiesSet();
 		verify(mockCloneCommand, times(0)).call();
 		verify(mockGit, times(0)).fetch();
@@ -212,7 +212,7 @@ public class JGitResourceRepositoryTests {
 		when(git.status()).thenReturn(statusCommand);
 		when(git.getRepository()).thenReturn(repository);
 		when(repository.getConfig()).thenReturn(storedConfig);
-		when(storedConfig.getString("remote", "origin", "url")).thenReturn("http://example/git");
+		when(storedConfig.getString("remote", "origin", "url")).thenReturn("https://example/git");
 		when(statusCommand.call()).thenReturn(status);
 		when(status.isClean()).thenReturn(false);
 
@@ -235,7 +235,7 @@ public class JGitResourceRepositoryTests {
 		when(git.status()).thenReturn(statusCommand);
 		when(git.getRepository()).thenReturn(repository);
 		when(repository.getConfig()).thenReturn(storedConfig);
-		when(storedConfig.getString("remote", "origin", "url")).thenReturn("http://example/git");
+		when(storedConfig.getString("remote", "origin", "url")).thenReturn("https://example/git");
 		when(statusCommand.call()).thenReturn(status);
 		when(status.isClean()).thenReturn(false);
 
@@ -257,7 +257,7 @@ public class JGitResourceRepositoryTests {
 		when(git.status()).thenReturn(statusCommand);
 		when(git.getRepository()).thenReturn(repository);
 		when(repository.getConfig()).thenReturn(storedConfig);
-		when(storedConfig.getString("remote", "origin", "url")).thenReturn("http://example/git");
+		when(storedConfig.getString("remote", "origin", "url")).thenReturn("https://example/git");
 		when(statusCommand.call()).thenReturn(status);
 		when(status.isClean()).thenReturn(true);
 
@@ -285,7 +285,7 @@ public class JGitResourceRepositoryTests {
 		when(git.getRepository()).thenReturn(repository);
 		StoredConfig storedConfig = mock(StoredConfig.class);
 		when(repository.getConfig()).thenReturn(storedConfig);
-		when(storedConfig.getString("remote", "origin", "url")).thenReturn("http://example/git");
+		when(storedConfig.getString("remote", "origin", "url")).thenReturn("https://example/git");
 		when(statusCommand.call()).thenReturn(status);
 		when(status.isClean()).thenReturn(true);
 
@@ -318,7 +318,7 @@ public class JGitResourceRepositoryTests {
 		when(headRef.getObjectId()).thenReturn(newObjectId);
 
 		this.repository.setGitFactory(factory);
-		this.repository.setUri("http://example/git");
+		this.repository.setUri("https://example/git");
 		this.repository.setCloneOnStart(false);
 		this.repository.afterPropertiesSet();
 
@@ -349,7 +349,7 @@ public class JGitResourceRepositoryTests {
 		when(git.getRepository()).thenReturn(repository);
 		StoredConfig storedConfig = mock(StoredConfig.class);
 		when(repository.getConfig()).thenReturn(storedConfig);
-		when(storedConfig.getString("remote", "origin", "url")).thenReturn("http://example/git");
+		when(storedConfig.getString("remote", "origin", "url")).thenReturn("https://example/git");
 		when(statusCommand.call()).thenReturn(status);
 		when(status.isClean()).thenReturn(true);
 
@@ -388,7 +388,7 @@ public class JGitResourceRepositoryTests {
 		when(headRef.getObjectId()).thenReturn(newObjectId);
 
 		this.repository.setGitFactory(factory);
-		this.repository.setUri("http://example/git");
+		this.repository.setUri("https://example/git");
 		this.repository.setCloneOnStart(false);
 		this.repository.afterPropertiesSet();
 
@@ -422,7 +422,7 @@ public class JGitResourceRepositoryTests {
 		when(git.getRepository()).thenReturn(repository);
 		StoredConfig storedConfig = mock(StoredConfig.class);
 		when(repository.getConfig()).thenReturn(storedConfig);
-		when(storedConfig.getString("remote", "origin", "url")).thenReturn("http://example/git");
+		when(storedConfig.getString("remote", "origin", "url")).thenReturn("https://example/git");
 		when(statusCommand.call()).thenReturn(status);
 		when(status.isClean()).thenReturn(true).thenReturn(false);
 
@@ -463,7 +463,7 @@ public class JGitResourceRepositoryTests {
 		when(headRef.getObjectId()).thenReturn(newObjectId);
 
 		this.repository.setGitFactory(factory);
-		this.repository.setUri("http://example/git");
+		this.repository.setUri("https://example/git");
 		this.repository.setCloneOnStart(false);
 		this.repository.afterPropertiesSet();
 
@@ -488,7 +488,7 @@ public class JGitResourceRepositoryTests {
 
 		JGitResourceRepository resourceRepository = new JGitResourceRepository();
 		resourceRepository.setGitFactory(new MockGitFactory(mockGit, mockCloneCommand));
-		resourceRepository.setUri("http://somegitserver/somegitrepo");
+		resourceRepository.setUri("https://somegitserver/somegitrepo");
 		resourceRepository.setBasedir(this.basedir);
 		resourceRepository.setCloneOnStart(false);
 		resourceRepository.afterPropertiesSet();

@@ -6,7 +6,7 @@ This application executes a Jython script that binds `payload` and `headers` var
 and headers respectively. In addition you may provide a `jython.variables` property containing a (comma delimited by
 default)  delimited string, e.g., `var1=val1,var2=val2,...`.
 
-This processor uses a JSR-223 compliant embedded ScriptEngine provided by http://www.jython.org/.
+This processor uses a JSR-223 compliant embedded ScriptEngine provided by https://www.jython.org/.
 
 [NOTE]
 ====
