@@ -31,10 +31,10 @@ public class Page {
 
 	public Page() {
 		try {
-			links.put("google", new URI("http://www.google.com"));
-			links.put("yahoo", new URI("http://www.yahoo.com"));
-			links.put("pivotal", new URI("http://www.pivotal.io"));
-			links.put("spring", new URI("http://www.spring.io"));
+			links.put("google", new URI("https://www.google.com"));
+			links.put("yahoo", new URI("https://www.yahoo.com"));
+			links.put("pivotal", new URI("https://www.pivotal.io"));
+			links.put("spring", new URI("https://www.spring.io"));
 
 			images.put("image1", "image1.gif");
 			images.put("image2", "image2.gif");
