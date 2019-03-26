@@ -101,7 +101,7 @@ public abstract class PythonHttpProcessorTests {
 
 	}
 
-	@TestPropertySource(properties = { "httpclient.url=http://sentiment-compute.cfapps.pez.pivotal.io/polarity_compute",
+	@TestPropertySource(properties = { "httpclient.url=https://sentiment-compute.cfapps.pez.pivotal.io/polarity_compute",
 			"httpclient.httpMethod=POST", "httpclient.headersExpression={'Content-Type' : 'application/json'}",
 			"git.uri=https://github.com/dturanski/python-apps",
 			"wrapper.script=test-wrappers/get-tweet-sentiments-for-http.py" })
