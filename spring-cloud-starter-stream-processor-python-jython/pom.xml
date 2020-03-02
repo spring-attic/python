@@ -48,6 +48,11 @@
 					<generatedApps>
 						<python-jython-processor/>
 					</generatedApps>
+					<enableContainerImageMetadata>true</enableContainerImageMetadata>
+					<metadataSourceTypeFilters>
+						<filter>org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository</filter>
+						<filter>org.springframework.cloud.stream.app.python.jython.JythonScriptProperties</filter>
+					</metadataSourceTypeFilters>
 				</configuration>
 			</plugin>
 		</plugins>
