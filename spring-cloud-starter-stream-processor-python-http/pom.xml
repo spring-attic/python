@@ -55,11 +55,6 @@
 						<python-http-processor/>
 					</generatedApps>
 					<enableContainerImageMetadata>true</enableContainerImageMetadata>
-					<metadataSourceTypeFilters>
-						<filter>org.springframework.cloud.stream.app.common.resource.repository.JGitResourceRepository</filter>
-						<filter>org.springframework.cloud.stream.app.python.wrapper.JythonWrapperProperties</filter>
-						<filter>org.springframework.cloud.stream.app.httpclient.processor.HttpclientProcessorProperties</filter>
-					</metadataSourceTypeFilters>
 				</configuration>
 			</plugin>
 		</plugins>
