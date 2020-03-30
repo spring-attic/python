@@ -16,6 +16,10 @@
 		<relativePath/>
 	</parent>
 
+	<properties>
+		<httpclient-procesor.version>2.1.3.RELEASE</httpclient-procesor.version>
+	</properties>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -26,7 +30,7 @@
 			<dependency>
 				<groupId>org.springframework.cloud.stream.app</groupId>
 				<artifactId>spring-cloud-starter-stream-processor-httpclient</artifactId>
-				<version>${project.version}</version>
+				<version>${httpclient-procesor.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud.stream.app</groupId>
